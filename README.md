@@ -1,0 +1,1 @@
+This is a Experimentation on 500 Orders and 520 Menu Items with comphrehensice Menu Descriptions and uses https://docs.llamaindex.ai/en/stable/examples/cookbooks/GraphRAG_v2/ as Reference and In this Case it relies on Custom Structred Data 
