@@ -26,7 +26,7 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
     can then be used to provide much richer answers to complex food-related queries.
     """
     
-    def __init__(self, llm=None, max_cluster_size=10):
+    def __init__(self, llm=None, max_cluster_size=64,min_cluster_size=10):
         """
         Initialize the custom GraphRAG store with community detection capabilities.
         
@@ -47,7 +47,7 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
         
         # Configuration for community detection algorithm
         self.max_cluster_size = max_cluster_size
-        
+        self.min_cluster_size=min_cluster_size
         # Use provided LLM or fall back to global settings
         self.llm = llm if llm is not None else Settings.llm
         
@@ -170,6 +170,14 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
         entity_communities, community_relationships = self._organize_community_data(
             nx_graph, community_clusters
         )
+        # NEW: Filter communities based on size criteria
+        print("🔍 Filtering communities by size criteria...")
+        filtered_communities = self._filter_communities_by_size(
+            entity_communities, community_relationships
+        )
+        entity_communities, community_relationships = filtered_communities
+
+        print(f"✓ Retained {len(community_relationships)} communities after size filtering")
         
         # Store entity community memberships for quick lookup during queries
         self.entity_communities = entity_communities
@@ -282,6 +290,65 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
         }
         
         return entity_communities, community_relationships
+    
+    ###
+    def _filter_communities_by_size(self, entity_communities, community_relationships):
+        """
+        Filter communities to keep only those within our desired size range.
+        
+        This method removes communities that are too small to provide meaningful
+        insights or too large to maintain thematic coherence. It's like curating
+        a collection - we want groups that are substantial enough to be useful
+        but focused enough to be comprehensible.
+        
+        Args:
+            entity_communities: Mapping of entities to their community memberships
+            community_relationships: Mapping of communities to their relationships
+            
+        Returns:
+            Tuple of filtered (entity_communities, community_relationships)
+        """
+        
+        filtered_entity_communities = {}
+        filtered_community_relationships = {}
+        
+        communities_removed_too_small = 0
+        #communities_removed_too_large = 0
+        
+        for community_id, relationships in community_relationships.items():
+            community_size = len(relationships)
+            
+            # Check if community meets our size criteria
+            if community_size < self.min_cluster_size:
+                communities_removed_too_small += 1
+                continue  # Skip this community - too small
+                
+            # if community_size > self.max_cluster_size:
+            #     communities_removed_too_large += 1
+            #     continue  # Skip this community - too large
+                
+            # Community meets criteria - keep it
+            filtered_community_relationships[community_id] = relationships
+        
+        # Update entity mappings to only include entities from retained communities
+        for entity, community_list in entity_communities.items():
+            filtered_list = [cid for cid in community_list 
+                            if cid in filtered_community_relationships]
+            if filtered_list:  # Only keep entities that belong to at least one retained community
+                filtered_entity_communities[entity] = filtered_list
+        
+        # Report filtering statistics
+        total_original = len(community_relationships)
+        total_retained = len(filtered_community_relationships)
+        
+        print(f"  📊 Community filtering results:")
+        print(f"    • Original communities: {total_original}")
+        print(f"    • Retained communities: {total_retained}")
+        print(f"    • Removed (too small < {self.min_cluster_size}): {communities_removed_too_small}")
+       # print(f"    • Removed (too large > {self.max_cluster_size}): {communities_removed_too_large}")
+        
+        return filtered_entity_communities, filtered_community_relationships
+    
     
     def get_community_summaries(self) -> Dict[int, str]:
         """
@@ -589,7 +656,7 @@ class Neo4jGraphRAGAdapter:
     detection for insight generation.
     """
     
-    def __init__(self, neo4j_store, llm=None, max_cluster_size=10):
+    def __init__(self, neo4j_store, llm=None, min_cluster_size=10,max_cluster_size=64):
         """
         Initialize the adapter to work with your Neo4j store.
         
@@ -605,7 +672,8 @@ class Neo4jGraphRAGAdapter:
         # Create our custom GraphRAG store for community analysis
         self.graphrag_store = FoodServiceGraphRAGStore(
             llm=self.llm, 
-            max_cluster_size=max_cluster_size
+            max_cluster_size=max_cluster_size,
+            min_cluster_size=min_cluster_size
         )
         
         # Track synchronization state
@@ -910,7 +978,9 @@ def setup_complete_community_graphrag_system():
      adapter = Neo4jGraphRAGAdapter(
          neo4j_store=neo4j_store,
          llm=llm,
-         max_cluster_size=8  # Adjust based on your data size
+         max_cluster_size=64,
+         min_cluster_size=10
+         # Adjust based on your data size
      )
     
      print("✓ Adapter created")
