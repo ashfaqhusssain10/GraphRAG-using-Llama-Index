@@ -5,7 +5,7 @@ from collections import defaultdict
 from llama_index.core.graph_stores import SimplePropertyGraphStore
 from llama_index.core.llms import ChatMessage
 from llama_index.llms.huggingface import HuggingFaceLLM
-from llama_index.llms.gemini import Gemini
+from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
 import google.generativeai as genai
@@ -1337,16 +1337,16 @@ def setup_complete_community_graphrag_system():
         model_name="sentence-transformers/all-MiniLM-L6-v2",
         cache_folder="./model_cache/embeddings"
     )
-    print("\n1️⃣ Configuring Gemini API...")
+    print("\n1️⃣ Configuring OpenAI API...")
     import os
     # Check if API key is available
-    if not os.getenv("GOOGLE_API_KEY"):
-        print("❌ GOOGLE_API_KEY not found in environment variables")
+    if not os.getenv("OPENAI_API_KEY"):
+        print("❌ OPEN_API_KEY not found in environment variables")
         print("Please get your API key from: https://aistudio.google.com/app/apikey")
         return None, None
     try:
-     llm = Gemini(
-             model="models/gemini-1.5-flash",  # Optimal for GraphRAG tasks
+     llm = OpenAI(
+             model="gpt-4o-mini",  # Optimal for GraphRAG tasks
              temperature=0.1,  # Consistent for entity extraction
              max_tokens=2048   # Sufficient for community analysis
          )
