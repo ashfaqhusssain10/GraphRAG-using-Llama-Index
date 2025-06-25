@@ -33,7 +33,32 @@ from config import (
     get_category_mapping,
     get_cypher_filter
 )
+# ADD THIS AFTER IMPORTS - AROUND LINE 20
+# Global cache to prevent double initialization
+_GRAPHRAG_SYSTEM_CACHE = {
+    'adapter': None,
+    'query_engine': None,
+    'initialized': False
+}
 
+def get_cached_graphrag_system():
+    """Get cached GraphRAG system or initialize once"""
+    global _GRAPHRAG_SYSTEM_CACHE
+    
+    if _GRAPHRAG_SYSTEM_CACHE['initialized']:
+        logger.info("♻️ Using cached GraphRAG system (preventing double analysis)")
+        return _GRAPHRAG_SYSTEM_CACHE['adapter'], _GRAPHRAG_SYSTEM_CACHE['query_engine']
+    
+    logger.info("🔧 Initializing GraphRAG system for first time...")
+    adapter, query_engine = setup_complete_community_graphrag_system()
+    
+    if adapter and query_engine:
+        _GRAPHRAG_SYSTEM_CACHE['adapter'] = adapter
+        _GRAPHRAG_SYSTEM_CACHE['query_engine'] = query_engine
+        _GRAPHRAG_SYSTEM_CACHE['initialized'] = True
+        logger.info("✅ GraphRAG system cached successfully")
+    
+    return adapter, query_engine
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -61,19 +86,19 @@ class GraphRAGTemplateEngine:
         logger.info("GraphRAGTemplateEngine initialized successfully")
     
     def _initialize_graphrag_system(self):
-        """Initialize the existing GraphRAG system from ex1.py"""
+        """Initialize GraphRAG system using global cache"""
         try:
-            logger.info("Initializing GraphRAG system...")
+            logger.info("🔍 Checking for cached GraphRAG system...")
             
-            # Use your existing setup function
-            adapter, query_engine = setup_complete_community_graphrag_system()
+            # FIXED: Use cached system instead of rebuilding
+            adapter, query_engine = get_cached_graphrag_system()
             
             if adapter and query_engine:
                 self.graphrag_adapter = adapter
                 self.graphrag_query_engine = query_engine
-                logger.info("GraphRAG system initialized successfully")
+                logger.info("✅ GraphRAG system ready")
             else:
-                raise Exception("Failed to initialize GraphRAG system")
+                raise Exception("Failed to get GraphRAG system")
                 
         except Exception as e:
             logger.error(f"GraphRAG initialization failed: {e}")
@@ -716,7 +741,11 @@ def create_graphrag_template_engine(template_file: str = None) -> GraphRAGTempla
     """
     return GraphRAGTemplateEngine(template_file)
 
-
+def reset_graphrag_cache():
+    """Reset cache for testing"""
+    global _GRAPHRAG_SYSTEM_CACHE
+    _GRAPHRAG_SYSTEM_CACHE = {'adapter': None, 'query_engine': None, 'initialized': False}
+    logger.info("🔄 GraphRAG cache reset")
 # ============================================================================
 # TESTING
 # ============================================================================
