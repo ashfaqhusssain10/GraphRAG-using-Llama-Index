@@ -1,0 +1,5413 @@
+[
+    {
+        "item_name": "Achari Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 849
+    },
+    {
+        "item_name": "Achari Paneer Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Afghani Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Afghani Chicken Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Alasanda Vada",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 15,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Allam Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Aloo Baingan Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chana Aloo Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Aloo Chips",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Aloo Deep Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Dum Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Aloo Gobi Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Grated Aloo Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Jeera (South Indian Style)",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Jeera (North Indian Style)",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Khurma",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Matar Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Paneer Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 569
+    },
+    {
+        "item_name": "Aloo Papdi Chaat",
+        "category": "Chaats",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Paratha",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Aloo Peanut Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Aloo Samosa",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Aloo Tikki",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Aloo Tamatar Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Almond Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Andhra Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Andhra Kodi Fry (Boneless)",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Andhra Kodi Vepudu",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Andhra Mutton Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1200,
+        "cmp_peak_price": 1600
+    },
+    {
+        "item_name": "Andhra Pepper Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Angoori Gulab Jamun",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Apollo Fish (Chinese Style)",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Apollo Fish Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Apple Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 400,
+        "cmp_peak_price": 700
+    },
+    {
+        "item_name": "Apricot Delight",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Aratikaya Bajji",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 25,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Aratikaya Fry",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Assorted Pastries",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Baby Corn Majestic",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Baby Corn Manchurian",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Bacon",
+        "category": "Sides & Accompaniments",
+        "uom": "Pcs",
+        "cmp_base_price": 99,
+        "cmp_peak_price": 149
+    },
+    {
+        "item_name": "Badam Milk",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Bagara Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Baingan Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Baked Beans",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Baked Gulab Jamun",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 15,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Banana",
+        "category": "Salads",
+        "uom": "Pcs",
+        "cmp_base_price": 10,
+        "cmp_peak_price": 25
+    },
+    {
+        "item_name": "Beerakaya Pachadi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Beerakaya Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Beetroot Galouti Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Beetroot Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 249
+    },
+    {
+        "item_name": "Bhindi Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Bhindi Kaju Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 229,
+        "cmp_peak_price": 389
+    },
+    {
+        "item_name": "Bhindi Masala Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Bhindi Peanut Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Bhature",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "Biscoff Tres Leches Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Bisi Bele Bath",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Black Current Delight",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 59,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Black Forest Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Blue Berry Muffin",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 69,
+        "cmp_peak_price": 149
+    },
+    {
+        "item_name": "Blue Lagoon Mocktail",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Blueberry CupCake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Bobbatlu",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Boiled Egg Fry",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 59
+    },
+    {
+        "item_name": "Boiled Eggs",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 25,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Boiled Masala Peanuts",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Boiled Peanut Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Bombay Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Bombay Masala Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Boneless Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 589,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Boondi Raita",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 279
+    },
+    {
+        "item_name": "Boorelu",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Boost",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Bournvita",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Bread Jam Toast",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Bread Omelette",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Bread Pakora",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Bread Toast",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Baingan Pakora",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Broccoli Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Brown Bread Toast",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Brownie",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Butter Chicken Bites",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Butter Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Butter Cookies",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Chapati",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 15,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Hyderabadi Naan",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Butter Garlic Naan",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Buttermilk",
+        "category": "After Meal",
+        "uom": "Litre",
+        "cmp_base_price": 90,
+        "cmp_peak_price": 180
+    },
+    {
+        "item_name": "Butter Naan",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Butter Phulka",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Butter Roti",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Butterscotch Ice Cream",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Butterscotch Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Butterscotch Pastry",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Cabbage Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Cabbage Pakora",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Caesar Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Caramel Fruit Custard",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Carrot Halwa",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Carrot Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Cashew Ghee Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Cauliflower Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chakara Pongal",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chana Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 449
+    },
+    {
+        "item_name": "Chatka Orange",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Cheese Corn Balls",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Cheese Fries",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Cheese Nuggets",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Chettinad Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 449
+    },
+    {
+        "item_name": "Chicken Alfredo Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken and Mozzarella Sticks",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Chicken Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Cheese Sausage",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 69,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Chicken Changazi",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Croquettes",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Do Pyaza",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Drumsticks",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 90,
+        "cmp_peak_price": 120
+    },
+    {
+        "item_name": "Chicken Drumsticks Chinese Style",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 90,
+        "cmp_peak_price": 120
+    },
+    {
+        "item_name": "Chicken Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Dum Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Dum Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Fried Piece Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Fry Piece Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Galouti Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Chicken Grilled Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Chicken Hakka Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Haryali Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Haryali Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Hot And Sour Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Kolhapuri",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Korma",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Lababdar",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Lollipop",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Chicken Lollipop Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Chicken Macaroni",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Majestic",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Malai Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Malai Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Manchow Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Chicken Manchurian",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Chicken Manchurian Gravy",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken Mughlai Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Nuggets",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Chicken Oil Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Omelette",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 69,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Chicken Pakora",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Pesto Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken Popcorn",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chicken Puff",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Chicken Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken Reshimi Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chicken Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Chicken Sausage",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 69,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Chicken Seekh Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Chicken Shanghai Roll",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Chicken Soft Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken Spaghetti",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Chicken Spring Rolls",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Chicken Tangdi Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 70,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "Chicken Tempura",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chicken Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chicken Tikka Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Chicken Tikka Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chicken Wings Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chicken Wrap",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "Chicken Zafrani Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Chili Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chili Garlic Mushroom",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Chilli Apollo Fish",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 589,
+        "cmp_peak_price": 749
+    },
+    {
+        "item_name": "Chilli Baby Corn",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chilli Chicken Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chilli Chicken Wings",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Chilli Egg",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chilli Fish",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 729,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Chilli Garlic Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Chilli Garlic Fish",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Chilli Garlic Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chilli Mushroom",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Hariyali Paneer Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 689,
+        "cmp_peak_price": 789
+    },
+    {
+        "item_name": "Hariyali Paneer Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 689,
+        "cmp_peak_price": 789
+    },
+    {
+        "item_name": "Hash Brown",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Honey",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Honey Chilli Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Honey Chilli Potato",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Honey Dew Ice Cream",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Honey Garlic Chicken Bites",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Horlicks",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Hot Badam Milk",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Hummus Dip",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Ice Cream",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Jackfruit Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Jaggery Coffee",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Jaggery Tea",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Jalapeno Bites",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Jalapeno Cheese Balls",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Jalapeno Cheese Pops",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Jalapeno Pop Up",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Jam",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Jeera Matar Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Jeera Mix",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Jeera Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Chicken Joojeh Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Junnu",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Kachori",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Kadai Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Kadai Mushroom",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Kadai Paneer",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 489,
+        "cmp_peak_price": 589
+    },
+    {
+        "item_name": "Kadai Veg Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Kadhu Ka Kheer",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Kaju Chicken Pakoda",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Kaju Corn Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 389
+    },
+    {
+        "item_name": "Kaju Ghee Paneer Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Kaju Ghee Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Kaju Ghee Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Kaju Ghee Upma",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Kaju Jeera Ghee Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Kaju Paneer Butter Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Kaju Paneer Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Kaju Paneer Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Kaju Paneer Masala Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Malai Paneer Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Tikka Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chilli Prawns",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Chilli Chicken Lollipop",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Chitti Gare",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Chitti Mutyala Chicken Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Choco Cookies",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Choco Lava",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Choco Peanut Tart",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Choco Syrup",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Choco Truffle Pastry",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Chocolate Brownie",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Chocolate Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Chocolate Chip Cookies",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Chocolate Cup Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Chocolate Ice Cream",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chocolate Milkshake",
+        "category": "Desserts",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Chocolate Muffin",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 69,
+        "cmp_peak_price": 149
+    },
+    {
+        "item_name": "Chocolate Pastries",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Chocolate Square-shaped Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Chole Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Coconut Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Coconut Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 229
+    },
+    {
+        "item_name": "Coffee",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Cold Badam Milk (Thick)",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Cold Coffee",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Cookies",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Coriander Chicken",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Coriander Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Corn Kaju Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 229,
+        "cmp_peak_price": 329
+    },
+    {
+        "item_name": "Corn Peas Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 329
+    },
+    {
+        "item_name": "Corn Samosa",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Corn Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Creamy Corn Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Crispers",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 129,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Crispy Chicken Wings",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Crispy Chilli Baby Corn",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Crispy Corn",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Crispy Prawns",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Cucumber Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 99,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Cupcake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Curd",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Curd Chillies",
+        "category": "Sides & Accompaniments",
+        "uom": "Pcs",
+        "cmp_base_price": 3,
+        "cmp_peak_price": 5
+    },
+    {
+        "item_name": "Curd Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Custard Fruit Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Cut Mirchi Bajji",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Dahi Vada",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 25,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Dahi Bhalla",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 70
+    },
+    {
+        "item_name": "Dal",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dal Makhani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dal Tadka",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Danish Butter Cookies",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Dhokla",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Dondakaya Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dondakaya Peanut Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dondakaya Fry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dosakaya Coconut Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dosakaya Pachadi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Dosakaya Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Double Ka Meetha",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Double Mushroom Risotto",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Dragon Chilli Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Dry Fruit Moong Dal Halwa",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Dry Kala Jamun",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Dry Veg Manchurian",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Dum Aloo Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 449
+    },
+    {
+        "item_name": "Dum Ka Murgh Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Bhurji",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Egg Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Egg Garlic Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Egg Keema Gravy",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Manchurian",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Miriam",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Egg Puff",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Egg Rolls",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Egg Schezwan Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Fish Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Fish Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 749
+    },
+    {
+        "item_name": "Fish Fingers",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 749
+    },
+    {
+        "item_name": "Fish Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 749
+    },
+    {
+        "item_name": "Fish Pakoda",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 749
+    },
+    {
+        "item_name": "French Fries",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "French Omelette",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 70,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "French Toast",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Fresh Fruit Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Fresh Lemon Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Fried Boiled Egg",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Fruit Punch",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Fruit Tart",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Fryums",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 249
+    },
+    {
+        "item_name": "Garlic Bread Toast",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Garlic Chicken Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Garlic Mayonnaise Dip",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Garlic Mutton Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1699
+    },
+    {
+        "item_name": "Garlic Naan",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Garlic Prawn Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Ghee",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 800,
+        "cmp_peak_price": 1400
+    },
+    {
+        "item_name": "Ghee Cashew Pongal",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 369
+    },
+    {
+        "item_name": "Ghee Chapathi",
+        "category": "main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Ghee Kesari Bath",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Ghee Phulka",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Ghee Sambar Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Gobi Manchurian",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Golden Coin",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 29,
+        "cmp_peak_price": 39
+    },
+    {
+        "item_name": "Golden Fried Prawns",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Gongura Boti Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Gongura Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Gongura Dal",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Gongura Mutton Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1200,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Gongura Mutton Ghee Roast",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1499,
+        "cmp_peak_price": 1999
+    },
+    {
+        "item_name": "Gongura Mutton Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Gongura Pachadi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Gongura Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Gongura Phool Makhana Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Gongura Phool Makhana Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Gongura Prawns Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Gongura Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Grape Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Green Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Green Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Green Peas Corn Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 229,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Green Peas Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Green Peas Kofta Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Green Peas Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 229,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Green Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Grilled Chicken",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Grilled Chicken Wings",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Grilled Cottage Cheese",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Grilled Fish",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1099
+    },
+    {
+        "item_name": "Grilled Paneer",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Grilled Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Guava Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Gulab Jamun",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Gummadikaya Halwa",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Gutti Dondakaya Masala Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Gutti Vankaya Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Gutti Vankaya Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Hara Bara Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Hariyali Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Kaju Phool Makhani Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Kaju Veg Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Kala Jamun",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Karivepaku Kodi Vepudu",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Kesari Bath",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 229,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Ketchup",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Khaman Dhokla",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Kodi Vepudu",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Lacha Pyaaz",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 229
+    },
+    {
+        "item_name": "Lasooni Palak",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Lassi",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Layer Chicken Mughlai Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Lemon Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 489,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Lemon Pepper Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 489,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Lemon Pickle",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Majjiga Pulsulu",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Loose Prawns",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Macaroni",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Makka Goodalu & Alshanthalu Mix",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Makka Jonna Garelu",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Malabar Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 549,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Malabar Chicken Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Malai Broccoli",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 549,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Malai Dry Fruit Kulfi",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 59
+    },
+    {
+        "item_name": "Malai Kofta Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 549,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Malai Paneer",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 549,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Manchow Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Manchurian Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Mango Dal",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Mango Ice Cream",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Mango Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mango Pickle",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mango Rabbadi",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Maple Syrup",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 999,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Margherita Pizza",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Margherita Pizza Mini",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 59
+    },
+    {
+        "item_name": "Marinated Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Spiced Paneer Skewers",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Marinated Paneer",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Chilli Paneer",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Masala Cashew",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 800,
+        "cmp_peak_price": 1200
+    },
+    {
+        "item_name": "Masala Chai",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Masala Omelette",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Masala Peanuts",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Masala Vada",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Mashed Potatoes",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Matar Paneer Dum Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mayonnaise Dip",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Medu Vada",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Meetha Paan",
+        "category": "After Meal",
+        "uom": "Pcs",
+        "cmp_base_price": 29,
+        "cmp_peak_price": 39
+    },
+    {
+        "item_name": "Methi Chaman Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Methi Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 469
+    },
+    {
+        "item_name": "Methi Kura Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Milk",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Millet Khichdi",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Millet Laddu",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Millet Pongal",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Millet Upma",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Millet Vada",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Mini Kachori",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Mini Masala Kachori",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 15,
+        "cmp_peak_price": 25
+    },
+    {
+        "item_name": "Mini Pizza",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 59
+    },
+    {
+        "item_name": "Mint Blast Mojito",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mint Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mirchi Bajji",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Mirchi Ka Salan",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Miriyala Rasam",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mixed Fruit Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Mixed Veg Cutlet",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Mixed Veg Kadai",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Mixed Cut Fruits",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mixed Non-veg Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mixed Veg Pakora",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Mixed Veg Paneer Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 569
+    },
+    {
+        "item_name": "Mixed Vegetable Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 269,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mixture",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Modak",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Mojito",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Moong Dal Halwa",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Mudda Pappu Avakaya Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Muffins",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 70,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Mughlai Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mughlai Egg Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Mulakkada Cashew Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Multigrain Bread Toast",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Murg Masallam Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mushroom Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 389,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mushroom Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Mushroom Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Mushroom Omelette",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 45,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Muskmelon Ice Cream Milkshake",
+        "category": "Desserts",
+        "uom": "Litre",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Mustard Dip",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mutton Badam Shorba",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 569
+    },
+    {
+        "item_name": "Mutton Bhuna",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1699
+    },
+    {
+        "item_name": "Mutton Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mutton Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Do Pyaza",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mutton Fry Piece Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mutton Galouti Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 90,
+        "cmp_peak_price": 149
+    },
+    {
+        "item_name": "Mutton Ghee Roast",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Haleem Patty",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Mutton Keema Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mutton Keema Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Kofta Balls",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Liver Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Malai Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Malai Tikka",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Marag Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Mutton Mughlai",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Nihari",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Pakora",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Pulao",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mutton Rara",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Roast",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Rogan Josh Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Mutton Seekh Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 129,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Mutton Shami Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 129,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Mutton Zafrani Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Mysore Bonda",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Nachos",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Nachos Dip",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Nalla Karam Podi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Nalli Gosht Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Natu Kodi Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Natukodi Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 889,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Natukodi Pulao",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Nizami Handi",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 549
+    },
+    {
+        "item_name": "Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Nutella",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Omelette",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 45
+    },
+    {
+        "item_name": "Onion Bonda",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Onion Pakoda",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Onion Rings",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Onion Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Onion Samosa",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Onion-Tomato Raita",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Orange Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Osiri Avakaya Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 349
+    },
+    {
+        "item_name": "Osmania Biscuits",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Over-Hard Fried Egg",
+        "category": "Sides & Accompaniments",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Paan",
+        "category": "After Meal",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Pachi Mirchi Kodi Kebab",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Pachi Pulusu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Palak Dal",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Palak Mango Dal",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Palak Pakoda",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Palak Paneer",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Palak Poori",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Pancakes",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Paneer Bhurji",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Paneer Butter Masala Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Paneer Chatpat Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Paneer Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Paneer Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Paneer Kadai Vegetable Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Paneer Kofta Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Paneer Kulcha",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "Paneer Majestic",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Manchurian",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer 65",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Karivepaku Paneer Vepudu",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Kurkure",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Lababdar",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Makhani Wala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Matar Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Paneer Methi Chaman",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Paneer Puff",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Paneer Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Paneer Tikka Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Papad",
+        "category": "Sides & Accompaniments",
+        "uom": "Pcs",
+        "cmp_base_price": 10,
+        "cmp_peak_price": 20
+    },
+    {
+        "item_name": "Papad Chura",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Papdi Chaat",
+        "category": "Chaats",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Paper Boat",
+        "category": "Beverages",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Pappu Charu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Pappu Charu Annam",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 219,
+        "cmp_peak_price": 329
+    },
+    {
+        "item_name": "Paratha",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Pastry",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Pattar Ka Gosht",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1499,
+        "cmp_peak_price": 1699
+    },
+    {
+        "item_name": "Pav Bhaji",
+        "category": "Chaats",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Peanut Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Peanut Masala Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Peanut Podi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Pepper Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Pepper Mushroom",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Pepper Mutton",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1399,
+        "cmp_peak_price": 1699
+    },
+    {
+        "item_name": "Peri Peri Chicken Wings",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Peri Peri Fries",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Perugu Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Pesara Punugula Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Pesto Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 549
+    },
+    {
+        "item_name": "Pickle",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Pineapple Cheese Skewers",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 80,
+        "cmp_peak_price": 120
+    },
+    {
+        "item_name": "Pineapple Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 350,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Pineapple Kesari",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Pizza Tarts",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Plain Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Plain Naan",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Plum Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Podi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Poha",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Pomegranate Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Pool Makhani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 489,
+        "cmp_peak_price": 789
+    },
+    {
+        "item_name": "Poornam Boorelu",
+        "category": "Sweets",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Poori",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 25,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Pot Curd",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Potato Bites",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Potato Pops",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Potato Skins",
+        "category": "Snacks",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Potato Smilies",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Prawn and Egg Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Prawn Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 489
+    },
+    {
+        "item_name": "Prawn Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 799,
+        "cmp_peak_price": 999
+    },
+    {
+        "item_name": "Prawn Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 489
+    },
+    {
+        "item_name": "Prawn Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Prawn Vepudu",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Prawns Pepper",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Pudina Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Pudina Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Pulihora",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Phulka",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Pumpkin Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 549
+    },
+    {
+        "item_name": "Punjabi Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Qubani Ka Meetha",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Ragi Malt",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Ragi Sangati",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Raita",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 149,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Rajma Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Rajma Masala",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Rasam",
+        "category": "Main Course",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Rasmalai",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Rava Khichdi",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Red Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Red Godumarava Prasadam",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Red Sweet Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Red Velvet Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Rock Salt Prawn Tempura",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 999,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Rose Milk",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Thick Rose Milk",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Roti",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Roti Pachadi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 249,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Royyala Vepudu",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 699,
+        "cmp_peak_price": 899
+    },
+    {
+        "item_name": "Rumali Roti",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Russian Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 449,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Sabudana Kheer",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Sabudana Khichdi",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 449
+    },
+    {
+        "item_name": "Sabudana Vada",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Salted Almonds",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 999,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Salt and Pepper Fried Prawns",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 999,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Salted Chillies",
+        "category": "Sides & Accompaniments",
+        "uom": "Pcs",
+        "cmp_base_price": 3,
+        "cmp_peak_price": 5
+    },
+    {
+        "item_name": "Salted Peanuts",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 289,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Salt and Pepper Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Sambar",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Sambar Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Semiya Upma",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Samosa",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Sauteed Grilled Chicken Sausage",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 70,
+        "cmp_peak_price": 120
+    },
+    {
+        "item_name": "Sauteed Mushrooms",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Sauteed Vegetables",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Schezwan Prawn Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Schezwan Veg Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Scrambled Eggs",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Seasonal Fruit Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Seasonal Mixed Fruits",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Semiya Payasam",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Sesame Chicken Wings",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Set Curd",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Shahi Kaju Paneer Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Shahi Ka Tukda",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Shahi Paneer Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Sheermal Roti",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Shrimp Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 449
+    },
+    {
+        "item_name": "Soft Bun",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Sooji Ka Halwa",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Sorakaya Halwa",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Sorakaya Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Sour Cream Dip",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Sourdough Toast",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Spaghetti",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Special Curd Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Spinach Corn Spring Roll",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Steamed Chicken Momos",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 49
+    },
+    {
+        "item_name": "Steamed Veg Momos",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 29,
+        "cmp_peak_price": 39
+    },
+    {
+        "item_name": "Sticky Toffee Pudding",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Strawberry Ice Cream",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 229
+    },
+    {
+        "item_name": "Stuffed Kulcha",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Stuffed Mirchi Bajji",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Stuffed Mushrooms",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Sugar Sachets",
+        "category": "Sides & Accompaniments",
+        "uom": "Pcs",
+        "cmp_base_price": 10,
+        "cmp_peak_price": 15
+    },
+    {
+        "item_name": "Sweet And Sour Chicken",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 469,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Sweet Boondi",
+        "category": "Sweets",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Sweet Corn Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Sweet Lassi",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Sweet Paan",
+        "category": "After Meal",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Tadka Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Tamarind Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Tandoori Chicken",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Tandoori Mayo",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 689,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Tandoori Prawns",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 999,
+        "cmp_peak_price": 1399
+    },
+    {
+        "item_name": "Tandoori Roti",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Tawa Fish Fry",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "Tea",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 150,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Telangana Chicken Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 369,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Telangana Chicken Dry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 489,
+        "cmp_peak_price": 649
+    },
+    {
+        "item_name": "Telangana Mutton Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1099,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Telangana Mutton Curry (Boneless)",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 1299,
+        "cmp_peak_price": 1499
+    },
+    {
+        "item_name": "Telangana Mutton Fry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 1399,
+        "cmp_peak_price": 1699
+    },
+    {
+        "item_name": "Temple Style Pulihora",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Thai Basil Chicken Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Thai Roasted Paneer",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 649,
+        "cmp_peak_price": 669
+    },
+    {
+        "item_name": "Thotakura Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Tiramisu",
+        "category": "Desserts",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Tomato Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Tomato Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Tomato Egg Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Tomato Kaju Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Tomato Kottimeera Pachadi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Tomato Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Tomato Pickle",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Tomato Rasam",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Tomato Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 249
+    },
+    {
+        "item_name": "Tomato Sauce",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Tomato Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Tres Leches",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 89
+    },
+    {
+        "item_name": "Ulavacharu Chicken Lollipop",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Ulavacharu with Cream",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Upma",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Vada (Garelu)",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Vada Pav",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Vangi Bath",
+        "category": "Breakfast",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Vanilla Cake",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Vanilla Ice Ceram",
+        "category": "Desserts",
+        "uom": "Kg",
+        "cmp_base_price": 129,
+        "cmp_peak_price": 199
+    },
+    {
+        "item_name": "Vanilla Milkshake",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Vankaya Pachadi",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Vankaya Pappu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Alfredo Macaroni Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Veg Alfredo Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Veg Aloo Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Veg Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 269
+    },
+    {
+        "item_name": "Veg Bullet",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Veg Burger",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 80,
+        "cmp_peak_price": 120
+    },
+    {
+        "item_name": "Veg Chatpat Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Veg Cheese Balls",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 280,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Veg Cheese Grilled Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Veg Cheese Nuggets",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Veg Chilli Garlic Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Cutlets",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Veg Dum Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 289
+    },
+    {
+        "item_name": "Veg Fried Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 279
+    },
+    {
+        "item_name": "Veg Garlic Soft Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 279
+    },
+    {
+        "item_name": "Veg Grilled Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 90
+    },
+    {
+        "item_name": "Veg Hakka Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 169,
+        "cmp_peak_price": 279
+    },
+    {
+        "item_name": "Veg Hariyali Kebab",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 80
+    },
+    {
+        "item_name": "Veg Kheema",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Veg Manchow Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Manchurian Dry",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Veg Manchurian Gravy",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Veg Mini Pizza",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 59
+    },
+    {
+        "item_name": "Veg Mint Cheese Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 60,
+        "cmp_peak_price": 99
+    },
+    {
+        "item_name": "Veg Nuggets",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Veg Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 549
+    },
+    {
+        "item_name": "Veg Pizza",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 39,
+        "cmp_peak_price": 69
+    },
+    {
+        "item_name": "Veg Pockets",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 25,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Veg Puff",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Veg Puff Pastry Pizza",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 89,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Veg Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Samosa",
+        "category": "Snacks",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Veg Sandwich",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Veg Schezwan Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Schezwan Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Shanghai Roll",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Veg Soft Noodles",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Veg Spinach Omelette",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 45,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Veg Spring Rolls",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Veg Wrap",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 50,
+        "cmp_peak_price": 70
+    },
+    {
+        "item_name": "Vegetable Curry",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 350,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Vegetable Salad",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Vegetables Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Vellulli Kodi Vepudu",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 469,
+        "cmp_peak_price": 599
+    },
+    {
+        "item_name": "Virgin Mojito",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Walnut Brownie",
+        "category": "Bakery",
+        "uom": "Pcs",
+        "cmp_base_price": 49,
+        "cmp_peak_price": 129
+    },
+    {
+        "item_name": "Watermelon Cheese Skewers",
+        "category": "Starters",
+        "uom": "Pcs",
+        "cmp_base_price": 40,
+        "cmp_peak_price": 60
+    },
+    {
+        "item_name": "Watermelon Cooler",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Watermelon Cut Fruit",
+        "category": "Salads",
+        "uom": "Kg",
+        "cmp_base_price": 299,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Watermelon Juice",
+        "category": "Beverages",
+        "uom": "Litre",
+        "cmp_base_price": 250,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "White Rice",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Yellow Dal",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Zafrani Veg Biryani",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 189,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Chicken White Sauce Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken Pink Sauce Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 349,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken Red Sauce Pasta",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 539
+    },
+    {
+        "item_name": "Tamarind Chutney",
+        "category": "Sides & Accompaniments",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 399
+    },
+    {
+        "item_name": "Veg Hot and Sour Soup",
+        "category": "Soup",
+        "uom": "Litre",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 299
+    },
+    {
+        "item_name": "Millet Idly",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 40
+    },
+    {
+        "item_name": "Millet Poori",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 20,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Multigrain Roti",
+        "category": "Main Course",
+        "uom": "Pcs",
+        "cmp_base_price": 30,
+        "cmp_peak_price": 50
+    },
+    {
+        "item_name": "Idly",
+        "category": "Breakfast",
+        "uom": "Pcs",
+        "cmp_base_price": 15,
+        "cmp_peak_price": 30
+    },
+    {
+        "item_name": "Egg 65",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Chicken 65",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 599,
+        "cmp_peak_price": 799
+    },
+    {
+        "item_name": "Gobi 65",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 399,
+        "cmp_peak_price": 499
+    },
+    {
+        "item_name": "Baby Corn 65",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 499,
+        "cmp_peak_price": 699
+    },
+    {
+        "item_name": "Prawns 65",
+        "category": "Starters",
+        "uom": "Kg",
+        "cmp_base_price": 899,
+        "cmp_peak_price": 1299
+    },
+    {
+        "item_name": "Meal Maker Pulav",
+        "category": "Main Course",
+        "uom": "Kg",
+        "cmp_base_price": 199,
+        "cmp_peak_price": 329
+    }
+]
