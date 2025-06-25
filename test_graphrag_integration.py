@@ -262,7 +262,7 @@ class TestGraphRAGIntegration(unittest.TestCase):
                         {"category": "starter", "name": "Starter 1", "weight": "0.08 kg"},
                         {"category": "starter", "name": "Starter 2", "weight": "0.08 kg"},
                         {"category": "starter", "name": "Starter 3", "weight": "0.08 kg"},
-                        {"category": "main", "name": "Biryani", "weight": "0.32 kg"},
+                        {"category": "main", "name": "Biryani", "weight": "0.3 kg"},
                         {"category": "dessert", "name": "Dessert", "weight": "0.1 kg"}
                     ]
                 }
@@ -593,12 +593,16 @@ def run_all_tests():
     if result.failures:
         print(f"\nFAILURES ({len(result.failures)}):")
         for test, traceback in result.failures:
-            print(f"- {test}: {traceback.split('AssertionError: ')[-1].split('\\n')[0]}")
+            newline = '\n'
+            error_msg = traceback.split('AssertionError: ')[-1].split(newline)[0]
+            print(f"- {test}: {error_msg}")
     
     if result.errors:
         print(f"\nERRORS ({len(result.errors)}):")
         for test, traceback in result.errors:
-            print(f"- {test}: {traceback.split('\\n')[-2]}")
+            newline = '\n'
+            error_msg = traceback.split(newline)[-2]
+            print(f"- {test}: {error_msg}")
     
     return result.wasSuccessful()
 

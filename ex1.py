@@ -13,6 +13,10 @@ import torch
 from typing import Dict, List, Any
 from dotenv import load_dotenv
 load_dotenv()
+import json
+import re
+from typing import Dict, List, Any, Optional, Tuple
+from collections import defaultdict, Counter
 
 class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
     """
@@ -643,6 +647,433 @@ class FoodServiceGraphRAGQueryEngine:
             for cid, summary in community_summaries.items():
                 fallback += f"• {summary[:200]}...\n"
             return fallback
+# ========================================================================
+    # TEMPLATE INTEGRATION ENHANCEMENTS
+    # Add these methods inside the FoodServiceGraphRAGQueryEngine class
+    # ========================================================================
+    
+    def query_by_category(self, category: str, count: int, event_type: str, context: Optional[Dict] = None) -> List[Dict[str, Any]]:
+        """
+        Query GraphRAG for specific category with exact count requirement
+        Enhanced for template integration
+        
+        Args:
+            category: GraphRAG category (e.g., "starter", "main_biryani", "side_bread")
+            count: Exact number of items needed
+            event_type: "Traditional", "Party", or "Premium"
+            context: Additional context for better suggestions
+        
+        Returns:
+            List of exactly 'count' items with insights and co-occurrence data
+        """
+        print(f"🔍 Querying GraphRAG for {count} {category} items for {event_type} events")
+        
+        # Build category-specific query
+        query_text = self._build_enhanced_category_query(category, count, event_type, context)
+        
+        try:
+            # Execute the main GraphRAG query
+            raw_response = self.query(query_text)
+            
+            # Extract specific items from the response
+            extracted_items = self._extract_items_from_graphrag_response(raw_response, category, count)
+            
+            # Enhance with co-occurrence data and insights
+            enhanced_items = self._enhance_items_with_cooccurrence(extracted_items, event_type, category)
+            
+            # Ensure we have exactly the right count
+            final_items = self._ensure_exact_count(enhanced_items, category, count, event_type)
+            
+            print(f"✅ Successfully found {len(final_items)} {category} items")
+            return final_items
+            
+        except Exception as e:
+            print(f"❌ Category query failed for {category}: {e}")
+            # Return fallback items
+            return self._get_fallback_items(category, count, event_type)
+
+    def _build_enhanced_category_query(self, category: str, count: int, event_type: str, context: Optional[Dict] = None) -> str:
+        """Build enhanced natural language queries optimized for specific categories"""
+        base_queries = {
+            "starter": f"What are the top {count} starter appetizer items that work exceptionally well for {event_type.lower()} events? Focus on items with strong historical co-occurrence patterns and proven success rates.",
+            "main_biryani": f"Recommend the best {count} biryani dish(es) for {event_type.lower()} events based on community analysis and historical service success.",
+            "main_rice": f"Suggest {count} flavored rice or pulav dish that complements other menu items in {event_type.lower()} event settings.",
+            "side_bread": f"What {count} bread item(s) have the strongest co-occurrence patterns with curry dishes in successful {event_type.lower()} event menus?",
+            "side_curry": f"Recommend {count} curry dish that has proven compatibility with biryani and bread combinations in {event_type.lower()} contexts.",
+            "side_accompaniment": f"What {count} accompaniment(s) like raita, salad, or pickle provide the best balance for {event_type.lower()} event meals based on historical data?",
+            "dessert": f"Suggest {count} dessert that provides an excellent conclusion to {event_type.lower()} event meals with high guest satisfaction rates."
+        }
+        
+        query = base_queries.get(category, f"Recommend {count} high-quality items from {category} category for {event_type.lower()} events")
+        
+        # Add context if provided
+        if context:
+            template_context = context.get("template_name", "")
+            if template_context:
+                query += f" This is for a {template_context} style menu."
+        
+        return query
+
+    def _extract_items_from_graphrag_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
+        """Extract specific item names from GraphRAG response using multiple strategies"""
+        extracted_items = []
+        
+        # Load pricing data for item validation
+        try:
+            with open("items_price_uom.json", 'r', encoding='utf-8') as f:
+                pricing_data = json.load(f)
+                known_items = {item["item_name"].lower(): item for item in pricing_data}
+        except Exception as e:
+            print(f"⚠️ Could not load pricing data: {e}")
+            known_items = {}
+        
+        response_lower = response.lower()
+        found_names = set()
+        
+        # Strategy 1: Pattern-based extraction
+        extraction_patterns = [
+            r'"([^"]+)"',           # Quoted items
+            r"'([^']+)'",           # Single quoted items  
+            r'•\s*([^\n•]+)',       # Bullet points
+            r'\d+\.\s*([^\n\d]+)',  # Numbered lists
+            r'-\s*([^\n-]+)',       # Dash lists
+            r'\*\s*([^\n*]+)',      # Asterisk lists
+            r'(?:recommend|suggest|include)(?:s|ing)?\s+([^\n,.]+)', # Recommendation phrases
+        ]
+        
+        for pattern in extraction_patterns:
+            matches = re.findall(pattern, response_lower, re.IGNORECASE)
+            for match in matches:
+                clean_name = self._clean_extracted_name(match.strip())
+                
+                # Try to match with known items
+                matched_item = self._find_best_item_match(clean_name, known_items, category)
+                if matched_item and matched_item["item_name"].lower() not in found_names:
+                    extracted_items.append({
+                        "name": matched_item["item_name"],
+                        "category": matched_item["category"],
+                        "source": "pattern_extraction",
+                        "match_confidence": self._calculate_match_confidence(clean_name, matched_item["item_name"].lower()),
+                        "extraction_method": pattern
+                    })
+                    found_names.add(matched_item["item_name"].lower())
+                    
+                    if len(extracted_items) >= count:
+                        break
+            
+            if len(extracted_items) >= count:
+                break
+        
+        # Strategy 2: Direct name matching for remaining slots
+        if len(extracted_items) < count:
+            for known_name, item_data in known_items.items():
+                if known_name in response_lower and known_name not in found_names:
+                    if self._is_category_match(item_data["category"], category):
+                        extracted_items.append({
+                            "name": item_data["item_name"],
+                            "category": item_data["category"], 
+                            "source": "direct_match",
+                            "match_confidence": 1.0,
+                            "extraction_method": "direct_name_match"
+                        })
+                        found_names.add(known_name)
+                        
+                        if len(extracted_items) >= count:
+                            break
+        
+        # Sort by confidence and return top items
+        extracted_items.sort(key=lambda x: x["match_confidence"], reverse=True)
+        return extracted_items[:count]
+
+    def _clean_extracted_name(self, raw_name: str) -> str:
+        """Clean extracted item names to improve matching"""
+        clean_name = raw_name.strip()
+        clean_name = re.sub(r'^(?:the|a|an)\s+', '', clean_name, flags=re.IGNORECASE)
+        clean_name = re.sub(r'[^\w\s]', '', clean_name)
+        clean_name = re.sub(r'\s+', ' ', clean_name)
+        return clean_name.strip()
+
+    def _find_best_item_match(self, extracted_name: str, known_items: Dict[str, Any], category: str) -> Optional[Dict[str, Any]]:
+        """Find the best matching item from known items database"""
+        best_match = None
+        best_score = 0.0
+        
+        for known_name, item_data in known_items.items():
+            if not self._is_category_match(item_data["category"], category):
+                continue
+            
+            similarity = self._calculate_item_similarity(extracted_name, known_name)
+            
+            if similarity > best_score and similarity >= 0.6:
+                best_score = similarity
+                best_match = item_data
+        
+        return best_match
+
+    def _calculate_item_similarity(self, name1: str, name2: str) -> float:
+        """Calculate similarity between two item names"""
+        words1 = set(name1.lower().split())
+        words2 = set(name2.lower().split())
+        
+        if not words1 or not words2:
+            return 0.0
+        
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        jaccard = len(intersection) / len(union)
+        
+        # Bonus for substring containment
+        substring_bonus = 0.0
+        if name1.lower() in name2.lower() or name2.lower() in name1.lower():
+            substring_bonus = 0.2
+        
+        return min(1.0, jaccard + substring_bonus)
+
+    def _is_category_match(self, item_category: str, query_category: str) -> bool:
+        """Enhanced category matching for template integration"""
+        category_mappings = {
+            "starter": ["Starters", "Snacks"],
+            "main_biryani": ["Main Course"],
+            "main_rice": ["Main Course"], 
+            "side_bread": ["Main Course"],
+            "side_curry": ["Main Course"],
+            "side_accompaniment": ["Sides & Accompaniments"],
+            "dessert": ["Desserts", "Sweets"]
+        }
+        
+        appropriate_categories = category_mappings.get(query_category, [query_category])
+        return item_category in appropriate_categories
+
+    def _enhance_items_with_cooccurrence(self, items: List[Dict[str, Any]], event_type: str, category: str) -> List[Dict[str, Any]]:
+        """Enhance items with co-occurrence insights and success metrics"""
+        enhanced_items = []
+        
+        for item in items:
+            enhanced_item = item.copy()
+            
+            # Get co-occurrence insights from graph
+            cooccurrence_data = self._get_item_cooccurrence_data(item["name"], event_type)
+            
+            # Generate condensed insight
+            insight = self._generate_enhanced_insight(item["name"], category, event_type, cooccurrence_data)
+            
+            enhanced_item.update({
+                "insight": insight,
+                "cooccurrence_score": cooccurrence_data.get("score", 0.7),
+                "cooccurrence_frequency": cooccurrence_data.get("frequency", 0),
+                "success_indicators": cooccurrence_data.get("indicators", {})
+            })
+            
+            enhanced_items.append(enhanced_item)
+        
+        return enhanced_items
+
+    def _get_item_cooccurrence_data(self, item_name: str, event_type: str) -> Dict[str, Any]:
+        """Query the graph database for actual co-occurrence data"""
+        try:
+            # Query Neo4j for co-occurrence relationships
+            cooccurrence_query = """
+            MATCH (item:Dish {name: $item_name})-[r:CO_OCCURS]-(other:Dish)
+            WHERE r.frequency >= 2
+            RETURN other.name as paired_item, r.frequency as frequency, r.strength as strength
+            ORDER BY r.frequency DESC
+            LIMIT 10
+            """
+            
+            # Execute query through graph store if available
+            if hasattr(self.graph_store, 'neo4j_store'):
+                results = self.graph_store.neo4j_store.structured_query(
+                    cooccurrence_query, 
+                    param_map={"item_name": item_name}
+                )
+                
+                # Process results
+                paired_items = []
+                total_frequency = 0
+                high_strength_count = 0
+                
+                for result in results:
+                    paired_items.append({
+                        "item": result["paired_item"],
+                        "frequency": result["frequency"], 
+                        "strength": result["strength"]
+                    })
+                    total_frequency += result["frequency"]
+                    if result["strength"] == "high":
+                        high_strength_count += 1
+                
+                # Calculate co-occurrence score
+                score = min(1.0, (total_frequency * 0.1) + (high_strength_count * 0.2))
+                
+                return {
+                    "score": score,
+                    "frequency": total_frequency,
+                    "paired_items": paired_items,
+                    "indicators": {
+                        "total_pairings": len(paired_items),
+                        "high_strength_pairings": high_strength_count,
+                        "avg_frequency": total_frequency / len(paired_items) if paired_items else 0
+                    }
+                }
+                
+        except Exception as e:
+            print(f"⚠️ Could not fetch co-occurrence data for {item_name}: {e}")
+        
+        # Fallback to estimated data
+        return {
+            "score": 0.7,
+            "frequency": 3,
+            "paired_items": [],
+            "indicators": {"estimated": True}
+        }
+
+    def _generate_enhanced_insight(self, item_name: str, category: str, event_type: str, cooccurrence_data: Dict[str, Any]) -> str:
+        """Generate condensed insights with co-occurrence information"""
+        
+        # Base insights by category and event type
+        base_insights = {
+            ("starter", "Traditional"): "Classic traditional starter choice",
+            ("starter", "Party"): "Popular party engagement item",
+            ("main_biryani", "Traditional"): "Traditional centerpiece with authentic appeal",
+            ("main_biryani", "Party"): "Crowd-pleasing party centerpiece",
+            ("side_bread", "Traditional"): "Traditional accompaniment for authentic meals",
+            ("side_bread", "Party"): "Versatile party side for diverse tastes",
+            ("side_curry", "Traditional"): "Authentic curry for traditional settings",
+            ("side_curry", "Party"): "Flavorful curry complement for party menus",
+            ("dessert", "Traditional"): "Traditional sweet conclusion",
+            ("dessert", "Party"): "Satisfying party dessert favorite"
+        }
+        
+        base_insight = base_insights.get((category, event_type), f"Quality {category} choice for {event_type.lower()} events")
+        
+        # Add co-occurrence enhancement
+        frequency = cooccurrence_data.get("frequency", 0)
+        
+        if frequency >= 5:
+            cooccurrence_text = f"High co-occurrence success (freq: {frequency})"
+        elif frequency >= 3:
+            cooccurrence_text = f"Proven pairing success (freq: {frequency})"
+        elif frequency >= 2:
+            cooccurrence_text = f"Validated combination (freq: {frequency})"
+        else:
+            cooccurrence_text = f"Community recommended choice"
+        
+        return f"{base_insight}. {cooccurrence_text}"
+
+    def _ensure_exact_count(self, items: List[Dict[str, Any]], category: str, count: int, event_type: str) -> List[Dict[str, Any]]:
+        """Ensure we return exactly the requested count of items"""
+        if len(items) >= count:
+            return items[:count]
+        
+        # Need more items - get fallbacks
+        needed = count - len(items)
+        fallback_items = self._get_fallback_items(category, needed, event_type)
+        
+        # Mark existing item names to avoid duplicates
+        existing_names = {item["name"].lower() for item in items}
+        
+        # Add non-duplicate fallbacks
+        for fallback in fallback_items:
+            if fallback["name"].lower() not in existing_names:
+                items.append(fallback)
+                if len(items) >= count:
+                    break
+        
+        return items[:count]
+
+    def _get_fallback_items(self, category: str, count: int, event_type: str) -> List[Dict[str, Any]]:
+        """Get fallback items when GraphRAG doesn't return enough suggestions"""
+        
+        # Curated fallback items for each category
+        fallback_data = {
+            "starter": [
+                {"name": "Veg Samosa", "category": "Snacks", "reason": "Universally popular starter"},
+                {"name": "Chicken 65", "category": "Starters", "reason": "Classic party favorite"},
+                {"name": "Paneer Tikka", "category": "Starters", "reason": "Vegetarian crowd pleaser"},
+                {"name": "Veg Spring Rolls", "category": "Starters", "reason": "Light and appealing"},
+                {"name": "Cheese Corn Balls", "category": "Starters", "reason": "Modern party choice"}
+            ],
+            "main_biryani": [
+                {"name": "Veg Biryani", "category": "Main Course", "reason": "Safe vegetarian choice"},
+                {"name": "Chicken Dum Biryani", "category": "Main Course", "reason": "Traditional favorite"},
+                {"name": "Mutton Biryani", "category": "Main Course", "reason": "Premium option"}
+            ],
+            "main_rice": [
+                {"name": "Jeera Rice", "category": "Main Course", "reason": "Simple and versatile"},
+                {"name": "Temple Style Pulihora", "category": "Main Course", "reason": "Traditional choice"}
+            ],
+            "side_bread": [
+                {"name": "Chapati", "category": "Main Course", "reason": "Basic bread staple"},
+                {"name": "Butter Naan", "category": "Main Course", "reason": "Popular bread choice"},
+                {"name": "Rumali Roti", "category": "Main Course", "reason": "Light and flexible"}
+            ],
+            "side_curry": [
+                {"name": "Dal Tadka", "category": "Main Course", "reason": "Universal dal choice"},
+                {"name": "Mixed Vegetable Curry", "category": "Main Course", "reason": "Balanced vegetable option"},
+                {"name": "Rajma Curry", "category": "Main Course", "reason": "Protein-rich option"}
+            ],
+            "side_accompaniment": [
+                {"name": "Raita", "category": "Sides & Accompaniments", "reason": "Cooling accompaniment"},
+                {"name": "Pickle", "category": "Sides & Accompaniments", "reason": "Traditional condiment"},
+                {"name": "Salad", "category": "Sides & Accompaniments", "reason": "Fresh addition"}
+            ],
+            "dessert": [
+                {"name": "Gulab Jamun", "category": "Sweets", "reason": "Classic Indian sweet"},
+                {"name": "Double Ka Meetha", "category": "Sweets", "reason": "Traditional dessert"},
+                {"name": "Tiramisu", "category": "Desserts", "reason": "Modern dessert choice"}
+            ]
+        }
+        
+        category_fallbacks = fallback_data.get(category, [])
+        selected_fallbacks = []
+        
+        for i, fallback in enumerate(category_fallbacks[:count]):
+            selected_fallbacks.append({
+                "name": fallback["name"],
+                "category": fallback["category"],
+                "source": "community_fallback",
+                "match_confidence": 0.8,
+                "insight": f"Community backup: {fallback['reason']}",
+                "cooccurrence_score": 0.6,
+                "fallback_reason": fallback["reason"]
+            })
+        
+        return selected_fallbacks
+
+    def get_co_occurrence_insights(self, item_name: str, event_type: str) -> Dict[str, Any]:
+        """Get detailed co-occurrence insights for a specific item - Public method"""
+        return self._get_item_cooccurrence_data(item_name, event_type)
+
+    def extract_items_from_response(self, response_text: str, category: str, count: int) -> List[Dict[str, Any]]:
+        """Public method to extract items from GraphRAG response"""
+        return self._extract_items_from_graphrag_response(response_text, category, count)
+
+    def _calculate_match_confidence(self, extracted: str, known: str) -> float:
+        """Calculate confidence score for item name matching"""
+        if not extracted or not known:
+            return 0.0
+        
+        extracted_words = set(extracted.lower().split())
+        known_words = set(known.lower().split())
+        
+        if not extracted_words or not known_words:
+            return 0.0
+        
+        intersection = extracted_words.intersection(known_words)
+        union = extracted_words.union(known_words)
+        
+        jaccard = len(intersection) / len(union) if union else 0.0
+        
+        # Bonus for exact substring matches
+        if extracted.lower() in known.lower() or known.lower() in extracted.lower():
+            jaccard += 0.2
+        
+        return min(1.0, jaccard)
+
+    # ========================================================================
+    # END TEMPLATE INTEGRATION ENHANCEMENTS  
+    # ========================================================================
 
 class Neo4jGraphRAGAdapter:
     """

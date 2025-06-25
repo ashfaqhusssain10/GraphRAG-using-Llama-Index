@@ -1,6 +1,16 @@
 import json
 import re
 import os
+# GraphRAG Integration
+from typing import Dict, Any, List, Optional
+try:
+    from graphrag_query_engine import create_graphrag_template_engine
+    GRAPHRAG_AVAILABLE = True
+    print("✅ GraphRAG integration available")
+except ImportError as e:
+    print(f"⚠️ GraphRAG integration not available: {e}")
+    print("💡 Falling back to hardcoded templates")
+    GRAPHRAG_AVAILABLE = False
 
 def get_item_suggestions():
     price_file = "NEW/items_price_uom.json"
@@ -416,7 +426,144 @@ def calculate_template_price(template, price_file="NEW/items_price_uom.json", us
         total_price += qty_num * price_per_unit
 
     return round(total_price, 2)
+def get_recommendation_with_insights(event_type, budget_per_head, use_peak=True):
+    """
+    Enhanced recommendation engine using GraphRAG intelligence
+    Falls back to traditional templates if GraphRAG unavailable
+    """
+    
+    if GRAPHRAG_AVAILABLE:
+        try:
+            print(f"🤖 Generating GraphRAG recommendation for {event_type} event with ₹{budget_per_head} budget")
+            
+            # Initialize GraphRAG Template Engine
+            graphrag_engine = create_graphrag_template_engine()
+            
+            # Get GraphRAG recommendation
+            graphrag_result = graphrag_engine.recommend_with_graphrag(event_type, budget_per_head)
+            
+            if "error" not in graphrag_result:
+                # Convert GraphRAG result to frontend format
+                template_name = graphrag_result.get("template_name", "GraphRAG Recommendation")
+                items = graphrag_result.get("items", [])
+                insights = graphrag_result.get("insights", {})
+                
+                # Convert items to frontend format
+                frontend_items = []
+                for item in items:
+                    frontend_item = {
+                        "name": item["name"],
+                        "quantity": item.get("weight") or item.get("quantity", "1 serving")
+                    }
+                    frontend_items.append(frontend_item)
+                
+                # Calculate price using existing function
+                price_template = {"items": frontend_items}
+                try:
+                    estimated_price = calculate_template_price(price_template, use_peak=use_peak)
+                except Exception as e:
+                    print(f"⚠️ Price calculation failed: {e}")
+                    estimated_price = 0.0
+                
+                # Build inclusions description
+                inclusions = f"{len(frontend_items)} GraphRAG Optimized Items"
+                
+                # Return enhanced result
+                result = {
+                    "template_name": f"{template_name} (GraphRAG Enhanced)",
+                    "budget_range": graphrag_result.get("budget_range", "Custom Range"),
+                    "event_type": graphrag_result.get("event_type", event_type),
+                    "inclusions": inclusions,
+                    "items": frontend_items,
+                    "estimated_price": estimated_price,
+                    "graphrag_enhanced": True,
+                    "graphrag_insights": insights,
+                    "recommendation_source": "GraphRAG"
+                }
+                
+                print(f"✅ GraphRAG recommendation successful: {template_name}")
+                return result
+            
+        except Exception as e:
+            print(f"❌ GraphRAG recommendation failed: {e}")
+    
+    # Fall back to traditional templates
+    print("🔄 Using traditional template recommendation")
+    recommendation = recommend_template(event_type, budget_per_head)
+    recommendation["recommendation_source"] = "Traditional Templates"
+    recommendation["graphrag_enhanced"] = False
+    
+    # Add pricing if not present
+    if "estimated_price" not in recommendation:
+        try:
+            recommendation["estimated_price"] = calculate_template_price(recommendation, use_peak=use_peak)
+        except Exception as e:
+            print(f"⚠️ Price calculation failed: {e}")
+            recommendation["estimated_price"] = 0.0
+    
+    return recommendation
+def display_graphrag_insights(recommendation):
+    """Format GraphRAG insights for display in Streamlit UI"""
+    
+    if not recommendation.get("graphrag_enhanced", False):
+        return "Using traditional template matching based on budget and event type."
+    
+    insights = recommendation.get("graphrag_insights", {})
+    insights_parts = []
+    
+    # Overall insight
+    overall = insights.get("overall_insight", "")
+    if overall:
+        insights_parts.append(f"**Overall Analysis:** {overall}")
+    
+    # Success indicators
+    success_indicators = insights.get("success_indicators", {})
+    if success_indicators:
+        success_rate = success_indicators.get("estimated_success_rate", "N/A")
+        confidence = success_indicators.get("high_confidence_items", "N/A")
+        insights_parts.append(f"**Success Rate:** {success_rate} | **High Confidence Items:** {confidence}")
+    
+    # Recommendation strength
+    strength = insights.get("recommendation_strength", "")
+    if strength:
+        insights_parts.append(f"**Recommendation Strength:** {strength}")
+    
+    # Individual item insights (top 3)
+    individual = insights.get("individual_insights", {})
+    if individual:
+        insights_parts.append("**Item Insights:**")
+        for item, insight in list(individual.items())[:3]:
+            insights_parts.append(f"• **{item}:** {insight}")
+    
+    return "\n\n".join(insights_parts) if insights_parts else "GraphRAG analysis completed successfully."
 
+def analyze_budget_fit(estimated_price, budget_per_head):
+    """Analyze how well the recommendation fits the budget"""
+    
+    if estimated_price <= budget_per_head:
+        difference = budget_per_head - estimated_price
+        savings_percentage = (difference / budget_per_head) * 100 if budget_per_head > 0 else 0
+        return {
+            "status": "within_budget",
+            "message": f"Great! You're within budget with ₹{difference:.2f} to spare ({savings_percentage:.1f}% savings)",
+            "type": "success"
+        }
+    elif estimated_price <= budget_per_head * 1.1:  # Within 10% over budget
+        difference = estimated_price - budget_per_head
+        overage_percentage = (difference / budget_per_head) * 100 if budget_per_head > 0 else 0
+        return {
+            "status": "slightly_over",
+            "message": f"Slightly over budget by ₹{difference:.2f} ({overage_percentage:.1f}% over)",
+            "type": "warning"
+        }
+    else:
+        difference = estimated_price - budget_per_head
+        overage_percentage = (difference / budget_per_head) * 100 if budget_per_head > 0 else 0
+        return {
+            "status": "over_budget",
+            "message": f"Over budget by ₹{difference:.2f} ({overage_percentage:.1f}% over)",
+            "type": "error"
+        }
 # Streamlit UI
 try:
     import streamlit as st
@@ -433,7 +580,7 @@ try:
         use_peak = st.checkbox("Use peak price?", value=True)
         submit = st.button("Get Recommendation")
     if submit:
-        result = recommend_template(event_type, budget_per_head)
+        result = get_recommendation_with_insights(event_type, budget_per_head, use_peak)
         st.session_state['last_recommendation'] = {
             'result': result,
             'event_type': event_type,
@@ -455,6 +602,11 @@ try:
                 st.error(result['error'])
                 st.info(result['suggestion'])
             else:
+                # Create items list HTML (avoiding f-string backslash issue)
+                items_html = ''.join([
+                    f"<li style='margin-bottom: 0.5em;'>{item['name']} <span style='color: #888;'>({item['quantity']})</span></li>" 
+                    for item in result['items']
+                ])
                 st.markdown(
                     f"""
                     <div style='background: #fff8f0; border-radius: 12px; padding: 2em; box-shadow: 0 2px 8px #eee; max-width: 600px; margin: auto;'>
@@ -465,7 +617,7 @@ try:
                         <hr>
                         <h4>Menu Items</h4>
                         <ul style='padding-left: 1.2em;'>
-                            {''.join([f'<li style=\'margin-bottom: 0.5em;\'>{item['name']} <span style=\'color: #888;\'>({item['quantity']})</span></li>' for item in result['items']])}
+                            {items_html}
                         </ul>
                         <hr>
                         <h3 style='color: #388e3c;'>Estimated Total Price: ₹{calculate_template_price(result, use_peak=use_peak)}</h3>
@@ -474,6 +626,29 @@ try:
                     unsafe_allow_html=True
                 )
             st.markdown("</div>", unsafe_allow_html=True)
+            # GraphRAG Insights and Analysis
+            if result.get("graphrag_enhanced", False):
+                st.markdown("### 🤖 GraphRAG Insights")
+                insights_text = display_graphrag_insights(result)
+                st.markdown(insights_text)
+                
+                # Display recommendation source
+                source = result.get("recommendation_source", "Unknown")
+                st.success(f"🎯 Powered by: **{source}**")
+                
+                # Budget analysis
+                estimated_price = result.get("estimated_price", 0)
+                if estimated_price > 0:
+                    budget_analysis = analyze_budget_fit(estimated_price, budget_per_head)
+                    
+                    if budget_analysis["type"] == "success":
+                        st.success(f"💰 {budget_analysis['message']}")
+                    elif budget_analysis["type"] == "warning":
+                        st.warning(f"⚠️ {budget_analysis['message']}")
+                    else:
+                        st.error(f"🚫 {budget_analysis['message']}")
+            else:
+                st.info("📋 Powered by: **Traditional Templates**")
     with col_right:
         # Only show add-on section if a recommendation is displayed
         if show_recommendation:
