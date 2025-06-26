@@ -30,7 +30,7 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
     can then be used to provide much richer answers to complex food-related queries.
     """
     
-    def __init__(self, llm=None, max_cluster_size=64,min_cluster_size=10):
+    def __init__(self, llm=None, max_cluster_size=124,min_cluster_size=10):
         """
         Initialize the custom GraphRAG store with community detection capabilities.
         
@@ -1087,7 +1087,7 @@ class Neo4jGraphRAGAdapter:
     detection for insight generation.
     """
     
-    def __init__(self, neo4j_store, llm=None, min_cluster_size=10,max_cluster_size=64):
+    def __init__(self, neo4j_store, llm=None, min_cluster_size=10,max_cluster_size=124):
         """
         Initialize the adapter to work with your Neo4j store.
         
@@ -1348,12 +1348,12 @@ def setup_complete_community_graphrag_system():
      llm = OpenAI(
              model="gpt-4o-mini",  # Optimal for GraphRAG tasks
              temperature=0.1,  # Consistent for entity extraction
-             max_tokens=2048   # Sufficient for community analysis
+             max_tokens=8000   # Sufficient for community analysis
          )
          
          # Test the connection
      test_response = llm.complete("Test connection")
-     print(f"✓ Gemini API connected successfully")
+     print(f"✓ OpenAI gitAPI connected successfully")
          
     except Exception as e:
         print(f"❌ Gemini API setup failed: {e}")
@@ -1409,7 +1409,7 @@ def setup_complete_community_graphrag_system():
      adapter = Neo4jGraphRAGAdapter(
          neo4j_store=neo4j_store,
          llm=llm,
-         max_cluster_size=64,
+         max_cluster_size=124,
          min_cluster_size=10
          # Adjust based on your data size
      )
