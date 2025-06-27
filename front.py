@@ -617,7 +617,7 @@ try:
                         <hr>
                         <h4>Menu Items</h4>
                         <ul style='padding-left: 1.2em;'>
-                            {''.join([f'<li style=\'margin-bottom: 0.5em;\'>{item['name']} <span style=\'color: #888;\'>({item['quantity']})</span></li>' for item in result['items']])}
+                            {items_html}
                         </ul>
                         <hr>
                         <h3 style='color: #388e3c;'>Estimated Total Price: ₹{calculate_template_price(result, use_peak=use_peak)}</h3>

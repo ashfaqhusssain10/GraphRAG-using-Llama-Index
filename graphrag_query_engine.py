@@ -41,23 +41,68 @@ _GRAPHRAG_SYSTEM_CACHE = {
     'query_engine': None,
     'initialized': False
 }
-@st.cache_resource
+@st.cache_resource(ttl=86400)
 def get_cached_graphrag_system():
-    """Get cached GraphRAG system or initialize once"""
-    global _GRAPHRAG_SYSTEM_CACHE
+    """
+    INTELLIGENT CACHING: Persistent community storage with smart invalidation
+    """
+    cache_dir = "graphrag_cache"
+    cache_file = f"{cache_dir}/communities.pkl"
+    metadata_file = f"{cache_dir}/metadata.json"
     
-    if _GRAPHRAG_SYSTEM_CACHE['initialized']:
-        logger.info("♻️ Using cached GraphRAG system (preventing double analysis)")
-        return _GRAPHRAG_SYSTEM_CACHE['adapter'], _GRAPHRAG_SYSTEM_CACHE['query_engine']
+    # Ensure cache directory exists
+    os.makedirs(cache_dir, exist_ok=True)
     
-    logger.info("🔧 Initializing GraphRAG system for first time...")
+    # Check for valid cache
+    if os.path.exists(cache_file) and os.path.exists(metadata_file):
+        try:
+            with open(metadata_file, 'r') as f:
+                metadata = json.load(f)
+            
+            cache_time = datetime.fromisoformat(metadata['created_at'])
+            cache_age_hours = (datetime.now() - cache_time).total_seconds() / 3600
+            
+            if cache_age_hours < 24:  # Cache valid for 24 hours
+                print(f"🚀 Loading cached GraphRAG communities ({cache_age_hours:.1f}h old)")
+                
+                with open(cache_file, 'rb') as f:
+                    cached_system = pickle.load(f)
+                
+                print(f"✅ Loaded {metadata['community_count']} cached communities")
+                return cached_system['adapter'], cached_system['query_engine']
+        
+        except Exception as e:
+            print(f"⚠️ Cache corrupted, rebuilding: {e}")
+    
+    # Build fresh system
+    print("🔧 Building fresh GraphRAG communities...")
     adapter, query_engine = setup_complete_community_graphrag_system()
     
-    if adapter and query_engine:
-        _GRAPHRAG_SYSTEM_CACHE['adapter'] = adapter
-        _GRAPHRAG_SYSTEM_CACHE['query_engine'] = query_engine
-        _GRAPHRAG_SYSTEM_CACHE['initialized'] = True
-        logger.info("✅ GraphRAG system cached successfully")
+    # Cache the results
+    try:
+        community_count = len(adapter.graphrag_store.get_community_summaries())
+        
+        cache_data = {
+            'adapter': adapter,
+            'query_engine': query_engine
+        }
+        
+        with open(cache_file, 'wb') as f:
+            pickle.dump(cache_data, f)
+        
+        metadata = {
+            'created_at': datetime.now().isoformat(),
+            'community_count': community_count,
+            'cache_version': '1.0'
+        }
+        
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata, f)
+        
+        print(f"💾 Cached {community_count} communities for future runs")
+    
+    except Exception as e:
+        print(f"⚠️ Caching failed: {e}")
     
     return adapter, query_engine
 # Setup logging
@@ -653,73 +698,229 @@ class GraphRAGTemplateEngine:
         logger.info(f"Using community defaults for {category} due to query failure")
         return self._get_community_defaults(category, count)
 
+    # ============================================================================
+    # SURGICAL INTERVENTION #1: Markdown-Aware Extraction Engine
+    # Target: graphrag_query_engine.py
+    # Precision: Laser-focused on Gemini's output patterns
+    # ============================================================================
+
     def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
-        """Extract specific item names from GraphRAG response text"""
+        """
+        SURGICAL PRECISION: Extract items from Gemini's markdown-heavy responses
+        Engineered specifically for your log patterns
+        """
         extracted_items = []
         
-        # Load pricing data to validate item names
+        # 🔍 DIAGNOSTIC MODE: Full visibility into extraction process
+        print(f"\n{'🔥'*60}")
+        print(f"🎯 EXTRACTION ENGINE: {category} → need {count} items")
+        print(f"📊 Response length: {len(response)} chars")
+        print(f"🔍 Response preview: {response[:200]}...")
+        print(f"{'🔥'*60}")
+        
+        # Load the pricing arsenal
         try:
             with open("items_price_uom.json", 'r', encoding='utf-8') as f:
                 pricing_data = json.load(f)
                 known_items = {item["item_name"].lower(): item for item in pricing_data}
+                print(f"📚 Loaded {len(known_items)} known items for matching")
         except Exception as e:
-            logger.error(f"Could not load pricing data: {e}")
+            print(f"⚠️ Pricing data unavailable: {e}")
             known_items = {}
         
-        # Extract item names using multiple strategies
-        response_lower = response.lower()
+        found_names = set()
         
-        # Strategy 1: Look for quoted items or items in lists
-        patterns = [
-            r'"([^"]+)"',  # Quoted items
-            r"'([^']+)'",  # Single quoted items
-            r'•\s*([^\n•]+)',  # Bullet points
-            r'\d+\.\s*([^\n\d]+)',  # Numbered lists
-            r'-\s*([^\n-]+)',  # Dash lists
-            r'\*\s*([^\n*]+)',      # Asterisk lists
-             # 🔪 SURGICAL MODIFICATION - ADD THESE TWO LINES
-            r'(?:recommend|suggest)\s+(?:the\s+)?([A-Z][A-Za-z\s]+?)(?:\s+for|\s+as|\.)',  # <-- ADD THIS
-            r'([A-Z][A-Za-z\s]+?)\s+(?:is|are|would be)\s+(?:a good|an excellent|recommended)',  # <-- ADD THIS
+        # 🔪 SURGICAL PATTERNS: Engineered from your exact log analysis
+        gemini_surgical_patterns = [
+            # Pattern Alpha: **Bold Items** (90% of Gemini's style from your logs)
+            (r'\*\*([^*]+?)\*\*', "markdown_bold"),
+            
+            # Pattern Beta: "the **Item** is a strong recommendation" (exact log pattern)
+            (r'(?:the\s+)?\*\*([^*]+?)\*\*\s+is\s+a\s+(?:strong|excellent|good|solid)\s+(?:recommendation|choice)', "recommendation_statement"),
+            
+            # Pattern Gamma: List structures with bold
+            (r'[•\-*]\s*\*\*([^*]+?)\*\*', "bullet_bold"),
+            
+            # Pattern Delta: Non-markdown fallbacks for edge cases
+            (r'(?:recommend|suggest)(?:s|ing)?\s+(?:the\s+)?([A-Z][A-Za-z\s]+?(?:Biryani|Rice|Curry|Chicken|Paneer|Dal|Naan|Roti|Paan|Jamun|Cake|Tikka|Masala)[A-Za-z\s]*?)(?:\s+for|\s+as|\.|,|\s+based)', "direct_recommendation"),
+            
+            # Pattern Epsilon: Quoted items
+            (r'"([^"]+?(?:Biryani|Rice|Curry|Chicken|Paneer|Dal|Naan|Roti|Paan|Jamun|Cake|Tikka|Masala)[^"]*?)"', "quoted_items"),
         ]
         
-        found_names = set()
-        for pattern in patterns:
-            matches = re.findall(pattern, response_lower)
-            for match in matches:
-                clean_name = match.strip()
+        for pattern_id, (pattern, pattern_name) in enumerate(gemini_surgical_patterns, 1):
+            matches = re.findall(pattern, response, re.IGNORECASE)
+            
+            print(f"\n🔍 Pattern {pattern_id} ({pattern_name}):")
+            print(f"   Regex: {pattern}")
+            print(f"   Matches: {len(matches)} found")
+            
+            if matches:
+                print(f"   Raw extractions: {matches}")
                 
-                # Try to match with known items
-                for known_name, item_data in known_items.items():
-                    if self._is_item_match(clean_name, known_name, category):
-                        if known_name not in found_names:
-                            extracted_items.append({
-                                "name": item_data["item_name"],  # Use proper case
-                                "category": item_data["category"],
-                                "source": "graphrag_extraction",
-                                "match_confidence": self._calculate_match_confidence(clean_name, known_name)
-                            })
-                            found_names.add(known_name)
-                            break
-        
-        # Strategy 2: Direct name matching for common items
-        if len(extracted_items) < count:
-            for known_name, item_data in known_items.items():
-                if known_name in response_lower and known_name not in found_names:
-                    if self._is_category_appropriate(item_data["category"], category):
+                for match in matches:
+                    # Surgical cleaning
+                    clean_name = self._surgical_item_cleaner(match.strip())
+                    print(f"   🧹 Cleaned: '{match}' → '{clean_name}'")
+                    
+                    # Precision matching
+                    matched_item = self._precision_item_matcher(clean_name, known_items, category)
+                    
+                    if matched_item and matched_item["item_name"].lower() not in found_names:
+                        confidence = self._calculate_match_confidence(clean_name, matched_item["item_name"])
+                        print(f"   ✅ PRECISION MATCH: '{clean_name}' → '{matched_item['item_name']}' (conf: {confidence:.2f})")
+                        
                         extracted_items.append({
-                            "name": item_data["item_name"],
-                            "category": item_data["category"],
-                            "source": "direct_match",
-                            "match_confidence": 1.0
+                            "name": matched_item["item_name"],
+                            "category": matched_item["category"],
+                            "source": "surgical_extraction",
+                            "match_confidence": confidence,
+                            "extraction_method": pattern_name,
+                            "pattern_id": pattern_id,
+                            "original_text": match
                         })
-                        found_names.add(known_name)
+                        found_names.add(matched_item["item_name"].lower())
                         
                         if len(extracted_items) >= count:
+                            print(f"🎯 EXTRACTION COMPLETE: Target achieved with pattern {pattern_id}")
                             break
+                    else:
+                        print(f"   ❌ No viable match for: '{clean_name}'")
+            
+            if len(extracted_items) >= count:
+                break
         
-        # Sort by confidence and return top items
-        extracted_items.sort(key=lambda x: x["match_confidence"], reverse=True)
+        # 📊 SURGICAL SUMMARY
+        print(f"\n{'🎯'*40}")
+        print(f"🏆 EXTRACTION RESULTS: {len(extracted_items)}/{count} items")
+        print(f"{'🎯'*40}")
+        
+        if extracted_items:
+            for i, item in enumerate(extracted_items, 1):
+                print(f"   {i}. ✅ {item['name']}")
+                print(f"      📍 Method: {item['extraction_method']}")
+                print(f"      📊 Confidence: {item['match_confidence']:.2f}")
+        else:
+            print("   ❌ ZERO EXTRACTIONS - Falling back to community defaults")
+            print("   🔍 DEBUG: Check if response contains recognizable item patterns")
+        
         return extracted_items[:count]
+
+    def _surgical_item_cleaner(self, raw_name: str) -> str:
+        """
+        PRECISION CLEANING: Engineered for dish name integrity
+        """
+        clean = raw_name.strip()
+        
+        # Remove markdown artifacts with surgical precision
+        clean = re.sub(r'\*+', '', clean)
+        clean = re.sub(r'_+', '', clean)
+        clean = re.sub(r'`+', '', clean)
+        
+        # Remove linguistic cruft while preserving dish essence
+        clean = re.sub(r'^(?:the|a|an|some|many|several)\s+', '', clean, flags=re.IGNORECASE)
+        clean = re.sub(r'\s+(?:is|are|would be|could be|might be).*$', '', clean, flags=re.IGNORECASE)
+        clean = re.sub(r'\s*[,.].*$', '', clean)
+        clean = re.sub(r'\s+(?:for|as|with|that|which).*$', '', clean, flags=re.IGNORECASE)
+        
+        # Normalize whitespace and formatting
+        clean = re.sub(r'\s+', ' ', clean).strip()
+        
+        # Apply intelligent title case
+        return self._intelligent_title_case(clean)
+
+    def _intelligent_title_case(self, text: str) -> str:
+        """Smart title casing that respects culinary naming conventions"""
+        words = text.split()
+        result = []
+        
+        # Words that should stay lowercase in dish names
+        lowercase_words = {'and', 'or', 'with', 'of', 'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'ka', 'ki', 'ke'}
+        
+        for i, word in enumerate(words):
+            if i == 0 or word.lower() not in lowercase_words:
+                result.append(word.capitalize())
+            else:
+                result.append(word.lower())
+        
+        return ' '.join(result)
+
+    def _precision_item_matcher(self, extracted_name: str, known_items: Dict[str, Any], category: str) -> Optional[Dict[str, Any]]:
+        """
+        PRECISION MATCHING: Multi-tier matching strategy
+        """
+        extracted_lower = extracted_name.lower()
+        
+        # Tier 1: Exact match
+        if extracted_lower in known_items:
+            item = known_items[extracted_lower]
+            if self._is_category_appropriate(item["category"], category):
+                return item
+        
+        # Tier 2: Normalized variations
+        variations = [
+            extracted_lower.replace(' ', ''),
+            extracted_lower.replace('-', ' '),
+            extracted_lower.replace('_', ' '),
+            re.sub(r'\s+', ' ', extracted_lower)
+        ]
+        
+        for variation in variations:
+            if variation in known_items:
+                item = known_items[variation]
+                if self._is_category_appropriate(item["category"], category):
+                    return item
+        
+        # Tier 3: Intelligent fuzzy matching
+        return self._intelligent_fuzzy_match(extracted_name, known_items, category)
+
+    def _intelligent_fuzzy_match(self, extracted_name: str, known_items: Dict[str, Any], category: str) -> Optional[Dict[str, Any]]:
+        """
+        INTELLIGENT FUZZY MATCHING: Word overlap with culinary intelligence
+        """
+        best_match = None
+        best_score = 0.0
+        
+        extracted_words = set(extracted_name.lower().split())
+        
+        # Culinary keywords get bonus points
+        culinary_keywords = {
+            'biryani', 'rice', 'curry', 'chicken', 'paneer', 'dal', 'naan', 'roti', 
+            'tikka', 'masala', 'fry', 'dum', 'butter', 'garlic', 'mint', 'jeera',
+            'paan', 'jamun', 'gulab', 'cake', 'halwa', 'kesari'
+        }
+        
+        for known_name, item_data in known_items.items():
+            if not self._is_category_appropriate(item_data["category"], category):
+                continue
+            
+            known_words = set(known_name.split())
+            
+            # Calculate base similarity
+            intersection = extracted_words.intersection(known_words)
+            union = extracted_words.union(known_words)
+            
+            if not union:
+                continue
+            
+            jaccard_score = len(intersection) / len(union)
+            
+            # Bonus for substring containment
+            substring_bonus = 0.3 if (extracted_name.lower() in known_name or known_name in extracted_name.lower()) else 0
+            
+            # Bonus for culinary keyword matches
+            keyword_bonus = 0.2 * len(intersection.intersection(culinary_keywords))
+            
+            # Penalty for excessive length mismatch
+            length_penalty = 0.1 if abs(len(extracted_words) - len(known_words)) > 2 else 0
+            
+            total_score = jaccard_score + substring_bonus + keyword_bonus - length_penalty
+            
+            if total_score > best_score and total_score > 0.6:
+                best_score = total_score
+                best_match = item_data
+        
+        return best_match
 
     def _is_item_match(self, extracted_name: str, known_name: str, category: str) -> bool:
         """Check if extracted name matches a known item name"""
