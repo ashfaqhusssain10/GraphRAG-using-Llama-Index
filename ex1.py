@@ -197,6 +197,8 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
                 try:
                     summary = self.generate_community_summary(relationships)
                     self.community_summaries[community_id] = summary
+                    if "biryani" in summary.lower() or "dessert" in summary.lower():  # <-- ADD THIS
+                     print(f"    🎯 RELEVANT SUMMARY: {summary[:200]}...")
                     print(f"    ✓ Generated summary ({len(summary)} characters)")
                     
                 except Exception as e:
@@ -696,12 +698,12 @@ class FoodServiceGraphRAGQueryEngine:
         """Build enhanced natural language queries optimized for specific categories"""
         base_queries = {
             "starter": f"What are the top {count} starter appetizer items that work exceptionally well for {event_type.lower()} events? Focus on items with strong historical co-occurrence patterns and proven success rates.",
-            "main_biryani": f"Recommend the best {count} biryani dish(es) for {event_type.lower()} events based on community analysis and historical service success.",
+            "main_biryani": f"Recommend the best {count} biryani dish(es) for {event_type.lower()} events based on community analysis and historical service success.Reurn the only dish names",
             "main_rice": f"Suggest {count} flavored rice or pulav dish that complements other menu items in {event_type.lower()} event settings.",
             "side_bread": f"What {count} bread item(s) have the strongest co-occurrence patterns with curry dishes in successful {event_type.lower()} event menus?",
             "side_curry": f"Recommend {count} curry dish that has proven compatibility with biryani and bread combinations in {event_type.lower()} contexts.",
             "side_accompaniment": f"What {count} accompaniment(s) like raita, salad, or pickle provide the best balance for {event_type.lower()} event meals based on historical data?",
-            "dessert": f"Suggest {count} dessert that provides an excellent conclusion to {event_type.lower()} event meals with high guest satisfaction rates."
+            "dessert": f"List exactly {count} specific dessert names like 'Gulab Jamun' or 'Double Ka Meetha' that provide a good ending for {event_type.lower()} event meals. Return only the dessert names."
         }
         
         query = base_queries.get(category, f"Recommend {count} high-quality items from {category} category for {event_type.lower()} events")

@@ -223,7 +223,7 @@ class GraphRAGTemplateEngine:
         # Execute query using existing GraphRAG system
         try:
             raw_response = self.graphrag_query_engine.query(query_text)
-            
+            print(f" RAW GRAPHRAG RESPONSE for {category}:\n{raw_response[:500]}...")
             # Extract specific items from GraphRAG response
             extracted_items = self._extract_items_from_response(raw_response, category, count)
             
@@ -285,7 +285,7 @@ class GraphRAGTemplateEngine:
         # and matches them against known items in the pricing database
         
         extracted_items = []
-        
+        print(f"🎯 Extraction attempt for {category} from response length: {len(response)}")  
         # Load pricing data to validate item names
         try:
             with open("items_price_uom.json", 'r', encoding='utf-8') as f:
@@ -676,6 +676,10 @@ class GraphRAGTemplateEngine:
             r'•\s*([^\n•]+)',  # Bullet points
             r'\d+\.\s*([^\n\d]+)',  # Numbered lists
             r'-\s*([^\n-]+)',  # Dash lists
+            r'\*\s*([^\n*]+)',      # Asterisk lists
+             # 🔪 SURGICAL MODIFICATION - ADD THESE TWO LINES
+            r'(?:recommend|suggest)\s+(?:the\s+)?([A-Z][A-Za-z\s]+?)(?:\s+for|\s+as|\.)',  # <-- ADD THIS
+            r'([A-Z][A-Za-z\s]+?)\s+(?:is|are|would be)\s+(?:a good|an excellent|recommended)',  # <-- ADD THIS
         ]
         
         found_names = set()

@@ -609,7 +609,7 @@ try:
                 ])
                 st.markdown(
                     f"""
-                    <div style='background: #fff8f0; border-radius: 12px; padding: 2em; box-shadow: 0 2px 8px #eee; max-width: 600px; margin: auto;'>
+                    <div style='background: #1e1e1e; border-radius: 12px; padding: 2em; box-shadow: 0 2px 8px #111; max-width: 600px; margin: auto; color: #eee;'>
                         <h2 style='color: #FF6F61;'>{result['template_name']}</h2>
                         <p><b>Budget Range:</b> {result['budget_range']}<br>
                         <b>Event Type:</b> {result['event_type']}<br>
@@ -617,13 +617,13 @@ try:
                         <hr>
                         <h4>Menu Items</h4>
                         <ul style='padding-left: 1.2em;'>
-                            {items_html}
+                            {''.join([f'<li style=\'margin-bottom: 0.5em;\'>{item['name']} <span style=\'color: #888;\'>({item['quantity']})</span></li>' for item in result['items']])}
                         </ul>
                         <hr>
                         <h3 style='color: #388e3c;'>Estimated Total Price: ₹{calculate_template_price(result, use_peak=use_peak)}</h3>
                     </div>
-                    """,
-                    unsafe_allow_html=True
+                    """
+                    ,unsafe_allow_html=True
                 )
             st.markdown("</div>", unsafe_allow_html=True)
             # GraphRAG Insights and Analysis
