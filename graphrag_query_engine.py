@@ -1,4 +1,5 @@
 # graphrag_query_engine.py
+# graphrag_query_engine.py
 """
 GraphRAG Query Engine for Template Integration
 Main engine that connects template requirements with GraphRAG system
@@ -7,10 +8,12 @@ import streamlit as st
 import re
 import json
 import time
+import os                    # <-- ADD THIS
+import pickle                # <-- ADD THIS
+from datetime import datetime # <-- ADD THIS
 from typing import Dict, List, Any, Optional, Tuple
 from collections import defaultdict, Counter
 import logging
-#####
 import random
 
 # Import your existing GraphRAG components
