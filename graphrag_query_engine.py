@@ -44,70 +44,141 @@ _GRAPHRAG_SYSTEM_CACHE = {
     'query_engine': None,
     'initialized': False
 }
+# Add this to graphrag_query_engine.py - REPLACE the existing get_cached_graphrag_system function
+def get_cache_directory():
+    """Ensure consistent cache location"""
+    import os
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    cache_dir = os.path.join(base_dir, "graphrag_cache")
+    print(f"📁 Using cache directory: {cache_dir}")
+    return cache_dir
+
+def save_communities_safely(adapter, cache_dir="graphrag_cache"):
+    """
+    SAFE COMMUNITY PERSISTENCE: Only save the essential data
+    """
+    if cache_dir is None:
+        cache_dir = get_cache_directory()
+    os.makedirs(cache_dir, exist_ok=True)
+    
+    try:
+        # Extract only the essential data that can be safely pickled
+        communities_data = {
+            'community_summaries': adapter.graphrag_store.get_community_summaries(),
+            'entity_communities': dict(adapter.graphrag_store.entity_communities),
+            'cache_version': '2.0',
+            'created_at': datetime.now().isoformat()
+        }
+        
+        # Save community data
+        cache_file = os.path.join(cache_dir, "communities_data.pkl")
+        with open(cache_file, 'wb') as f:
+            pickle.dump(communities_data, f)
+        
+        # Save metadata
+        metadata = {
+            'created_at': datetime.now().isoformat(),
+            'community_count': len(communities_data['community_summaries']),
+            'entity_count': len(communities_data['entity_communities']),
+            'cache_version': '2.0'
+        }
+        
+        metadata_file = os.path.join(cache_dir, "metadata.json")
+        with open(metadata_file, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        
+        print(f"✅ Successfully cached {metadata['community_count']} communities")
+        print(f"📁 Cache location: {cache_file}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Community caching failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def load_communities_safely(cache_dir="graphrag_cache"):
+    """
+    SAFE COMMUNITY LOADING: Load and validate cached data
+    """
+    cache_file = os.path.join(cache_dir, "communities_data.pkl")
+    metadata_file = os.path.join(cache_dir, "metadata.json")
+    # 🔍 DIAGNOSTIC LOGGING
+    print(f"🔍 CACHE DIAGNOSTIC:")
+    print(f"   📁 Looking for cache in: {os.path.abspath(cache_dir)}")
+    print(f"   📄 Cache file exists: {os.path.exists(cache_file)}")
+    print(f"   📄 Metadata file exists: {os.path.exists(metadata_file)}")
+    
+    if os.path.exists(cache_file):
+        print(f"   📊 Cache file size: {os.path.getsize(cache_file)} bytes")
+    
+    if not os.path.exists(cache_file) or not os.path.exists(metadata_file):
+        print("💡 No valid cache found")
+        return None
+    
+    
+    try:
+        # Load metadata first
+        with open(metadata_file, 'r') as f:
+            metadata = json.load(f)
+        
+        # Check cache age (24 hours)
+        cache_time = datetime.fromisoformat(metadata['created_at'])
+        cache_age_hours = (datetime.now() - cache_time).total_seconds() / 3600
+        
+        if cache_age_hours > 24:
+            print(f"🕒 Cache expired ({cache_age_hours:.1f}h old)")
+            return None
+        
+        # Load community data
+        with open(cache_file, 'rb') as f:
+            communities_data = pickle.load(f)
+        
+        print(f"🚀 Loaded {metadata['community_count']} cached communities")
+        return communities_data
+        
+    except Exception as e:
+        print(f"❌ Cache loading failed: {e}")
+        return None
+
 @st.cache_resource(ttl=86400)
 def get_cached_graphrag_system():
     """
-    INTELLIGENT CACHING: Persistent community storage with smart invalidation
+    FIXED CACHING SYSTEM: Separate community data from system objects
     """
-    cache_dir = "graphrag_cache"
-    cache_file = f"{cache_dir}/communities.pkl"
-    metadata_file = f"{cache_dir}/metadata.json"
+    print("🔍 Initializing GraphRAG system...")
     
-    # Ensure cache directory exists
-    os.makedirs(cache_dir, exist_ok=True)
+    # Try to load cached communities first
+    cached_communities = load_communities_safely()
     
-    # Check for valid cache
-    if os.path.exists(cache_file) and os.path.exists(metadata_file):
-        try:
-            with open(metadata_file, 'r') as f:
-                metadata = json.load(f)
-            
-            cache_time = datetime.fromisoformat(metadata['created_at'])
-            cache_age_hours = (datetime.now() - cache_time).total_seconds() / 3600
-            
-            if cache_age_hours < 24:  # Cache valid for 24 hours
-                print(f"🚀 Loading cached GraphRAG communities ({cache_age_hours:.1f}h old)")
-                
-                with open(cache_file, 'rb') as f:
-                    cached_system = pickle.load(f)
-                
-                print(f"✅ Loaded {metadata['community_count']} cached communities")
-                return cached_system['adapter'], cached_system['query_engine']
-        
-        except Exception as e:
-            print(f"⚠️ Cache corrupted, rebuilding: {e}")
-    
-    # Build fresh system
-    print("🔧 Building fresh GraphRAG communities...")
+    # Always build fresh system objects (they can't be pickled reliably)
+    print("🔧 Building fresh GraphRAG system objects...")
     adapter, query_engine = setup_complete_community_graphrag_system()
     
-    # Cache the results
-    try:
-        community_count = len(adapter.graphrag_store.get_community_summaries())
-        
-        cache_data = {
-            'adapter': adapter,
-            'query_engine': query_engine
-        }
-        
-        with open(cache_file, 'wb') as f:
-            pickle.dump(cache_data, f)
-        
-        metadata = {
-            'created_at': datetime.now().isoformat(),
-            'community_count': community_count,
-            'cache_version': '1.0'
-        }
-        
-        with open(metadata_file, 'w') as f:
-            json.dump(metadata, f)
-        
-        print(f"💾 Cached {community_count} communities for future runs")
+    if cached_communities:
+        # Restore cached community data to the fresh system
+        print("📥 Restoring cached community data...")
+        try:
+            adapter.graphrag_store.community_summaries = cached_communities['community_summaries']
+            adapter.graphrag_store.entity_communities = cached_communities['entity_communities']
+            print(f"✅ Restored {len(cached_communities['community_summaries'])} communities")
+        except Exception as e:
+            print(f"⚠️ Failed to restore cache, rebuilding: {e}")
+            cached_communities = None
     
-    except Exception as e:
-        print(f"⚠️ Caching failed: {e}")
+    if not cached_communities:
+        # Build communities from scratch
+        print("🏗️ Building communities from scratch...")
+        success = adapter.build_communities_from_neo4j()
+        
+        if success:
+            # Save the new communities
+            save_communities_safely(adapter)
+        else:
+            print("❌ Community building failed!")
     
     return adapter, query_engine
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -136,6 +207,9 @@ class GraphRAGTemplateEngine:
     
     def _initialize_graphrag_system(self):
         """Initialize GraphRAG system using global cache"""
+        import time
+        execution_id = str(int(time.time() * 1000))
+        logger.info(f"🆔 GraphRAG initialization started - Execution ID: {execution_id}")
         try:
             logger.info("🔍 Checking for cached GraphRAG system...")
             
@@ -145,7 +219,7 @@ class GraphRAGTemplateEngine:
             if adapter and query_engine:
                 self.graphrag_adapter = adapter
                 self.graphrag_query_engine = query_engine
-                logger.info("✅ GraphRAG system ready")
+                logger.info("✅ GraphRAG system ready - Execution ID: {execution_id}")
             else:
                 raise Exception("Failed to get GraphRAG system")
                 
@@ -317,178 +391,178 @@ class GraphRAGTemplateEngine:
         logger.debug(f"Built query for {category}: {query}")
         return query
     
-    def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
-        """
-        Extract specific item names from GraphRAG response text
+    # def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
+    #     """
+    #     Extract specific item names from GraphRAG response text
         
-        Args:
-            response: Raw text response from GraphRAG
-            category: Category being queried
-            count: Number of items expected
+    #     Args:
+    #         response: Raw text response from GraphRAG
+    #         category: Category being queried
+    #         count: Number of items expected
         
-        Returns:
-            List of extracted items with basic info
-        """
-        # This method extracts item names from the natural language response
-        # and matches them against known items in the pricing database
+    #     Returns:
+    #         List of extracted items with basic info
+    #     """
+    #     # This method extracts item names from the natural language response
+    #     # and matches them against known items in the pricing database
         
-        extracted_items = []
-        print(f"🎯 Extraction attempt for {category} from response length: {len(response)}")  
-        # Load pricing data to validate item names
-        try:
-            with open("items_price_uom.json", 'r', encoding='utf-8') as f:
-                pricing_data = json.load(f)
-                known_items = {item["item_name"].lower(): item for item in pricing_data}
-        except Exception as e:
-            logger.error(f"Could not load pricing data: {e}")
-            known_items = {}
+    #     extracted_items = []
+    #     print(f"🎯 Extraction attempt for {category} from response length: {len(response)}")  
+    #     # Load pricing data to validate item names
+    #     try:
+    #         with open("items_price_uom.json", 'r', encoding='utf-8') as f:
+    #             pricing_data = json.load(f)
+    #             known_items = {item["item_name"].lower(): item for item in pricing_data}
+    #     except Exception as e:
+    #         logger.error(f"Could not load pricing data: {e}")
+    #         known_items = {}
         
-        # Extract item names using multiple strategies
-        response_lower = response.lower()
+    #     # Extract item names using multiple strategies
+    #     response_lower = response.lower()
         
-        # Strategy 1: Look for quoted items or items in lists
-        patterns = [
-            r'"([^"]+)"',  # Quoted items
-            r"'([^']+)'",  # Single quoted items
-            r'•\s*([^\n•]+)',  # Bullet points
-            r'\d+\.\s*([^\n\d]+)',  # Numbered lists
-            r'-\s*([^\n-]+)',  # Dash lists
-        ]
+    #     # Strategy 1: Look for quoted items or items in lists
+    #     patterns = [
+    #         r'"([^"]+)"',  # Quoted items
+    #         r"'([^']+)'",  # Single quoted items
+    #         r'•\s*([^\n•]+)',  # Bullet points
+    #         r'\d+\.\s*([^\n\d]+)',  # Numbered lists
+    #         r'-\s*([^\n-]+)',  # Dash lists
+    #     ]
         
-        found_names = set()
-        for pattern in patterns:
-            matches = re.findall(pattern, response_lower)
-            for match in matches:
-                clean_name = match.strip()
+    #     found_names = set()
+    #     for pattern in patterns:
+    #         matches = re.findall(pattern, response_lower)
+    #         for match in matches:
+    #             clean_name = match.strip()
                 
-                # Try to match with known items
-                for known_name, item_data in known_items.items():
-                    if self._is_item_match(clean_name, known_name, category):
-                        if known_name not in found_names:
-                            extracted_items.append({
-                                "name": item_data["item_name"],  # Use proper case
-                                "category": item_data["category"],
-                                "source": "graphrag_extraction",
-                                "match_confidence": self._calculate_match_confidence(clean_name, known_name)
-                            })
-                            found_names.add(known_name)
-                            break
+    #             # Try to match with known items
+    #             for known_name, item_data in known_items.items():
+    #                 if self._is_item_match(clean_name, known_name, category):
+    #                     if known_name not in found_names:
+    #                         extracted_items.append({
+    #                             "name": item_data["item_name"],  # Use proper case
+    #                             "category": item_data["category"],
+    #                             "source": "graphrag_extraction",
+    #                             "match_confidence": self._calculate_match_confidence(clean_name, known_name)
+    #                         })
+    #                         found_names.add(known_name)
+    #                         break
         
-        # Strategy 2: Direct name matching for common items
-        if len(extracted_items) < count:
-            for known_name, item_data in known_items.items():
-                if known_name in response_lower and known_name not in found_names:
-                    if self._is_category_appropriate(item_data["category"], category):
-                        extracted_items.append({
-                            "name": item_data["item_name"],
-                            "category": item_data["category"],
-                            "source": "direct_match",
-                            "match_confidence": 1.0
-                        })
-                        found_names.add(known_name)
+    #     # Strategy 2: Direct name matching for common items
+    #     if len(extracted_items) < count:
+    #         for known_name, item_data in known_items.items():
+    #             if known_name in response_lower and known_name not in found_names:
+    #                 if self._is_category_appropriate(item_data["category"], category):
+    #                     extracted_items.append({
+    #                         "name": item_data["item_name"],
+    #                         "category": item_data["category"],
+    #                         "source": "direct_match",
+    #                         "match_confidence": 1.0
+    #                     })
+    #                     found_names.add(known_name)
                         
-                        if len(extracted_items) >= count:
-                            break
+    #                     if len(extracted_items) >= count:
+    #                         break
         
-        # Sort by confidence and return top items
-        extracted_items.sort(key=lambda x: x["match_confidence"], reverse=True)
-        return extracted_items[:count]
+    #     # Sort by confidence and return top items
+    #     extracted_items.sort(key=lambda x: x["match_confidence"], reverse=True)
+    #     return extracted_items[:count]
     
-    def _is_item_match(self, extracted_name: str, known_name: str, category: str) -> bool:
-        """Check if extracted name matches a known item name"""
-        # Simple similarity check
-        extracted_words = set(extracted_name.split())
-        known_words = set(known_name.split())
+    # def _is_item_match(self, extracted_name: str, known_name: str, category: str) -> bool:
+    #     """Check if extracted name matches a known item name"""
+    #     # Simple similarity check
+    #     extracted_words = set(extracted_name.split())
+    #     known_words = set(known_name.split())
         
-        # Calculate word overlap
-        overlap = len(extracted_words.intersection(known_words))
-        min_words = min(len(extracted_words), len(known_words))
+    #     # Calculate word overlap
+    #     overlap = len(extracted_words.intersection(known_words))
+    #     min_words = min(len(extracted_words), len(known_words))
         
-        return min_words > 0 and overlap / min_words >= 0.5
+    #     return min_words > 0 and overlap / min_words >= 0.5
     
-    def _is_category_appropriate(self, item_category: str, query_category: str) -> bool:
-        """Check if item category is appropriate for query category"""
-        category_mappings = {
-            "starter": ["Starters", "Snacks"],
-            "main_biryani": ["Main Course"],
-            "main_rice": ["Main Course"],
-            "side_bread": ["Main Course"],
-            "side_curry": ["Main Course"],
-            "side_accompaniment": ["Sides & Accompaniments"],
-            "dessert": ["Desserts", "Sweets"]
-        }
+    # def _is_category_appropriate(self, item_category: str, query_category: str) -> bool:
+    #     """Check if item category is appropriate for query category"""
+    #     category_mappings = {
+    #         "starter": ["Starters", "Snacks"],
+    #         "main_biryani": ["Main Course"],
+    #         "main_rice": ["Main Course"],
+    #         "side_bread": ["Main Course"],
+    #         "side_curry": ["Main Course"],
+    #         "side_accompaniment": ["Sides & Accompaniments"],
+    #         "dessert": ["Desserts", "Sweets"]
+    #     }
         
-        appropriate_categories = category_mappings.get(query_category, [])
-        return item_category in appropriate_categories
+    #     appropriate_categories = category_mappings.get(query_category, [])
+    #     return item_category in appropriate_categories
     
-    def _calculate_match_confidence(self, extracted: str, known: str) -> float:
-        """Calculate confidence score for item name match"""
-        extracted_words = set(extracted.lower().split())
-        known_words = set(known.lower().split())
+    # def _calculate_match_confidence(self, extracted: str, known: str) -> float:
+    #     """Calculate confidence score for item name match"""
+    #     extracted_words = set(extracted.lower().split())
+    #     known_words = set(known.lower().split())
         
-        if not extracted_words or not known_words:
-            return 0.0
+    #     if not extracted_words or not known_words:
+    #         return 0.0
         
-        intersection = extracted_words.intersection(known_words)
-        union = extracted_words.union(known_words)
+    #     intersection = extracted_words.intersection(known_words)
+    #     union = extracted_words.union(known_words)
         
-        return len(intersection) / len(union) if union else 0.0
+    #     return len(intersection) / len(union) if union else 0.0
     
-    def _enhance_with_co_occurrence_data(self, items: List[Dict[str, Any]], event_type: str) -> List[Dict[str, Any]]:
-        """
-        Enhance item suggestions with co-occurrence insights
+    # def _enhance_with_co_occurrence_data(self, items: List[Dict[str, Any]], event_type: str) -> List[Dict[str, Any]]:
+    #     """
+    #     Enhance item suggestions with co-occurrence insights
         
-        Args:
-            items: List of basic item suggestions
-            event_type: Event type for context
+    #     Args:
+    #         items: List of basic item suggestions
+    #         event_type: Event type for context
         
-        Returns:
-            Enhanced items with co-occurrence insights
-        """
-        enhanced_items = []
+    #     Returns:
+    #         Enhanced items with co-occurrence insights
+    #     """
+    #     enhanced_items = []
         
-        for item in items:
-            enhanced_item = item.copy()
+    #     for item in items:
+    #         enhanced_item = item.copy()
             
-            # Generate insight based on co-occurrence data
-            insight = self._generate_item_insight(item["name"], event_type)
-            enhanced_item["insight"] = insight
-            enhanced_item["co_occurrence_score"] = self._get_co_occurrence_score(item["name"], event_type)
+    #         # Generate insight based on co-occurrence data
+    #         insight = self._generate_item_insight(item["name"], event_type)
+    #         enhanced_item["insight"] = insight
+    #         enhanced_item["co_occurrence_score"] = self._get_co_occurrence_score(item["name"], event_type)
             
-            enhanced_items.append(enhanced_item)
+    #         enhanced_items.append(enhanced_item)
         
-        return enhanced_items
+    #     return enhanced_items
     
-    def _generate_item_insight(self, item_name: str, event_type: str) -> str:
-        """Generate condensed insight for an item"""
-        # This would ideally query the actual co-occurrence data
-        # For now, generate contextual insights based on item type and event
+    # def _generate_item_insight(self, item_name: str, event_type: str) -> str:
+    #     """Generate condensed insight for an item"""
+    #     # This would ideally query the actual co-occurrence data
+    #     # For now, generate contextual insights based on item type and event
         
-        insight_templates = {
-            "Traditional": {
-                "default": f"Classic choice for traditional events",
-                "biryani": f"Traditional centerpiece with proven success",
-                "curry": f"Authentic flavor profile for traditional settings"
-            },
-            "Party": {
-                "default": f"Popular party selection",
-                "starter": f"Engaging party appetizer",
-                "fusion": f"Modern party favorite"
-            }
-        }
+    #     insight_templates = {
+    #         "Traditional": {
+    #             "default": f"Classic choice for traditional events",
+    #             "biryani": f"Traditional centerpiece with proven success",
+    #             "curry": f"Authentic flavor profile for traditional settings"
+    #         },
+    #         "Party": {
+    #             "default": f"Popular party selection",
+    #             "starter": f"Engaging party appetizer",
+    #             "fusion": f"Modern party favorite"
+    #         }
+    #     }
         
-        event_templates = insight_templates.get(event_type, insight_templates["Traditional"])
+    #     event_templates = insight_templates.get(event_type, insight_templates["Traditional"])
         
-        # Simple keyword-based insight selection
-        item_lower = item_name.lower()
-        if "biryani" in item_lower:
-            return event_templates.get("biryani", event_templates["default"])
-        elif "curry" in item_lower:
-            return event_templates.get("curry", event_templates["default"])
-        elif any(word in item_lower for word in ["65", "tikka", "manchurian"]):
-            return event_templates.get("starter", event_templates["default"])
-        else:
-            return event_templates["default"]
+    #     # Simple keyword-based insight selection
+    #     item_lower = item_name.lower()
+    #     if "biryani" in item_lower:
+    #         return event_templates.get("biryani", event_templates["default"])
+    #     elif "curry" in item_lower:
+    #         return event_templates.get("curry", event_templates["default"])
+    #     elif any(word in item_lower for word in ["65", "tikka", "manchurian"]):
+    #         return event_templates.get("starter", event_templates["default"])
+    #     else:
+    #         return event_templates["default"]
     
     def _get_co_occurrence_score(self, item_name: str, event_type: str) -> float:
         """Get co-occurrence score for item (placeholder implementation)"""
@@ -589,66 +663,66 @@ class GraphRAGTemplateEngine:
         
         return selected_defaults
     
-    def _fill_template_with_suggestions(self, template: Dict[str, Any], requirements: Dict[str, Any], suggestions: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
-        """
-        Fill template structure with GraphRAG suggestions
+    # def _fill_template_with_suggestions(self, template: Dict[str, Any], requirements: Dict[str, Any], suggestions: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+    #     """
+    #     Fill template structure with GraphRAG suggestions
         
-        Args:
-            template: Original template
-            requirements: Template requirements
-            suggestions: GraphRAG suggestions by category
+    #     Args:
+    #         template: Original template
+    #         requirements: Template requirements
+    #         suggestions: GraphRAG suggestions by category
         
-        Returns:
-            Template with specific item names filled in
-        """
-        filled_template = template.copy()
-        filled_items = []
+    #     Returns:
+    #         Template with specific item names filled in
+    #     """
+    #     filled_template = template.copy()
+    #     filled_items = []
         
-        # Process each category in original template order
-        for original_item in template["items"]:
-            category = original_item["category"]
+    #     # Process each category in original template order
+    #     for original_item in template["items"]:
+    #         category = original_item["category"]
             
-            # Map to GraphRAG category
-            graphrag_category = self.template_bridge.category_mapper.map_to_graphrag_category(category, original_item)
+    #         # Map to GraphRAG category
+    #         graphrag_category = self.template_bridge.category_mapper.map_to_graphrag_category(category, original_item)
             
-            # Get suggestion for this item slot
-            category_suggestions = suggestions.get(graphrag_category, [])
+    #         # Get suggestion for this item slot
+    #         category_suggestions = suggestions.get(graphrag_category, [])
             
-            if category_suggestions:
-                # Take next available suggestion
-                suggestion = category_suggestions.pop(0)
+    #         if category_suggestions:
+    #             # Take next available suggestion
+    #             suggestion = category_suggestions.pop(0)
                 
-                filled_item = {
-                    "category": original_item["category"],
-                    "name": suggestion["name"],
-                    "weight": original_item.get("weight"),
-                    "quantity": original_item.get("quantity"),
-                    "insight": suggestion.get("insight", ""),
-                    "graphrag_metadata": {
-                        "suggested_category": graphrag_category,
-                        "source": suggestion.get("source", "graphrag"),
-                        "confidence": suggestion.get("match_confidence", 0.0)
-                    }
-                }
-            else:
-                # Fallback to placeholder
-                filled_item = original_item.copy()
-                filled_item["insight"] = "Item selection pending"
-                filled_item["graphrag_metadata"] = {"source": "placeholder"}
+    #             filled_item = {
+    #                 "category": original_item["category"],
+    #                 "name": suggestion["name"],
+    #                 "weight": original_item.get("weight"),
+    #                 "quantity": original_item.get("quantity"),
+    #                 "insight": suggestion.get("insight", ""),
+    #                 "graphrag_metadata": {
+    #                     "suggested_category": graphrag_category,
+    #                     "source": suggestion.get("source", "graphrag"),
+    #                     "confidence": suggestion.get("match_confidence", 0.0)
+    #                 }
+    #             }
+    #         else:
+    #             # Fallback to placeholder
+    #             filled_item = original_item.copy()
+    #             filled_item["insight"] = "Item selection pending"
+    #             filled_item["graphrag_metadata"] = {"source": "placeholder"}
             
-            filled_items.append(filled_item)
+    #         filled_items.append(filled_item)
         
-        filled_template["items"] = filled_items
-        return filled_template
+    #     filled_template["items"] = filled_items
+    #     return filled_template
     
-    def _count_fallbacks(self, suggestions: Dict[str, List[Dict[str, Any]]]) -> int:
-        """Count how many fallback suggestions were used"""
-        fallback_count = 0
-        for category_suggestions in suggestions.values():
-            for suggestion in category_suggestions:
-                if suggestion.get("source") in ["fallback", "community_default"]:
-                    fallback_count += 1
-        return fallback_count
+    # def _count_fallbacks(self, suggestions: Dict[str, List[Dict[str, Any]]]) -> int:
+    #     """Count how many fallback suggestions were used"""
+    #     fallback_count = 0
+    #     for category_suggestions in suggestions.values():
+    #         for suggestion in category_suggestions:
+    #             if suggestion.get("source") in ["fallback", "community_default"]:
+    #                 fallback_count += 1
+    #     return fallback_count
     
     def _handle_no_template_found(self, event_type: str, budget: int) -> Dict[str, Any]:
         """Handle case where no template matches budget/event type"""
@@ -1059,6 +1133,20 @@ class GraphRAGTemplateEngine:
                 if suggestion.get("source") in ["fallback", "community_default"]:
                     fallback_count += 1
         return fallback_count
+    
+    def run_diagnostics(self):
+        """
+        Run diagnostics on the current GraphRAG system
+        """
+        print(f"\n🔧 Running diagnostics for GraphRAGTemplateEngine...")
+        
+        # Check if GraphRAG system is initialized
+        if not self.graphrag_adapter or not self.graphrag_query_engine:
+            print("❌ GraphRAG system not properly initialized")
+            return False
+        
+        # Run the external diagnostic function
+        return diagnose_community_system(self.graphrag_adapter, self.graphrag_query_engine)
 
 
 class InsightGenerator:
@@ -1160,7 +1248,7 @@ class InsightGenerator:
 # MAIN INTERFACE FUNCTIONS
 # ============================================================================
 
-def create_graphrag_template_engine(template_file: str = None) -> GraphRAGTemplateEngine:
+def create_graphrag_template_engine(template_file: str = None, run_diagnostics: bool= False) -> GraphRAGTemplateEngine:
     """
     Factory function to create GraphRAG Template Engine
     
@@ -1170,7 +1258,12 @@ def create_graphrag_template_engine(template_file: str = None) -> GraphRAGTempla
     Returns:
         Configured GraphRAGTemplateEngine instance
     """
-    return GraphRAGTemplateEngine(template_file)
+    engine = GraphRAGTemplateEngine(template_file)
+    
+    if run_diagnostics:
+        print("🔍 Running post-creation diagnostics...")
+        engine.run_diagnostics()
+    return engine
 
 def reset_graphrag_cache():
     """Reset cache for testing"""
@@ -1180,13 +1273,194 @@ def reset_graphrag_cache():
 # ============================================================================
 # TESTING
 # ============================================================================
+# Add this to graphrag_query_engine.py for debugging
 
+def diagnose_community_system(adapter, query_engine):
+    """
+    COMPREHENSIVE DIAGNOSTICS: Identify exactly what's wrong
+    """
+    print("\n🔬 COMMUNITY SYSTEM DIAGNOSTICS")
+    print("=" * 60)
+    
+    # 1. Check Neo4j connection
+    try:
+        test_query = "MATCH (n) RETURN count(n) as node_count LIMIT 1"
+        result = adapter.neo4j_store.structured_query(test_query)
+        node_count = result[0]['node_count'] if result else 0
+        print(f"✅ Neo4j Connection: {node_count} nodes available")
+    except Exception as e:
+        print(f"❌ Neo4j Connection: FAILED - {e}")
+        return False
+    
+    # 2. Check community summaries
+    summaries = adapter.graphrag_store.get_community_summaries()
+    print(f"📊 Community Summaries: {len(summaries)} found")
+    
+    if len(summaries) == 0:
+        print("⚠️  NO COMMUNITIES DETECTED - This is the root cause!")
+        
+        # Check raw graph data
+        try:
+            nodes = len(adapter.graphrag_store.graph.nodes)
+            relations = len(adapter.graphrag_store.graph.relations)
+            print(f"📈 Raw Graph Data: {nodes} nodes, {relations} relations")
+            
+            if nodes == 0:
+                print("❌ CRITICAL: No nodes in graph - Neo4j sync failed")
+            elif relations == 0:
+                print("❌ CRITICAL: No relations in graph - relationships not synced")
+            else:
+                print("💡 Graph data exists but community detection failed")
+                
+        except Exception as e:
+            print(f"❌ Graph data check failed: {e}")
+        
+        return False
+    
+    # 3. Sample community content
+    print("\n🔍 COMMUNITY CONTENT SAMPLE:")
+    for i, (comm_id, summary) in enumerate(list(summaries.items())[:3]):
+        print(f"\nCommunity {comm_id}:")
+        print(f"  Summary length: {len(summary)} characters")
+        print(f"  Preview: {summary[:100]}...")
+    
+    # 4. Check entity mappings
+    entity_communities = adapter.graphrag_store.entity_communities
+    print(f"\n🏷️  Entity Mappings: {len(entity_communities)} entities mapped")
+    
+    if len(entity_communities) == 0:
+        print("❌ CRITICAL: No entity-community mappings")
+        return False
+    
+    # Sample entity mappings
+    print("\n📋 SAMPLE ENTITY MAPPINGS:")
+    for i, (entity, communities) in enumerate(list(entity_communities.items())[:5]):
+        print(f"  {entity} → Communities: {communities}")
+    
+    # 5. Test query functionality
+    print("\n🎯 TESTING QUERY FUNCTIONALITY:")
+    test_queries = [
+        ("biryani", "Party"),
+        ("starter", "Traditional"), 
+        ("dessert", "Party")
+    ]
+    
+    for category, event_type in test_queries:
+        try:
+            print(f"\n  Testing: {category} for {event_type} events...")
+            
+            # Build test query
+            query_text = f"What are good {category} options for {event_type.lower()} events?"
+            
+            # Execute query
+            response = query_engine.query(query_text)
+            
+            if response and len(response) > 50:
+                print(f"    ✅ Response generated ({len(response)} chars)")
+                print(f"    Preview: {response[:100]}...")
+            else:
+                print(f"    ❌ Poor response: {response[:50]}...")
+                
+        except Exception as e:
+            print(f"    ❌ Query failed: {e}")
+    
+    print(f"\n🎯 DIAGNOSIS COMPLETE")
+    return True
+
+def test_item_extraction():
+    """
+    TEST ITEM EXTRACTION: Check if extraction patterns work
+    """
+    print("\n🧪 TESTING ITEM EXTRACTION PATTERNS")
+    print("=" * 50)
+    
+    # Sample GraphRAG responses to test against
+    test_responses = [
+        "I recommend **Chicken 65**, **Paneer Tikka**, and **Veg Spring Rolls** for party events.",
+        "For traditional events, consider: Chicken Biryani, Mutton Curry, and Dal Tadka.",
+        "The best starters are: 1. Chicken Manchurian 2. Cheese Balls 3. Fish Fry",
+        "Excellent dessert choices include Gulab Jamun, Double Ka Meetha, and Tiramisu.",
+    ]
+    
+    # Load pricing data for validation
+    try:
+        with open("items_price_uom.json", 'r', encoding='utf-8') as f:
+            pricing_data = json.load(f)
+            known_items = {item["item_name"].lower(): item for item in pricing_data}
+        print(f"📚 Loaded {len(known_items)} known items for validation")
+    except Exception as e:
+        print(f"❌ Could not load pricing data: {e}")
+        return
+    
+    # Test each response
+    for i, response in enumerate(test_responses, 1):
+        print(f"\n🔍 Test {i}: {response[:50]}...")
+        
+        # Test extraction (you'll need to import the actual extraction function)
+        try:
+            # This would call your actual extraction function
+            # extracted = _extract_items_from_graphrag_response(response, "starter", 3)
+            
+            # For now, let's do basic pattern matching
+            import re
+            patterns = [
+                r'\*\*([^*]+?)\*\*',  # Bold items
+                r'(?:recommend|suggest|include|consider)[^:]*:\s*([^.]+)',  # Recommendation phrases
+                r'\d+\.\s*([^\n\d]+)',  # Numbered lists
+            ]
+            
+            found_items = []
+            for pattern in patterns:
+                matches = re.findall(pattern, response, re.IGNORECASE)
+                for match in matches:
+                    clean_match = re.sub(r'[^\w\s]', '', match.strip())
+                    if clean_match.lower() in known_items:
+                        found_items.append(clean_match)
+            
+            print(f"    ✅ Extracted {len(found_items)} valid items: {found_items}")
+            
+        except Exception as e:
+            print(f"    ❌ Extraction failed: {e}")
+
+# Add this function call in your main app to run diagnostics
+def run_full_diagnostics():
+    """Run complete system diagnostics"""
+    try:
+        adapter, query_engine = get_cached_graphrag_system()
+        
+        # Run diagnostics
+        system_ok = diagnose_community_system(adapter, query_engine)
+        
+        if system_ok:
+            test_item_extraction()
+            print("\n🎉 System appears to be working correctly!")
+        else:
+            print("\n🚨 CRITICAL ISSUES FOUND - Community system needs repair")
+            
+        return system_ok
+        
+    except Exception as e:
+        print(f"❌ Diagnostics failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 if __name__ == "__main__":
     print("Testing GraphRAG Template Engine...")
+    # Add this option
+    run_diagnostics_flag = True  # Set to True to run diagnostics
     
+    if run_diagnostics_flag:
+        print("\n" + "="*60)
+        print("🔍 RUNNING FULL DIAGNOSTICS")
+        print("="*60)
+        success = run_full_diagnostics()
+        if not success:
+            print("⚠️ Diagnostics revealed issues - check output above")
+        print("="*60)
     try:
         # Create engine
-        engine = create_graphrag_template_engine()
+        # Create engine
+        engine = create_graphrag_template_engine(run_diagnostics=run_diagnostics_flag)
         print("✓ GraphRAG Template Engine created successfully")
         
         # Test recommendation
