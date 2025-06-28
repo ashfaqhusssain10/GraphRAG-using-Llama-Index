@@ -426,21 +426,26 @@ def calculate_template_price(template, price_file="NEW/items_price_uom.json", us
         total_price += qty_num * price_per_unit
 
     return round(total_price, 2)
+_CACHED_GRAPHRAG_ENGINE = None
 def get_recommendation_with_insights(event_type, budget_per_head, use_peak=True):
     """
     Enhanced recommendation engine using GraphRAG intelligence
     Falls back to traditional templates if GraphRAG unavailable
     """
-    
+    print(f"🎯 FRONTEND CALL: get_recommendation_with_insights called")
     if GRAPHRAG_AVAILABLE:
         try:
             print(f"🤖 Generating GraphRAG recommendation for {event_type} event with ₹{budget_per_head} budget")
             
-            # Initialize GraphRAG Template Engine
-            graphrag_engine = create_graphrag_template_engine()
+            global _CACHED_GRAPHRAG_ENGINE 
             
+            if _CACHED_GRAPHRAG_ENGINE is None:
+                print("🔧 Creating GraphRAG engine (first time only)")
+                _CACHED_GRAPHRAG_ENGINE = create_graphrag_template_engine()
+            else:
+                print("⚡ Using cached GraphRAG engine")
             # Get GraphRAG recommendation
-            graphrag_result = graphrag_engine.recommend_with_graphrag(event_type, budget_per_head)
+            graphrag_result = _CACHED_GRAPHRAG_ENGINE.recommend_with_graphrag(event_type, budget_per_head)
             
             if "error" not in graphrag_result:
                 # Convert GraphRAG result to frontend format

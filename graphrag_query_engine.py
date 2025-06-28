@@ -15,7 +15,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from collections import defaultdict, Counter
 import logging
 import random
-
+import threading 
 # Import your existing GraphRAG components
 try:
     from ex1 import (
@@ -57,53 +57,100 @@ def save_communities_safely(adapter, cache_dir="graphrag_cache"):
     """
     SAFE COMMUNITY PERSISTENCE: Only save the essential data
     """
-    if cache_dir is None:
-        cache_dir = get_cache_directory()
-    os.makedirs(cache_dir, exist_ok=True)
-    
-    try:
-        # Extract only the essential data that can be safely pickled
-        communities_data = {
-            'community_summaries': adapter.graphrag_store.get_community_summaries(),
-            'entity_communities': dict(adapter.graphrag_store.entity_communities),
-            'cache_version': '2.0',
-            'created_at': datetime.now().isoformat()
-        }
+    with _CACHED_LOCK:
+        if cache_dir is None:
+            cache_dir = get_cache_directory()
+        os.makedirs(cache_dir, exist_ok=True)
         
-        # Save community data
+        # Create process-level lock file
+        lock_file = os.path.join(cache_dir, "save_operation.lock")
         cache_file = os.path.join(cache_dir, "communities_data.pkl")
-        with open(cache_file, 'wb') as f:
-            pickle.dump(communities_data, f)
-        
-        # Save metadata
-        metadata = {
-            'created_at': datetime.now().isoformat(),
-            'community_count': len(communities_data['community_summaries']),
-            'entity_count': len(communities_data['entity_communities']),
-            'cache_version': '2.0'
-        }
-        
         metadata_file = os.path.join(cache_dir, "metadata.json")
-        with open(metadata_file, 'w') as f:
-            json.dump(metadata, f, indent=2)
+        temp_cache_file = cache_file + ".tmp"
+        temp_metadata_file = metadata_file + ".tmp"
         
-        print(f"✅ Successfully cached {metadata['community_count']} communities")
-        print(f"📁 Cache location: {cache_file}")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Community caching failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
+        try:
+            # Create lock file
+            with open(lock_file, 'w') as f:
+                f.write(str(os.getpid()))
+            
+            # Extract only the essential data that can be safely pickled
+            communities_data = {
+                'community_summaries': adapter.graphrag_store.get_community_summaries(),
+                'entity_communities': dict(adapter.graphrag_store.entity_communities),
+                'cache_version': '2.0',
+                'created_at': datetime.now().isoformat()
+            }
+            
+            # Atomic save - write to temp files first
+            with open(temp_cache_file, 'wb') as f:
+                pickle.dump(communities_data, f)
+            
+            # Save metadata
+            metadata = {
+                'created_at': datetime.now().isoformat(),
+                'community_count': len(communities_data['community_summaries']),
+                'entity_count': len(communities_data['entity_communities']),
+                'cache_version': '2.0'
+            }
+            
+            with open(temp_metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            
+            # Atomic move to final locations
+            if os.path.exists(cache_file):
+                os.remove(cache_file)
+            if os.path.exists(metadata_file):
+                os.remove(metadata_file)
+                
+            os.rename(temp_cache_file, cache_file)
+            os.rename(temp_metadata_file, metadata_file)
+            
+            print(f"✅ Successfully cached {metadata['community_count']} communities")
+            print(f"📁 Cache location: {cache_file}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Community caching failed: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            # Cleanup temp files on failure
+            for temp_file in [temp_cache_file, temp_metadata_file]:
+                if os.path.exists(temp_file):
+                    try:
+                        os.remove(temp_file)
+                    except:
+                        pass
+            return False
+            
+        finally:
+            # Always remove lock file
+            if os.path.exists(lock_file):
+                try:
+                    os.remove(lock_file)
+                except:
+                    pass
+_CACHED_LOCK = threading.RLock()
+_SYSTEM_INITIALIZATION_LOCK = threading.RLock()
+_SYSTEM_INITIALIZATION_IN_PROGRESS = False
 def load_communities_safely(cache_dir="graphrag_cache"):
     """
     SAFE COMMUNITY LOADING: Load and validate cached data
     """
-    cache_file = os.path.join(cache_dir, "communities_data.pkl")
-    metadata_file = os.path.join(cache_dir, "metadata.json")
+    with _CACHED_LOCK:
+        cache_file = os.path.join(cache_dir, "communities_data.pkl")
+        metadata_file = os.path.join(cache_dir, "metadata.json")
     # 🔍 DIAGNOSTIC LOGGING
+     # Add process-level lock file to prevent race conditions
+        lock_file = os.path.join(cache_dir, "cache.lock")
+        
+        if os.path.exists(lock_file):
+            print("🔒 Cache operation in progress, waiting...")
+            # Wait for lock to be released
+            while os.path.exists(lock_file):
+                time.sleep(0.1)
+                
     print(f"🔍 CACHE DIAGNOSTIC:")
     print(f"   📁 Looking for cache in: {os.path.abspath(cache_dir)}")
     print(f"   📄 Cache file exists: {os.path.exists(cache_file)}")
@@ -141,43 +188,85 @@ def load_communities_safely(cache_dir="graphrag_cache"):
         print(f"❌ Cache loading failed: {e}")
         return None
 
-@st.cache_resource(ttl=86400)
+# ✅ REPLACE the existing get_cached_graphrag_system() with this:
+@st.cache_resource(ttl=86400, show_spinner=False)
 def get_cached_graphrag_system():
     """
-    FIXED CACHING SYSTEM: Separate community data from system objects
+    ENHANCED PRECISION: Prevents cascading builds with surgical accuracy
     """
-    print("🔍 Initializing GraphRAG system...")
+    global _SYSTEM_INITIALIZATION_IN_PROGRESS
     
-    # Try to load cached communities first
-    cached_communities = load_communities_safely()
-    
-    # Always build fresh system objects (they can't be pickled reliably)
-    print("🔧 Building fresh GraphRAG system objects...")
-    adapter, query_engine = setup_complete_community_graphrag_system()
-    
-    if cached_communities:
-        # Restore cached community data to the fresh system
-        print("📥 Restoring cached community data...")
-        try:
-            adapter.graphrag_store.community_summaries = cached_communities['community_summaries']
-            adapter.graphrag_store.entity_communities = cached_communities['entity_communities']
-            print(f"✅ Restored {len(cached_communities['community_summaries'])} communities")
-        except Exception as e:
-            print(f"⚠️ Failed to restore cache, rebuilding: {e}")
-            cached_communities = None
-    
-    if not cached_communities:
-        # Build communities from scratch
-        print("🏗️ Building communities from scratch...")
-        success = adapter.build_communities_from_neo4j()
+    # Multi-layer protection against cascading builds
+    with _SYSTEM_INITIALIZATION_LOCK:
+        if _SYSTEM_INITIALIZATION_IN_PROGRESS:
+            print("🚫 System initialization already in progress, waiting...")
+            # Wait for active initialization to complete
+            while _SYSTEM_INITIALIZATION_IN_PROGRESS:
+                time.sleep(0.1)
+            
+            # Return the cached result after wait
+            if (_GRAPHRAG_SYSTEM_CACHE['initialized'] and 
+                _GRAPHRAG_SYSTEM_CACHE['adapter'] is not None):
+                print("⚡ Using system built by concurrent initialization")
+                return _GRAPHRAG_SYSTEM_CACHE['adapter'], _GRAPHRAG_SYSTEM_CACHE['query_engine']
         
-        if success:
-            # Save the new communities
-            save_communities_safely(adapter)
-        else:
-            print("❌ Community building failed!")
-    
-    return adapter, query_engine
+        execution_id = str(int(time.time() * 1000))
+        print(f"🔧 GraphRAG system initialization - ID: {execution_id}")
+        
+        # Check if we already have a valid system in global cache
+        if (_GRAPHRAG_SYSTEM_CACHE['initialized'] and 
+            _GRAPHRAG_SYSTEM_CACHE['adapter'] is not None):
+            print(f"⚡ Using existing global cache - ID: {execution_id}")
+            return _GRAPHRAG_SYSTEM_CACHE['adapter'], _GRAPHRAG_SYSTEM_CACHE['query_engine']
+        
+        # Mark initialization as in progress
+        _SYSTEM_INITIALIZATION_IN_PROGRESS = True
+        
+        try:
+            # Single build path - no double building
+            print(f"🏗️ Building GraphRAG system (single build) - ID: {execution_id}")
+            
+            # Try to load cached communities first
+            cached_communities = load_communities_safely()
+            
+            # Build fresh system objects (never cached as they contain unpicklable objects)
+            adapter, query_engine = setup_complete_community_graphrag_system()
+            
+            if cached_communities:
+                print(f"📥 Restoring cached communities - ID: {execution_id}")
+                try:
+                    adapter.graphrag_store.community_summaries = cached_communities['community_summaries']
+                    adapter.graphrag_store.entity_communities = cached_communities['entity_communities']
+                    print(f"✅ Communities restored - ID: {execution_id}")
+                except Exception as e:
+                    print(f"⚠️ Cache restore failed, rebuilding - ID: {execution_id}")
+                    cached_communities = None
+            
+            if not cached_communities:
+                print(f"🔨 Building communities from scratch - ID: {execution_id}")
+                success = adapter.build_communities_from_neo4j()
+                
+                if success:
+                    # Save the new communities
+                    save_communities_safely(adapter)
+                    print(f"💾 Communities saved to cache - ID: {execution_id}")
+                else:
+                    print(f"❌ Community building failed - ID: {execution_id}")
+            
+            # Update global cache
+            _GRAPHRAG_SYSTEM_CACHE.update({
+                'adapter': adapter,
+                'query_engine': query_engine,
+                'initialized': True
+            })
+            
+            print(f"🎯 GraphRAG system ready - ID: {execution_id}")
+            return adapter, query_engine
+            
+        finally:
+            # Always clear the initialization flag
+            _SYSTEM_INITIALIZATION_IN_PROGRESS = False
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
