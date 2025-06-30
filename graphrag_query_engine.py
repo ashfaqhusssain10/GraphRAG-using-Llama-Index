@@ -1,5 +1,7 @@
 # graphrag_query_engine.py
 # graphrag_query_engine.py
+
+#some Bugs related to the Items Extraction or naming issue between the neo4j and the json file 
 """
 GraphRAG Query Engine for Template Integration
 Main engine that connects template requirements with GraphRAG system
