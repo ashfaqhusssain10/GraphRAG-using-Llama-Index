@@ -390,12 +390,13 @@ class GraphRAGTemplateEngine:
         for query_spec in query_specs:
             category = query_spec["category"]
             count_needed = query_spec["count"]
+            budget_allocation = query_spec.get("budget_allocation")
             
             logger.info(f"Querying GraphRAG for {count_needed} {category} items")
             
             try:
                 # Execute category-specific query
-                category_suggestions = self._query_category_items(query_spec, event_type)
+                category_suggestions = self._query_category_items(query_spec, event_type, budget_allocation)
                 
                 # Ensure we have exact count needed
                 if len(category_suggestions) < count_needed:
@@ -413,7 +414,7 @@ class GraphRAGTemplateEngine:
         
         return suggestions
     
-    def _query_category_items(self, query_spec: Dict[str, Any], event_type: str) -> List[Dict[str, Any]]:
+    def _query_category_items(self, query_spec: Dict[str, Any], event_type: str, budget_allocation: int = None) -> List[Dict[str, Any]]:
         """
         Query GraphRAG for specific category items
         
@@ -429,7 +430,7 @@ class GraphRAGTemplateEngine:
         cypher_filter = query_spec["cypher_filter"]
         
         # Build GraphRAG query string
-        query_text = self._build_category_query_text(category, event_type, count)
+        query_text = self._build_category_query_text(category, event_type, count, budget_allocation)
         
         # Execute query using existing GraphRAG system
         try:
@@ -447,40 +448,245 @@ class GraphRAGTemplateEngine:
             logger.error(f"GraphRAG query execution failed for {category}: {e}")
             raise
     
-    def _build_category_query_text(self, category: str, event_type: str, count: int) -> str:
+
+# PREMIUM PROMPT ARCHITECTURE v3.0 - SURGICAL REPLACEMENT
+# REPLACE ENTIRE METHOD WITH THIS ENGINEERED VERSION:
+
+    def _build_category_query_text(self, category: str, event_type: str, count: int, budget_allocation: int = None) -> str:
         """
-        Build natural language query for GraphRAG based on category
-        
-        Args:
-            category: GraphRAG category (e.g., "starter", "main_biryani")
-            event_type: Event type context
-            count: Number of items needed
-        
-        Returns:
-            Natural language query string
+        Premium-optimized GraphRAG query builder with inventory awareness
+        Engineering Version: 3.0 - Premium Focus + Budget Intelligence
         """
-        category_queries = {
-            "starter": f"What are the best {count} starter items for {event_type.lower()} events based on historical co-occurrence patterns?",
-            
-            "main_biryani": f"Recommend {count} biryani dish that works well for {event_type.lower()} events with high success rates.",
-            
-            "main_rice": f"Suggest {count} flavored rice or pulav dish suitable for {event_type.lower()} events.",
-            
-            "side_bread": f"What {count} bread item pairs well with curry dishes in {event_type.lower()} event menus?",
-            
-            "side_curry": f"Recommend {count} curry dish that complements biryani and bread in {event_type.lower()} settings.",
-            
-            "side_accompaniment": f"What {count} accompaniment (raita, salad, or pickle) works best for {event_type.lower()} events?",
-            
-            "dessert": f"Suggest {count} dessert that provides a good ending for {event_type.lower()} event meals."
+        
+        # Load pricing inventory for prompt integration
+        inventory_data = self._load_pricing_inventory()
+        category_inventory = self._filter_inventory_by_category(inventory_data, category)
+        
+        # Calculate budget flexibility range
+        base_budget = budget_allocation or self._estimate_category_budget(category)
+        budget_range = {
+            'min': base_budget - 50,
+            'baseline': base_budget, 
+            'max': base_budget + 50
         }
         
-        query = category_queries.get(category, f"Recommend {count} items from {category} category for {event_type.lower()} events")
+        premium_queries = {
+            "starter": f"""
+    You are a luxury catering optimization consultant for {event_type.lower()} events.
+
+    STARTER CATEGORY PREMIUM OPTIMIZATION:
+    Budget Flexibility: ₹{budget_range['min']}-{budget_range['max']} (baseline ₹{budget_range['baseline']})
+    Required: {count} starter items
+
+    AVAILABLE INVENTORY WITH EXACT PRICING:
+    {json.dumps(category_inventory, indent=2)}
+
+    PREMIUM OPTIMIZATION METHODOLOGY:
+    1. Select baseline {count}-item combination around ₹{budget_range['baseline']}
+    2. Engineer ONE strategic 2-item premium upgrade (target ₹{budget_range['max']-20}-{budget_range['max']} range)
+    3. Prioritize: Premium proteins, gourmet preparation, impressive presentation
+
+    OUTPUT FORMAT:
+    **Baseline Selection ({count} items):**
+    - [List exact item names from inventory]
+    - Total: ₹XXX
+
+    **Premium Upgrade Option:**
+    - Replace: [Item A] + [Item B] → [Premium Item C] + [Premium Item D]
+    - Investment: +₹XX for [specific luxury benefit]
+    - Impact: [One line premium value justification]
+    - Result: [One line party experience elevation]
+
+    Focus on items that create memorable {event_type.lower()} experiences through luxury elevation.
+    """,
+
+            "main_biryani": f"""
+    You are optimizing premium main courses for ₹{budget_range['baseline']} {event_type.lower()} event budget.
+
+    MAIN COURSE PREMIUM ENGINEERING:
+    Budget Flexibility: ₹{budget_range['min']}-{budget_range['max']}
+    Required: {count} biryani dish with luxury focus
+
+    BIRYANI INVENTORY WITH PRICING:
+    {json.dumps(category_inventory, indent=2)}
+
+    PREMIUM SELECTION CRITERIA:
+    1. Identify baseline biryani around ₹{budget_range['baseline']}
+    2. Show premium upgrade path (+₹30-50 investment)
+    3. Focus on: Luxury ingredients, complex preparation, premium presentation
+
+    OUTPUT FORMAT:
+    **Baseline Selection:**
+    - Biryani: [Exact item name] (₹XX)
+
+    **Premium Upgrade Path:**
+    - Replace: [Current Item] → [Premium Item]
+    - Investment: +₹XX for [luxury upgrade type]
+    - Value: [Premium ingredient/preparation benefit]
+    - Experience: [Party impact enhancement]
+
+    Select biryani that maximizes {event_type.lower()} event luxury within budget flexibility.
+    """,
+
+            "main_rice": f"""
+    Premium rice dish optimization for {event_type.lower()} events.
+
+    RICE CATEGORY LUXURY FOCUS:
+    Budget Range: ₹{budget_range['min']}-{budget_range['max']}
+    Required: {count} flavored rice/pulav with premium positioning
+
+    RICE INVENTORY:
+    {json.dumps(category_inventory, indent=2)}
+
+    OPTIMIZATION APPROACH:
+    1. Select baseline rice dish around ₹{budget_range['baseline']}
+    2. Identify premium alternative (+₹20-40 upgrade)
+    3. Emphasize: Exotic ingredients, aromatic preparation, visual appeal
+
+    OUTPUT FORMAT:
+    **Baseline Choice:** [Rice dish name] (₹XX)
+    **Premium Option:** [Luxury rice dish] (+₹XX for [upgrade benefit])
+    **Justification:** [Two lines explaining premium value]
+
+    Choose rice that complements luxury {event_type.lower()} experience.
+    """,
+
+            "side_bread": f"""
+    Premium bread selection for {event_type.lower()} luxury dining.
+
+    BREAD OPTIMIZATION:
+    Budget: ₹{budget_range['min']}-{budget_range['max']}
+    Required: {count} bread item with premium focus
+
+    BREAD INVENTORY:
+    {json.dumps(category_inventory, indent=2)}
+
+    SELECTION METHODOLOGY:
+    1. Baseline bread around ₹{budget_range['baseline']}
+    2. Premium upgrade option (+₹15-30)
+    3. Focus: Artisanal preparation, texture variety, visual presentation
+
+    OUTPUT: [Bread name] (₹XX) with optional upgrade to [Premium bread] (+₹XX for [benefit])
+    """,
+
+            "side_curry": f"""
+    Luxury curry optimization for {event_type.lower()} events.
+
+    CURRY PREMIUM SELECTION:
+    Budget Range: ₹{budget_range['min']}-{budget_range['max']}
+    Required: {count} curry with gourmet positioning
+
+    CURRY INVENTORY:
+    {json.dumps(category_inventory, indent=2)}
+
+    METHODOLOGY:
+    1. Select baseline curry ₹{budget_range['baseline']}
+    2. Show premium upgrade (+₹25-45)
+    3. Prioritize: Complex spice profiles, premium ingredients, rich preparation
+
+    OUTPUT: Baseline + Premium upgrade option with 2-line justification.
+    """,
+
+            "side_accompaniment": f"""
+    Premium accompaniment curation for {event_type.lower()} events.
+
+    ACCOMPANIMENT LUXURY FOCUS:
+    Budget: ₹{budget_range['min']}-{budget_range['max']}
+    Required: {count} accompaniment items
+
+    INVENTORY:
+    {json.dumps(category_inventory, indent=2)}
+
+    Select accompaniments that elevate the dining experience with premium positioning.
+    """,
+
+            "dessert": f"""
+    Luxury dessert curation for memorable {event_type.lower()} event endings.
+
+    DESSERT PREMIUM OPTIMIZATION:
+    Budget Flexibility: ₹{budget_range['min']}-{budget_range['max']}
+    Required: {count} dessert items for spectacular conclusion
+
+    LUXURY DESSERT INVENTORY:
+    {json.dumps(category_inventory, indent=2)}
+
+    PREMIUM CURATION METHODOLOGY:
+    1. Select baseline {count}-dessert combination around ₹{budget_range['baseline']}
+    2. Engineer ONE strategic 2-item luxury upgrade (target ₹{budget_range['max']-20}-{budget_range['max']})
+    3. Focus: Presentation elegance, exotic ingredients, memorable experience
+
+    OUTPUT FORMAT:
+    **Baseline Selection:**
+    - [Dessert items with pricing]
+    - Total: ₹XXX
+
+    **Luxury Upgrade Option:**
+    - Replace: [Current Desserts] → [Premium Desserts]
+    - Investment: +₹XX for [luxury enhancement]
+    - Elegance: [Presentation/ingredient upgrade]
+    - Memory: [Party ending experience enhancement]
+
+    Create dessert combinations that leave lasting impressions.
+    """
+        }
         
-        logger.debug(f"Built query for {category}: {query}")
+        query = premium_queries.get(category, f"Recommend {count} premium {category} items for {event_type.lower()} events with luxury focus and budget flexibility ₹{budget_range['min']}-{budget_range['max']}")
+        
+        logger.debug(f"Built premium query for {category}: {query[:100]}...")
         return query
-    
-    # def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
+    # SURGICAL ADDITION: Add these supporting methods to GraphRAGTemplateEngine class
+
+    def _load_pricing_inventory(self) -> List[Dict[str, Any]]:
+        """Load complete pricing inventory for prompt integration"""
+        try:
+            with open("items_price_uom.json", 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load pricing inventory: {e}")
+            return []
+
+    def _filter_inventory_by_category(self, inventory: List[Dict], category: str) -> List[Dict]:
+        """Filter inventory by GraphRAG category mapping"""
+        category_mapping = {
+            "starter": ["Starters", "Snacks"],
+            "main_biryani": ["Main Course"],
+            "main_rice": ["Main Course"], 
+            "side_bread": ["Main Course"],
+            "side_curry": ["Main Course"],
+            "side_accompaniment": ["Sides & Accompaniments"],
+            "dessert": ["Desserts", "Sweets"]
+        }
+        
+        target_categories = category_mapping.get(category, [])
+        filtered = [item for item in inventory if item.get("category") in target_categories]
+        
+        # For specific sub-categories, apply additional filtering
+        if category == "main_biryani":
+            filtered = [item for item in filtered if "biryani" in item["item_name"].lower()]
+        elif category == "main_rice":
+            filtered = [item for item in filtered if any(keyword in item["item_name"].lower() 
+                    for keyword in ["rice", "pulav", "pulao"])]
+        elif category == "side_bread":
+            filtered = [item for item in filtered if any(keyword in item["item_name"].lower() 
+                    for keyword in ["roti", "naan", "chapati", "phulka", "paratha"])]
+        elif category == "side_curry":
+            filtered = [item for item in filtered if "curry" in item["item_name"].lower()]
+        
+        return filtered[:20]  # Limit to top 20 items for prompt efficiency
+
+    def _estimate_category_budget(self, category: str) -> int:
+        """Estimate baseline budget allocation by category"""
+        budget_estimates = {
+            "starter": 180,
+            "main_biryani": 120,
+            "main_rice": 80,
+            "side_bread": 40,
+            "side_curry": 100,
+            "side_accompaniment": 60,
+            "dessert": 80
+        }
+        return budget_estimates.get(category, 100)
+        # def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
     #     """
     #     Extract specific item names from GraphRAG response text
         
