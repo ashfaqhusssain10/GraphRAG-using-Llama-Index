@@ -1321,16 +1321,16 @@ class Neo4jGraphRAGAdapter:
             similarity_top_k=similarity_top_k
         )
 
-def setup_complete_community_graphrag_system():
+def setup_graphrag_core_system():
     """
-    Complete setup function that brings together all the components:
-    local models, Neo4j integration, and community-based GraphRAG.
+    Core setup function that initializes essential components:
+    local models, Neo4j integration, and the GraphRAG adapter.
     
-    This function orchestrates the entire system setup, from configuring
-    local models to building community summaries to creating the query engine.
+    This function prepares the system for community analysis but does
+    not perform the analysis itself.
     """
     
-    print("🔧 Setting up complete Community-based GraphRAG system...")
+    print("🔧 Setting up GraphRAG Core System...")
     
     # Step 1: Configure local models (as we did before)
     print("\n1️⃣ Configuring local models...")
@@ -1345,7 +1345,7 @@ def setup_complete_community_graphrag_system():
     if not os.getenv("GOOGLE_API_KEY"):
         print("❌ GOOGLE_API_KEY not found in environment variables")
         print("Please get your API key from: https://aistudio.google.com/app/apikey")
-        return None, None
+        return None
     try:
      llm = Gemini(
              model="models/gemini-1.5-flash",  # Optimal for GraphRAG tasks
@@ -1360,26 +1360,8 @@ def setup_complete_community_graphrag_system():
     except Exception as e:
         print(f"❌ Gemini API setup failed: {e}")
         print("Check your API key and internet connection")
-        return None, None
+        return None
     
-        # try:
-        #     # Fallback to minimal configuration that should work with any API version
-        #     llm = HuggingFaceLLM(
-        #         model_name="google/flan-t5-large",
-        #         tokenizer_name="google/flan-t5-large",
-        #         max_new_tokens=512
-        #         # Using only the most essential parameters to ensure compatibility
-        #     )
-        #     print("✅ Language model configured with simplified parameters")
-            
-        # except Exception as e2:
-        #     print(f"❌ Language model configuration failed completely: {e2}")
-        #     print("This suggests a deeper compatibility issue with the HuggingFace integration")
-        #     return None, None
-    
-    # except Exception as e:
-    #     print(f"❌ Unexpected error in language model setup: {e}")
-    #     return None, None
     Settings.llm = llm
     Settings.embed_model = embed_model
     
@@ -1403,9 +1385,9 @@ def setup_complete_community_graphrag_system():
     except Exception as e:
         print(f"❌ Neo4j connection failed: {e}")
         print("Please verify that Neo4j is running and your credentials are correct")
-        return None, None
+        return None
     
-    # Step 3: Create the adapter and build communities
+    # Step 3: Create the adapter
     print("\n3️⃣ Creating community analysis adapter...")
     try:
      adapter = Neo4jGraphRAGAdapter(
@@ -1419,39 +1401,10 @@ def setup_complete_community_graphrag_system():
      print("✓ Adapter created")
     except Exception as e:
         print(f"❌ Failed to create adapter: {e}")
-        return None, None
+        return None
     
-    # Step 4: Build communities from your Neo4j data
-    print("\n4️⃣ Building communities and generating summaries...")
-    print("This process may take several minutes depending on your graph size...")
-    success = adapter.build_communities_from_neo4j()
-    
-    if not success:
-        print("❌ Failed to build communities")
-        return None, None
-    
-    # Step 5: Create the query engine
-    print("\n5️⃣ Creating community-powered query engine...")
-    
-    query_engine = adapter.create_query_engine(similarity_top_k=5)
-    
-    print("✅ Complete Community GraphRAG system ready!")
-     # Provide a summary of what was accomplished
-    summaries = adapter.graphrag_store.get_community_summaries()
-    if summaries:
-        print(f"📊 System contains {len(summaries)} community summaries")
-        print("🔍 Ready for complex food service queries")
-        
-        # Show a brief preview of the communities that were discovered
-        print("\n📋 Sample communities discovered:")
-        for i, (community_id, summary) in enumerate(list(summaries.items())[:3]):
-            preview = summary[:100] + "..." if len(summary) > 100 else summary
-            print(f"  Community {community_id}: {preview}")
-        
-        if len(summaries) > 3:
-            print(f"  ... and {len(summaries) - 3} more communities")
-    
-    return adapter, query_engine
+    print("✅ GraphRAG Core System ready!")
+    return adapter
 
 def test_community_graphrag_system(query_engine):
     """
@@ -1481,34 +1434,4 @@ def test_community_graphrag_system(query_engine):
         print("-" * 50)
 
 if __name__ == "__main__":
-    # Check system capabilities
-    print(f"PyTorch CUDA available: {torch.cuda.is_available()}")
-    if torch.cuda.is_available():
-        print(f"CUDA device: {torch.cuda.get_device_name(0)}")
-    
-    # Set up the complete system
-    adapter, query_engine = setup_complete_community_graphrag_system()
-    
-    if adapter and query_engine:
-        # Test the system
-        test_community_graphrag_system(query_engine)
-        
-        # Interactive query loop
-        print("\n🎯 Ready for interactive queries!")
-        print("Ask questions about your food service data, or type 'quit' to exit.")
-        
-        while True:
-            user_query = input("\nYour question: ").strip()
-            
-            if user_query.lower() in ['quit', 'exit', 'q']:
-                print("👋 Goodbye!")
-                break
-            
-            if user_query:
-                try:
-                    response = query_engine.query(user_query)
-                    print(f"\nAnswer: {response}")
-                except Exception as e:
-                    print(f"Error processing query: {e}")
-    else:
-        print("❌ System setup failed. Please check your configuration and try again.")
+    print("This file contains the core GraphRAG system setup and should be imported, not run directly.")

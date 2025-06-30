@@ -24,7 +24,7 @@ try:
         FoodServiceGraphRAGStore, 
         FoodServiceGraphRAGQueryEngine,
         Neo4jGraphRAGAdapter,
-        setup_complete_community_graphrag_system
+        setup_graphrag_core_system
     )
 except ImportError as e:
     logging.error(f"Could not import GraphRAG components: {e}")
@@ -45,7 +45,10 @@ _GRAPHRAG_SYSTEM_CACHE = {
     'adapter': None,
     'query_engine': None,
     'initialized': False
-}
+} 
+_CACHED_LOCK = threading.RLock()
+_SYSTEM_INITIALIZATION_LOCK = threading.RLock()
+_SYSTEM_INITIALIZATION_IN_PROGRESS = False 
 # Add this to graphrag_query_engine.py - REPLACE the existing get_cached_graphrag_system function
 def get_cache_directory():
     """Ensure consistent cache location"""
@@ -55,9 +58,11 @@ def get_cache_directory():
     print(f"📁 Using cache directory: {cache_dir}")
     return cache_dir
 
+# REPLACE the pickle-based cache functions in graphrag_query_engine.py with these JSON-based versions:
+
 def save_communities_safely(adapter, cache_dir="graphrag_cache"):
     """
-    SAFE COMMUNITY PERSISTENCE: Only save the essential data
+    RELIABLE JSON CACHING: No more pickle issues
     """
     with _CACHED_LOCK:
         if cache_dir is None:
@@ -66,7 +71,7 @@ def save_communities_safely(adapter, cache_dir="graphrag_cache"):
         
         # Create process-level lock file
         lock_file = os.path.join(cache_dir, "save_operation.lock")
-        cache_file = os.path.join(cache_dir, "communities_data.pkl")
+        cache_file = os.path.join(cache_dir, "communities_data.json")  # Changed from .pkl to .json
         metadata_file = os.path.join(cache_dir, "metadata.json")
         temp_cache_file = cache_file + ".tmp"
         temp_metadata_file = metadata_file + ".tmp"
@@ -76,24 +81,33 @@ def save_communities_safely(adapter, cache_dir="graphrag_cache"):
             with open(lock_file, 'w') as f:
                 f.write(str(os.getpid()))
             
-            # Extract only the essential data that can be safely pickled
+            # Extract data in JSON-serializable format (NO PICKLE!)
+            community_summaries = adapter.graphrag_store.get_community_summaries()
+            entity_communities = dict(adapter.graphrag_store.entity_communities)
+            
+            # Convert to JSON-safe format
             communities_data = {
-                'community_summaries': adapter.graphrag_store.get_community_summaries(),
-                'entity_communities': dict(adapter.graphrag_store.entity_communities),
-                'cache_version': '2.0',
+                'community_summaries': {str(k): str(v) for k, v in community_summaries.items()},
+                'entity_communities': {str(k): list(v) if hasattr(v, '__iter__') else [v] for k, v in entity_communities.items()},
+                'cache_version': '3.0_JSON',
                 'created_at': datetime.now().isoformat()
             }
             
-            # Atomic save - write to temp files first
-            with open(temp_cache_file, 'wb') as f:
-                pickle.dump(communities_data, f)
+            print(f"📊 Preparing to cache:")
+            print(f"   Communities: {len(communities_data['community_summaries'])}")
+            print(f"   Entities: {len(communities_data['entity_communities'])}")
+            
+            # Atomic save to JSON (much more reliable than pickle)
+            with open(temp_cache_file, 'w', encoding='utf-8') as f:
+                json.dump(communities_data, f, indent=2, ensure_ascii=False)
             
             # Save metadata
             metadata = {
                 'created_at': datetime.now().isoformat(),
                 'community_count': len(communities_data['community_summaries']),
                 'entity_count': len(communities_data['entity_communities']),
-                'cache_version': '2.0'
+                'cache_version': '3.0_JSON',
+                'format': 'JSON'
             }
             
             with open(temp_metadata_file, 'w') as f:
@@ -108,12 +122,12 @@ def save_communities_safely(adapter, cache_dir="graphrag_cache"):
             os.rename(temp_cache_file, cache_file)
             os.rename(temp_metadata_file, metadata_file)
             
-            print(f"✅ Successfully cached {metadata['community_count']} communities")
+            print(f"✅ Successfully cached {metadata['community_count']} communities (JSON format)")
             print(f"📁 Cache location: {cache_file}")
             return True
             
         except Exception as e:
-            print(f"❌ Community caching failed: {e}")
+            print(f"❌ JSON caching failed: {e}")
             import traceback
             traceback.print_exc()
             
@@ -133,30 +147,35 @@ def save_communities_safely(adapter, cache_dir="graphrag_cache"):
                     os.remove(lock_file)
                 except:
                     pass
-_CACHED_LOCK = threading.RLock()
-_SYSTEM_INITIALIZATION_LOCK = threading.RLock()
-_SYSTEM_INITIALIZATION_IN_PROGRESS = False
+
 def load_communities_safely(cache_dir="graphrag_cache"):
     """
-    SAFE COMMUNITY LOADING: Load and validate cached data
+    RELIABLE JSON LOADING: No more pickle deserialization issues
     """
     with _CACHED_LOCK:
-        cache_file = os.path.join(cache_dir, "communities_data.pkl")
+        # Support both JSON and legacy pickle formats
+        json_cache_file = os.path.join(cache_dir, "communities_data.json")
+        pickle_cache_file = os.path.join(cache_dir, "communities_data.pkl")
         metadata_file = os.path.join(cache_dir, "metadata.json")
-    # 🔍 DIAGNOSTIC LOGGING
-     # Add process-level lock file to prevent race conditions
+        
+        # Prefer JSON format
+        cache_file = json_cache_file if os.path.exists(json_cache_file) else pickle_cache_file
+        is_json_format = cache_file.endswith('.json')
+        
+        # Add process-level lock file to prevent race conditions
         lock_file = os.path.join(cache_dir, "cache.lock")
         
         if os.path.exists(lock_file):
             print("🔒 Cache operation in progress, waiting...")
-            # Wait for lock to be released
             while os.path.exists(lock_file):
                 time.sleep(0.1)
                 
     print(f"🔍 CACHE DIAGNOSTIC:")
     print(f"   📁 Looking for cache in: {os.path.abspath(cache_dir)}")
-    print(f"   📄 Cache file exists: {os.path.exists(cache_file)}")
+    print(f"   📄 JSON cache exists: {os.path.exists(json_cache_file)}")
+    print(f"   📄 Pickle cache exists: {os.path.exists(pickle_cache_file)}")
     print(f"   📄 Metadata file exists: {os.path.exists(metadata_file)}")
+    print(f"   🎯 Using format: {'JSON' if is_json_format else 'PICKLE'}")
     
     if os.path.exists(cache_file):
         print(f"   📊 Cache file size: {os.path.getsize(cache_file)} bytes")
@@ -164,7 +183,6 @@ def load_communities_safely(cache_dir="graphrag_cache"):
     if not os.path.exists(cache_file) or not os.path.exists(metadata_file):
         print("💡 No valid cache found")
         return None
-    
     
     try:
         # Load metadata first
@@ -179,34 +197,57 @@ def load_communities_safely(cache_dir="graphrag_cache"):
             print(f"🕒 Cache expired ({cache_age_hours:.1f}h old)")
             return None
         
-        # Load community data
-        with open(cache_file, 'rb') as f:
-            communities_data = pickle.load(f)
+        print(f"⏰ Cache age: {cache_age_hours:.1f} hours (valid)")
+        
+        # Load community data based on format
+        if is_json_format:
+            print(f"📥 Loading JSON cache...")
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                communities_data = json.load(f)
+            
+            # Convert back from JSON-safe format
+            communities_data['community_summaries'] = {
+                int(k) if k.isdigit() else k: v 
+                for k, v in communities_data['community_summaries'].items()
+            }
+            communities_data['entity_communities'] = {
+                k: set(v) if isinstance(v, list) else v 
+                for k, v in communities_data['entity_communities'].items()
+            }
+            
+            print(f"✅ JSON cache loaded successfully")
+        else:
+            print(f"📥 Loading legacy pickle cache...")
+            with open(cache_file, 'rb') as f:
+                communities_data = pickle.load(f)
+            print(f"⚠️ Loaded pickle cache (consider upgrading to JSON)")
         
         print(f"🚀 Loaded {metadata['community_count']} cached communities")
         return communities_data
         
     except Exception as e:
         print(f"❌ Cache loading failed: {e}")
+        print(f"🔍 Error type: {type(e).__name__}")
+        if is_json_format:
+            print(f"💡 JSON parsing error - cache may be corrupted")
+        else:
+            print(f"💡 Pickle deserialization error - try clearing cache")
         return None
 
-# ✅ REPLACE the existing get_cached_graphrag_system() with this:
+# UPDATED: get_cached_graphrag_system with better JSON cache integration
 @st.cache_resource(ttl=86400, show_spinner=False)
 def get_cached_graphrag_system():
     """
-    ENHANCED PRECISION: Prevents cascading builds with surgical accuracy
+    ROBUST JSON CACHE SYSTEM: No more pickle failures
     """
     global _SYSTEM_INITIALIZATION_IN_PROGRESS
     
-    # Multi-layer protection against cascading builds
     with _SYSTEM_INITIALIZATION_LOCK:
         if _SYSTEM_INITIALIZATION_IN_PROGRESS:
             print("🚫 System initialization already in progress, waiting...")
-            # Wait for active initialization to complete
             while _SYSTEM_INITIALIZATION_IN_PROGRESS:
                 time.sleep(0.1)
             
-            # Return the cached result after wait
             if (_GRAPHRAG_SYSTEM_CACHE['initialized'] and 
                 _GRAPHRAG_SYSTEM_CACHE['adapter'] is not None):
                 print("⚡ Using system built by concurrent initialization")
@@ -225,36 +266,87 @@ def get_cached_graphrag_system():
         _SYSTEM_INITIALIZATION_IN_PROGRESS = True
         
         try:
-            # Single build path - no double building
-            print(f"🏗️ Building GraphRAG system (single build) - ID: {execution_id}")
+            print(f"🏗️ Building GraphRAG system - ID: {execution_id}")
             
-            # Try to load cached communities first
+            # Try to load cached communities (JSON format preferred)
             cached_communities = load_communities_safely()
             
-            # Build fresh system objects (never cached as they contain unpicklable objects)
-            adapter, query_engine = setup_complete_community_graphrag_system()
+            # Build fresh system objects
+            adapter = setup_graphrag_core_system()
+            if not adapter:
+                raise Exception("Failed to setup GraphRAG core system")
+
+            query_engine = None # Initialize query_engine to None
+            
+            # IMPROVED CACHE RESTORATION with JSON reliability
+            cache_restored_successfully = False
             
             if cached_communities:
-                print(f"📥 Restoring cached communities - ID: {execution_id}")
+                print(f"📥 Attempting cache restoration - ID: {execution_id}")
+                print(f"   🔍 Cache format: {cached_communities.get('cache_version', 'Unknown')}")
+                print(f"   🔍 Communities to restore: {len(cached_communities['community_summaries'])}")
+                print(f"   🔍 Entities to restore: {len(cached_communities['entity_communities'])}")
+                
                 try:
-                    adapter.graphrag_store.community_summaries = cached_communities['community_summaries']
-                    adapter.graphrag_store.entity_communities = cached_communities['entity_communities']
-                    print(f"✅ Communities restored - ID: {execution_id}")
+                    # Validate cache data structure first
+                    if ('community_summaries' not in cached_communities or 
+                        'entity_communities' not in cached_communities):
+                        raise ValueError("Cache missing required data structures")
+                    
+                    # Ensure adapter has required attributes
+                    if not hasattr(adapter.graphrag_store, 'community_summaries'):
+                        adapter.graphrag_store.community_summaries = {}
+                    if not hasattr(adapter.graphrag_store, 'entity_communities'):
+                        adapter.graphrag_store.entity_communities = {}
+                    
+                    # Restore with type safety
+                    print(f"   📋 Restoring community summaries...")
+                    adapter.graphrag_store.community_summaries = dict(cached_communities['community_summaries'])
+                    
+                    print(f"   📋 Restoring entity communities...")
+                    adapter.graphrag_store.entity_communities = dict(cached_communities['entity_communities'])
+                    
+                    # Validate restoration success
+                    restored_communities = len(adapter.graphrag_store.community_summaries)
+                    restored_entities = len(adapter.graphrag_store.entity_communities)
+                    
+                    if restored_communities > 0 and restored_entities > 0:
+                        cache_restored_successfully = True
+                        print(f"   ✅ JSON CACHE RESTORATION SUCCESSFUL!")
+                        print(f"      📊 Restored: {restored_communities} communities, {restored_entities} entities")
+                        print(f"      🎯 Cache hit ratio: 100%")
+                    else:
+                        print(f"   ❌ Cache restoration failed: Empty data after restoration")
+                        print(f"      📊 Communities: {restored_communities}, Entities: {restored_entities}")
+                        
                 except Exception as e:
-                    print(f"⚠️ Cache restore failed, rebuilding - ID: {execution_id}")
-                    cached_communities = None
+                    print(f"   ❌ Cache restoration FAILED: {e}")
+                    print(f"      🔍 Exception type: {type(e).__name__}")
+                    cache_restored_successfully = False
+            else:
+                print(f"   💡 No cached communities available - first run or cache expired")
             
-            if not cached_communities:
+            # Only rebuild if cache restoration failed
+            if not cache_restored_successfully:
                 print(f"🔨 Building communities from scratch - ID: {execution_id}")
                 success = adapter.build_communities_from_neo4j()
                 
                 if success:
-                    # Save the new communities
+                    # Save the new communities in JSON format
+                    print(f"💾 Saving communities to JSON cache...")
                     save_communities_safely(adapter)
-                    print(f"💾 Communities saved to cache - ID: {execution_id}")
+                    print(f"✅ Communities cached for future use")
                 else:
                     print(f"❌ Community building failed - ID: {execution_id}")
+            else:
+                print(f"⚡ Using cached communities, SKIPPING rebuild - ID: {execution_id}")
+                print(f"   🚀 Performance boost: ~5-10 minutes saved")
             
+            # Create query engine now that communities are loaded/built
+            print("\n5️⃣ Creating community-powered query engine...")
+            query_engine = adapter.create_query_engine(similarity_top_k=5)
+            print("✅ Query engine created.")
+
             # Update global cache
             _GRAPHRAG_SYSTEM_CACHE.update({
                 'adapter': adapter,
@@ -262,7 +354,8 @@ def get_cached_graphrag_system():
                 'initialized': True
             })
             
-            print(f"🎯 GraphRAG system ready - ID: {execution_id}")
+            final_communities = len(adapter.graphrag_store.community_summaries)
+            print(f"🎯 GraphRAG system ready with {final_communities} communities - ID: {execution_id}")
             return adapter, query_engine
             
         finally:
