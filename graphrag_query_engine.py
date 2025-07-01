@@ -546,7 +546,112 @@ class GraphRAGTemplateEngine:
         except Exception as e:
             logger.error(f"GraphRAG query execution failed for {category}: {e}")
             raise
+    def _load_pricing_inventory(self) -> Dict[str, Any]:
+        """Loads and caches the pricing and inventory data from the JSON file."""
+        if hasattr(self, '_pricing_inventory') and self._pricing_inventory:
+            return self._pricing_inventory
+        try:
+            with open("items_price_uom.json", 'r', encoding='utf-8') as f:
+                pricing_data = json.load(f)
+                self._pricing_inventory = {item["item_name"]: item for item in pricing_data}
+                return self._pricing_inventory
+        except Exception as e:
+            logger.error(f"Failed to load pricing inventory: {e}")
+            return {}
+
+    def _filter_inventory_by_category(self, inventory: Dict[str, Any], category: str) -> Dict[str, Any]:
+        """Filters the inventory to only include items of a specific category."""
+        category_map = get_category_mapping(category)
+        target_categories = category_map.get(category)
+        if not target_categories:
+            return {}
+        return {
+            name: data for name, data in inventory.items() 
+            if data.get("category") in target_categories
+        }
+    def _estimate_category_budget(self, category: str) -> int:
+        """Estimates a budget for a category if not provided."""
+        if 'starter' in category:
+            return 60
+        if 'biryani' in category:
+            return 150
+        if 'dessert' in category:
+            return 50
+        return 80
+
+    def _extract_items_from_response(self, response_text: str, category: str, count: int) -> List[Dict[str, Any]]:
+        """Extracts structured item data from the raw LLM response string."""
+        inventory = self._load_pricing_inventory()
+        known_items_in_category = self._filter_inventory_by_category(inventory, category)
+        
+        found_items = []
+        # Use regex to find potential item names (e.g., in quotes, lists)
+        potential_names = re.findall(r'\b[A-Z][a-zA-Z\s]+\b', response_text)
+        
+        for name in potential_names:
+            clean_name = name.strip()
+            matched_item_data = self._intelligent_fuzzy_match(clean_name, known_items_in_category, category)
+            if matched_item_data:
+                if not any(d['name'] == matched_item_data['item_name'] for d in found_items):
+                    found_items.append({
+                        "name": matched_item_data["item_name"],
+                        "category": matched_item_data["category"],
+                        "source": "graphrag_extraction",
+                        "match_confidence": self._calculate_match_confidence(clean_name, matched_item_data["item_name"])
+                    })
+
+        return found_items[:count]
+    def _handle_no_template_found(self, event_type: str, budget: int) -> Dict[str, Any]:
+        """Handles cases where no suitable template is found."""
+        logger.warning(f"No template found for {event_type} at ₹{budget}")
+        return {
+            "error": "No matching template found",
+            "message": f"We could not find a pre-defined template for a {event_type} event with a budget of ₹{budget}. Try adjusting the budget."
+        }
     
+    def _handle_recommendation_error(self, event_type: str, budget: int, error_msg: str) -> Dict[str, Any]:
+        """Handles generic errors during the recommendation process."""
+        logger.error(f"Recommendation error for {event_type} at ₹{budget}: {error_msg}")
+        return {
+            "error": "Recommendation Generation Failed",
+            "message": f"An unexpected error occurred: {error_msg}. Please check the logs."
+        }
+    def _handle_insufficient_suggestions(self, query_spec: Dict[str, Any], current_suggestions: List[Dict], event_type: str) -> List[Dict[str, Any]]:
+            """Handles cases where GraphRAG returns fewer items than needed."""
+            category = query_spec["category"]
+            count_needed = query_spec["count"]
+            
+            logger.warning(f"Insufficient suggestions for {category}. Needed {count_needed}, got {len(current_suggestions)}. Using fallbacks.")
+            
+            fallbacks = {
+                "starter": ["Chicken 65", "Paneer Tikka", "Veg Manchurian"],
+                "main_biryani": ["Chicken Dum Biryani", "Veg Biryani"],
+                "dessert": ["Gulab Jamun", "Double Ka Meetha"]
+            }
+            
+            inventory = self._load_pricing_inventory()
+            potential_fallbacks = fallbacks.get(category, [])
+            
+            for item_name in potential_fallbacks:
+                if len(current_suggestions) >= count_needed:
+                    break
+                if not any(d['name'] == item_name for d in current_suggestions):
+                    if item_name in inventory:
+                        item_data = inventory[item_name]
+                        current_suggestions.append({
+                            "name": item_data["item_name"],
+                            "category": item_data["category"],
+                            "source": "fallback",
+                            "insight": "Popular fallback selection"
+                        })
+            
+            return current_suggestions
+
+    def _handle_query_failure(self, query_spec: Dict[str, Any], event_type: str) -> List[Dict[str, Any]]:
+        """Handles failures in a specific GraphRAG category query by returning fallbacks."""
+        logger.error(f"Query failed for {query_spec['category']}. Providing fallback items.")
+        return self._handle_insufficient_suggestions(query_spec, [], event_type)
+        
 
 # PREMIUM PROMPT ARCHITECTURE v3.0 - SURGICAL REPLACEMENT
 # REPLACE ENTIRE METHOD WITH THIS ENGINEERED VERSION:
@@ -1246,14 +1351,14 @@ if __name__ == "__main__":
     print("Testing GraphRAG Template Engine...")
 
     # ==> STEP 1: Uncomment the line below to clear your cache.
-    reset_graphrag_cache()
+    #reset_graphrag_cache()
     # ==> STEP 2: Run the script once with the line above uncommented.
     # ==> STEP 3: Comment the line out again for normal operation.
     
     # Set to True if you need to run diagnostics, otherwise False.
     run_diagnostics_flag = False
     
-    try:
+    try: 
         # Create engine
         engine = create_graphrag_template_engine(run_diagnostics=run_diagnostics_flag)
         print("✓ GraphRAG Template Engine created successfully")
