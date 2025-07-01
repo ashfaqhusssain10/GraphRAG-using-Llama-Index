@@ -560,9 +560,8 @@ class GraphRAGTemplateEngine:
             return {}
 
     def _filter_inventory_by_category(self, inventory: Dict[str, Any], category: str) -> Dict[str, Any]:
-        """Filters the inventory to only include items of a specific category."""
         category_map = get_category_mapping(category)
-        target_categories = category_map.get(category)
+        target_categories = category_map.get("graphrag_labels") if category_map else []  # ✅ CORRECT
         if not target_categories:
             return {}
         return {
