@@ -238,7 +238,7 @@ def load_communities_safely(cache_dir="graphrag_cache"):
         return None
 
 # UPDATED: get_cached_graphrag_system with better JSON cache integration
-@st.cache_resource(ttl=86400, show_spinner=False)
+@st.cache_resource(ttl=604800, show_spinner=False)
 def get_cached_graphrag_system():
     """
     ROBUST JSON CACHE SYSTEM: No more pickle failures
@@ -528,7 +528,15 @@ class GraphRAGTemplateEngine:
         category = query_spec["category"]
         count = query_spec["count"]
         cypher_filter = query_spec["cypher_filter"]
+        if budget_allocation:
+            print(f"\n🔍 DIAGNOSTIC: Analyzing baseline selection for {category}")
+            self._diagnose_baseline_selection(category, budget_allocation, event_type)
+            baseline_candidates = self._diagnose_baseline_selection(category, budget_allocation, event_type)
         
+            print(f"🎯 LLM will likely choose from these top candidates:")
+            for item_name, analysis in baseline_candidates[:3]:
+                print(f"   • {item_name}: ₹{analysis['price']} (distance: ₹{analysis['budget_distance']})")    
+
         # Build GraphRAG query string
         query_text = self._build_category_query_text(category, event_type, count, budget_allocation)
         
@@ -540,6 +548,11 @@ class GraphRAGTemplateEngine:
 
             print(f" RAW GRAPHRAG RESPONSE for {category}:\n{raw_response[:500]}...")
             # Extract specific items from GraphRAG response
+             # 🔥 ADD THIS POST-LLM VALIDATION:
+            if budget_allocation:
+                selected_item = self._extract_baseline_item_from_response(raw_response)
+                if selected_item:
+                    self._validate_llm_selection(selected_item, baseline_candidates, budget_allocation)
             extracted_items = self._extract_items_from_response(raw_response, category, count)
             
             # Enhance with co-occurrence data
@@ -581,78 +594,100 @@ class GraphRAGTemplateEngine:
         if 'dessert' in category:
             return 50
         return 80
-
-    def _extract_items_from_response(self, response_text: str, category: str, count: int) -> List[Dict[str, Any]]:
-        """Extracts structured item data from the raw LLM response string."""
+    # REPLACE _extract_items_from_graphrag_response with this simpler version:
+    def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
+        """
+        Extracts structured item data from the LLM's JSON response.
+        This version is enhanced to clean up item names before matching.
+        """
         inventory = self._load_pricing_inventory()
-        known_items_in_category = self._filter_inventory_by_category(inventory, category)
-        
-        print(f"🔍 EXTRACTION DEBUG for {category}:")
-        print(f"   📚 Known items in category: {len(known_items_in_category)}")
-        print(f"   📝 Response length: {len(response_text)} chars")
-        
         found_items = []
         found_names = set()
-        
-        # Enhanced regex patterns for food item extraction
-        extraction_patterns = [
-            r'- ([A-Z][a-zA-Z\s]+(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight))',  # Dash lists with food endings
-            r'(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight):\s*([A-Z][a-zA-Z\s]+(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight))',  # Category: Item
-            r'([A-Z][a-zA-Z\s]*(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight|Halwa|Seekh|Dum|Paneer|Chicken|Mutton))',  # Food-specific patterns
-            r'\b([A-Z][a-zA-Z\s]{3,25})\b',  # General capitalized words (3-25 chars)
-        ]
-        
-        # Strategy 1: Pattern-based extraction
-        for pattern in extraction_patterns:
-            matches = re.findall(pattern, response_text, re.IGNORECASE)
-            print(f"   🎯 Pattern '{pattern[:30]}...' found: {len(matches)} matches")
+
+        try:
+            # Clean the response to find the JSON blob
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if not json_match:
+                logger.error(f"No JSON object found in LLM response for {category}.")
+                return []
             
-            for match in matches:
-                clean_name = match.strip()
-                if len(clean_name) < 3 or clean_name.lower() in found_names:
-                    continue
-                    
-                matched_item_data = self._intelligent_fuzzy_match(clean_name, known_items_in_category, category)
-                if matched_item_data:
-                    item_name = matched_item_data['item_name']
-                    if item_name.lower() not in found_names:
-                        found_items.append({
-                            "name": item_name,
-                            "category": matched_item_data["category"],
-                            "source": "graphrag_extraction",
-                            "match_confidence": self._calculate_match_confidence(clean_name, item_name)
-                        })
-                        found_names.add(item_name.lower())
-                        print(f"   ✅ Extracted: {item_name} (confidence: {self._calculate_match_confidence(clean_name, item_name):.2f})")
-                        
-                        if len(found_items) >= count:
-                            break
+            json_str = json_match.group(0)
+            data = json.loads(json_str)
             
-            if len(found_items) >= count:
-                break
-        
-        # Strategy 2: Direct string matching for known items (fallback)
-        if len(found_items) < count:
-            print(f"   🔄 Pattern extraction insufficient, trying direct matching...")
-            response_lower = response_text.lower()
+            item_names = data.get("baseline", [])
             
-            for known_name, item_data in known_items_in_category.items():
+            for item_name_raw in item_names:
                 if len(found_items) >= count:
                     break
-                    
-                # Check if known item name appears in response
-                if known_name.lower() in response_lower and known_name.lower() not in found_names:
+
+                # Clean the item name to remove pricing and other text
+                # This will turn "Butter Naan (₹30)..." into "Butter Naan"
+                clean_item_name = re.sub(r'\(.*\)', '', item_name_raw).strip()
+
+                # Find the full item details from our inventory
+                matched_item = None
+                for inv_name, inv_data in inventory.items():
+                    # Use a more forgiving match
+                    if clean_item_name.lower() in inv_name.lower():
+                        matched_item = inv_data
+                        break
+                
+                if matched_item and matched_item["item_name"].lower() not in found_names:
                     found_items.append({
-                        "name": item_data["item_name"],
-                        "category": item_data["category"],
-                        "source": "direct_match",
+                        "name": matched_item["item_name"],
+                        "category": matched_item["category"],
+                        "source": "llm_json_extraction",
                         "match_confidence": 1.0
                     })
-                    found_names.add(known_name.lower())
-                    print(f"   ✅ Direct match: {item_data['item_name']}")
-        
-        print(f"   📊 Final extraction: {len(found_items)} items found")
+                    found_names.add(matched_item["item_name"].lower())
+                else:
+                    logger.warning(f"LLM returned item '{item_name_raw}' which was not found in inventory after cleaning.")
+
+        except json.JSONDecodeError:
+            logger.error(f"Failed to decode JSON from LLM response for {category}. Response: {response[:500]}...")
+            return []
+        except Exception as e:
+            logger.error(f"Error parsing LLM response for {category}: {e}")
+            return []
+
+        if len(found_items) < count:
+            logger.warning(f"LLM returned {len(found_items)}/{count} valid items for {category}.")
+
         return found_items[:count]
+
+    # def _extract_baseline_section(self, response: str, category: str) -> List[Dict[str, Any]]:
+    #     """Extract items specifically from baseline sections"""
+        
+    #     # Target patterns for baseline sections
+    #     baseline_patterns = [
+    #         r'(?i)baseline[^:]*:\s*-?\s*([^\n(₹]+)',  # "Baseline Selection: - Item"
+    #         r'(?i)baseline[^:]*:\s*([A-Z][a-zA-Z\s]+(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Paneer|Chicken))',  # Direct baseline mentions
+    #         r'-\s*([A-Z][a-zA-Z\s]+(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Paneer|Chicken))',  # Bullet point items
+    #     ]
+        
+    #     inventory = self._load_pricing_inventory()
+    #     category_items = self._filter_inventory_by_category(inventory, category)
+        
+    #     extracted_items = []
+    #     found_names = set()
+        
+    #     for pattern in baseline_patterns:
+    #         matches = re.findall(pattern, response)
+    #         for match in matches:
+    #             clean_name = self._clean_extracted_name(match)
+    #             matched_item = self._intelligent_fuzzy_match(clean_name, category_items, category)
+                
+    #             if matched_item and matched_item["item_name"].lower() not in found_names:
+    #                 extracted_items.append({
+    #                     "name": matched_item["item_name"],
+    #                     "category": matched_item["category"],
+    #                     "source": "baseline_section",
+    #                     "match_confidence": self._calculate_match_confidence(clean_name, matched_item["item_name"])
+    #                 })
+    #                 found_names.add(matched_item["item_name"].lower())
+        
+    #     return extracted_items
+
     def _handle_no_template_found(self, event_type: str, budget: int) -> Dict[str, Any]:
         """Handles cases where no suitable template is found."""
         logger.warning(f"No template found for {event_type} at ₹{budget}")
@@ -711,7 +746,7 @@ class GraphRAGTemplateEngine:
     def _build_category_query_text(self, category: str, event_type: str, count: int, budget_allocation: int = None) -> str:
         """
         Premium-optimized GraphRAG query builder with inventory awareness
-        Engineering Version: 3.0 - Premium Focus + Budget Intelligence
+        Engineering Version: 3.1 - JSON Output Focus
         """
         
         # Load pricing inventory for prompt integration
@@ -725,6 +760,15 @@ class GraphRAGTemplateEngine:
             'baseline': base_budget, 
             'max': base_budget + 50
         }
+
+        # New JSON output instruction
+        json_output_instruction = (
+            '\n\nIMPORTANT: Provide your final answer in a single, valid JSON object only. '
+            'Do not add any explanatory text before or after the JSON. '
+            'The JSON object should have one key: "baseline". '
+            'The value for "baseline" should be a list of the exact item names you recommend. '
+            'Example: {"baseline": ["Item A", "Item B"]}'
+        )
         
         premium_queries = {
             "starter": f"""
@@ -754,6 +798,7 @@ class GraphRAGTemplateEngine:
     - Result: [One line party experience elevation]
 
     Focus on items that create memorable {event_type.lower()} experiences through luxury elevation.
+    {json_output_instruction}
     """,
 
             "main_biryani": f"""
@@ -782,6 +827,7 @@ class GraphRAGTemplateEngine:
     - Experience: [Party impact enhancement]
 
     Select biryani that maximizes {event_type.lower()} event luxury within budget flexibility.
+    {json_output_instruction}
     """,
 
             "main_rice": f"""
@@ -805,6 +851,7 @@ class GraphRAGTemplateEngine:
     **Justification:** [Two lines explaining premium value]
 
     Choose rice that complements luxury {event_type.lower()} experience.
+    {json_output_instruction}
     """,
 
             "side_bread": f"""
@@ -818,11 +865,12 @@ class GraphRAGTemplateEngine:
     {json.dumps(category_inventory, indent=2)}
 
     SELECTION METHODOLOGY:
-    1. Baseline bread around ₹{budget_range['baseline']}
+    1. Select baseline bread around ₹{budget_range['baseline']}
     2. Premium upgrade option (+₹15-30)
     3. Focus: Artisanal preparation, texture variety, visual presentation
 
     OUTPUT: [Bread name] (₹XX) with optional upgrade to [Premium bread] (+₹XX for [benefit])
+    {json_output_instruction}
     """,
 
             "side_curry": f"""
@@ -841,6 +889,7 @@ class GraphRAGTemplateEngine:
     3. Prioritize: Complex spice profiles, premium ingredients, rich preparation
 
     OUTPUT: Baseline + Premium upgrade option with 2-line justification.
+    {json_output_instruction}
     """,
 
             "side_accompaniment": f"""
@@ -854,6 +903,7 @@ class GraphRAGTemplateEngine:
     {json.dumps(category_inventory, indent=2)}
 
     Select accompaniments that elevate the dining experience with premium positioning.
+    {json_output_instruction}
     """,
 
             "dessert": f"""
@@ -883,10 +933,11 @@ class GraphRAGTemplateEngine:
     - Memory: [Party ending experience enhancement]
 
     Create dessert combinations that leave lasting impressions.
+    {json_output_instruction}
     """
         }
         
-        query = premium_queries.get(category, f"Recommend {count} premium {category} items for {event_type.lower()} events with luxury focus and budget flexibility ₹{budget_range['min']}-{budget_range['max']}")
+        query = premium_queries.get(category, f"Recommend {count} premium {category} items for {event_type.lower()} events with luxury focus and budget flexibility ₹{budget_range['min']}-{budget_range['max']}\n{json_output_instruction}")
         
         logger.debug(f"Built premium query for {category}: {query[:100]}...")
         return query
@@ -938,6 +989,42 @@ class GraphRAGTemplateEngine:
                 best_match = item_data
         
         return best_match
+    # In graphrag_query_engine.py, inside GraphRAGTemplateEngine class
+    # Add this after your existing _build_category_query_text method
+
+    def _diagnose_baseline_selection(self, category: str, budget: int, event_type: str):
+        """DIAGNOSTIC: Trace how baseline items are selected"""
+        
+        inventory = self._load_pricing_inventory()
+        category_items = self._filter_inventory_by_category(inventory, category)
+        
+        # Analyze what's available in the budget range
+        budget_analysis = {}
+        for item_name, item_data in category_items.items():
+            price = item_data['cmp_base_price']
+            distance_from_budget = abs(price - budget)
+            
+            budget_analysis[item_name] = {
+                'price': price,
+                'budget_distance': distance_from_budget,
+                'within_baseline_range': (budget - 50) <= price <= (budget + 50),
+                'is_budget_optimal': distance_from_budget <= 20
+            }
+        
+        # Sort by budget proximity
+        sorted_options = sorted(budget_analysis.items(), 
+                            key=lambda x: x[1]['budget_distance'])
+        
+        print(f"🎯 BASELINE SELECTION ANALYSIS for {category} (₹{budget} budget):")
+        print(f"📊 Total items in category: {len(category_items)}")
+        print(f"📊 Items within baseline range: {sum(1 for x in budget_analysis.values() if x['within_baseline_range'])}")
+        
+        print(f"\n🏆 TOP 5 BUDGET-OPTIMAL CANDIDATES:")
+        for item_name, analysis in sorted_options[:5]:
+            status = "✅ OPTIMAL" if analysis['is_budget_optimal'] else "⚠️  DISTANT"
+            print(f"   {status} {item_name}: ₹{analysis['price']} (distance: ₹{analysis['budget_distance']})")
+        
+        return sorted_options
 
     def _is_item_match(self, extracted_name: str, known_name: str, category: str) -> bool:
         """Check if extracted name matches a known item name"""
