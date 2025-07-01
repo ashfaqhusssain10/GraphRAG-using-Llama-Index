@@ -587,22 +587,71 @@ class GraphRAGTemplateEngine:
         inventory = self._load_pricing_inventory()
         known_items_in_category = self._filter_inventory_by_category(inventory, category)
         
-        found_items = []
-        # Use regex to find potential item names (e.g., in quotes, lists)
-        potential_names = re.findall(r'\b[A-Z][a-zA-Z\s]+\b', response_text)
+        print(f"🔍 EXTRACTION DEBUG for {category}:")
+        print(f"   📚 Known items in category: {len(known_items_in_category)}")
+        print(f"   📝 Response length: {len(response_text)} chars")
         
-        for name in potential_names:
-            clean_name = name.strip()
-            matched_item_data = self._intelligent_fuzzy_match(clean_name, known_items_in_category, category)
-            if matched_item_data:
-                if not any(d['name'] == matched_item_data['item_name'] for d in found_items):
+        found_items = []
+        found_names = set()
+        
+        # Enhanced regex patterns for food item extraction
+        extraction_patterns = [
+            r'- ([A-Z][a-zA-Z\s]+(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight))',  # Dash lists with food endings
+            r'(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight):\s*([A-Z][a-zA-Z\s]+(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight))',  # Category: Item
+            r'([A-Z][a-zA-Z\s]*(?:Biryani|Kebab|Tikka|Curry|Rice|Naan|Kulfi|Jamun|Delight|Halwa|Seekh|Dum|Paneer|Chicken|Mutton))',  # Food-specific patterns
+            r'\b([A-Z][a-zA-Z\s]{3,25})\b',  # General capitalized words (3-25 chars)
+        ]
+        
+        # Strategy 1: Pattern-based extraction
+        for pattern in extraction_patterns:
+            matches = re.findall(pattern, response_text, re.IGNORECASE)
+            print(f"   🎯 Pattern '{pattern[:30]}...' found: {len(matches)} matches")
+            
+            for match in matches:
+                clean_name = match.strip()
+                if len(clean_name) < 3 or clean_name.lower() in found_names:
+                    continue
+                    
+                matched_item_data = self._intelligent_fuzzy_match(clean_name, known_items_in_category, category)
+                if matched_item_data:
+                    item_name = matched_item_data['item_name']
+                    if item_name.lower() not in found_names:
+                        found_items.append({
+                            "name": item_name,
+                            "category": matched_item_data["category"],
+                            "source": "graphrag_extraction",
+                            "match_confidence": self._calculate_match_confidence(clean_name, item_name)
+                        })
+                        found_names.add(item_name.lower())
+                        print(f"   ✅ Extracted: {item_name} (confidence: {self._calculate_match_confidence(clean_name, item_name):.2f})")
+                        
+                        if len(found_items) >= count:
+                            break
+            
+            if len(found_items) >= count:
+                break
+        
+        # Strategy 2: Direct string matching for known items (fallback)
+        if len(found_items) < count:
+            print(f"   🔄 Pattern extraction insufficient, trying direct matching...")
+            response_lower = response_text.lower()
+            
+            for known_name, item_data in known_items_in_category.items():
+                if len(found_items) >= count:
+                    break
+                    
+                # Check if known item name appears in response
+                if known_name.lower() in response_lower and known_name.lower() not in found_names:
                     found_items.append({
-                        "name": matched_item_data["item_name"],
-                        "category": matched_item_data["category"],
-                        "source": "graphrag_extraction",
-                        "match_confidence": self._calculate_match_confidence(clean_name, matched_item_data["item_name"])
+                        "name": item_data["item_name"],
+                        "category": item_data["category"],
+                        "source": "direct_match",
+                        "match_confidence": 1.0
                     })
-
+                    found_names.add(known_name.lower())
+                    print(f"   ✅ Direct match: {item_data['item_name']}")
+        
+        print(f"   📊 Final extraction: {len(found_items)} items found")
         return found_items[:count]
     def _handle_no_template_found(self, event_type: str, budget: int) -> Dict[str, Any]:
         """Handles cases where no suitable template is found."""
