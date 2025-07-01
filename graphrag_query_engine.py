@@ -18,13 +18,15 @@ from collections import defaultdict, Counter
 import logging
 import random
 import threading 
+import shutil
 # Import your existing GraphRAG components
 try:
     from ex1 import (
         FoodServiceGraphRAGStore, 
         FoodServiceGraphRAGQueryEngine,
         Neo4jGraphRAGAdapter,
-        setup_graphrag_core_system
+        setup_graphrag_core_system,
+        setup_complete_community_graphrag_system
     )
 except ImportError as e:
     logging.error(f"Could not import GraphRAG components: {e}")
@@ -272,7 +274,9 @@ def get_cached_graphrag_system():
             cached_communities = load_communities_safely()
             
             # Build fresh system objects
+            #
             adapter = setup_graphrag_core_system()
+            #adapter = setup_complete_community_graphrag_system()
             if not adapter:
                 raise Exception("Failed to setup GraphRAG core system")
 
@@ -729,617 +733,6 @@ class GraphRAGTemplateEngine:
         
         logger.debug(f"Built premium query for {category}: {query[:100]}...")
         return query
-    # SURGICAL ADDITION: Add these supporting methods to GraphRAGTemplateEngine class
-
-    def _load_pricing_inventory(self) -> List[Dict[str, Any]]:
-        """Load complete pricing inventory for prompt integration"""
-        try:
-            with open("items_price_uom.json", 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.warning(f"Could not load pricing inventory: {e}")
-            return []
-
-    def _filter_inventory_by_category(self, inventory: List[Dict], category: str) -> List[Dict]:
-        """Filter inventory by GraphRAG category mapping"""
-        category_mapping = {
-            "starter": ["Starters", "Snacks"],
-            "main_biryani": ["Main Course"],
-            "main_rice": ["Main Course"], 
-            "side_bread": ["Main Course"],
-            "side_curry": ["Main Course"],
-            "side_accompaniment": ["Sides & Accompaniments"],
-            "dessert": ["Desserts", "Sweets"]
-        }
-        
-        target_categories = category_mapping.get(category, [])
-        filtered = [item for item in inventory if item.get("category") in target_categories]
-        
-        # For specific sub-categories, apply additional filtering
-        if category == "main_biryani":
-            filtered = [item for item in filtered if "biryani" in item["item_name"].lower()]
-        elif category == "main_rice":
-            filtered = [item for item in filtered if any(keyword in item["item_name"].lower() 
-                    for keyword in ["rice", "pulav", "pulao"])]
-        elif category == "side_bread":
-            filtered = [item for item in filtered if any(keyword in item["item_name"].lower() 
-                    for keyword in ["roti", "naan", "chapati", "phulka", "paratha"])]
-        elif category == "side_curry":
-            filtered = [item for item in filtered if "curry" in item["item_name"].lower()]
-        
-        return filtered[:20]  # Limit to top 20 items for prompt efficiency
-
-    def _estimate_category_budget(self, category: str) -> int:
-        """Estimate baseline budget allocation by category"""
-        budget_estimates = {
-            "starter": 180,
-            "main_biryani": 120,
-            "main_rice": 80,
-            "side_bread": 40,
-            "side_curry": 100,
-            "side_accompaniment": 60,
-            "dessert": 80
-        }
-        return budget_estimates.get(category, 100)
-        # def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
-    #     """
-    #     Extract specific item names from GraphRAG response text
-        
-    #     Args:
-    #         response: Raw text response from GraphRAG
-    #         category: Category being queried
-    #         count: Number of items expected
-        
-    #     Returns:
-    #         List of extracted items with basic info
-    #     """
-    #     # This method extracts item names from the natural language response
-    #     # and matches them against known items in the pricing database
-        
-    #     extracted_items = []
-    #     print(f"🎯 Extraction attempt for {category} from response length: {len(response)}")  
-    #     # Load pricing data to validate item names
-    #     try:
-    #         with open("items_price_uom.json", 'r', encoding='utf-8') as f:
-    #             pricing_data = json.load(f)
-    #             known_items = {item["item_name"].lower(): item for item in pricing_data}
-    #     except Exception as e:
-    #         logger.error(f"Could not load pricing data: {e}")
-    #         known_items = {}
-        
-    #     # Extract item names using multiple strategies
-    #     response_lower = response.lower()
-        
-    #     # Strategy 1: Look for quoted items or items in lists
-    #     patterns = [
-    #         r'"([^"]+)"',  # Quoted items
-    #         r"'([^']+)'",  # Single quoted items
-    #         r'•\s*([^\n•]+)',  # Bullet points
-    #         r'\d+\.\s*([^\n\d]+)',  # Numbered lists
-    #         r'-\s*([^\n-]+)',  # Dash lists
-    #     ]
-        
-    #     found_names = set()
-    #     for pattern in patterns:
-    #         matches = re.findall(pattern, response_lower)
-    #         for match in matches:
-    #             clean_name = match.strip()
-                
-    #             # Try to match with known items
-    #             for known_name, item_data in known_items.items():
-    #                 if self._is_item_match(clean_name, known_name, category):
-    #                     if known_name not in found_names:
-    #                         extracted_items.append({
-    #                             "name": item_data["item_name"],  # Use proper case
-    #                             "category": item_data["category"],
-    #                             "source": "graphrag_extraction",
-    #                             "match_confidence": self._calculate_match_confidence(clean_name, known_name)
-    #                         })
-    #                         found_names.add(known_name)
-    #                         break
-        
-    #     # Strategy 2: Direct name matching for common items
-    #     if len(extracted_items) < count:
-    #         for known_name, item_data in known_items.items():
-    #             if known_name in response_lower and known_name not in found_names:
-    #                 if self._is_category_appropriate(item_data["category"], category):
-    #                     extracted_items.append({
-    #                         "name": item_data["item_name"],
-    #                         "category": item_data["category"],
-    #                         "source": "direct_match",
-    #                         "match_confidence": 1.0
-    #                     })
-    #                     found_names.add(known_name)
-                        
-    #                     if len(extracted_items) >= count:
-    #                         break
-        
-    #     # Sort by confidence and return top items
-    #     extracted_items.sort(key=lambda x: x["match_confidence"], reverse=True)
-    #     return extracted_items[:count]
-    
-    # def _is_item_match(self, extracted_name: str, known_name: str, category: str) -> bool:
-    #     """Check if extracted name matches a known item name"""
-    #     # Simple similarity check
-    #     extracted_words = set(extracted_name.split())
-    #     known_words = set(known_name.split())
-        
-    #     # Calculate word overlap
-    #     overlap = len(extracted_words.intersection(known_words))
-    #     min_words = min(len(extracted_words), len(known_words))
-        
-    #     return min_words > 0 and overlap / min_words >= 0.5
-    
-    # def _is_category_appropriate(self, item_category: str, query_category: str) -> bool:
-    #     """Check if item category is appropriate for query category"""
-    #     category_mappings = {
-    #         "starter": ["Starters", "Snacks"],
-    #         "main_biryani": ["Main Course"],
-    #         "main_rice": ["Main Course"],
-    #         "side_bread": ["Main Course"],
-    #         "side_curry": ["Main Course"],
-    #         "side_accompaniment": ["Sides & Accompaniments"],
-    #         "dessert": ["Desserts", "Sweets"]
-    #     }
-        
-    #     appropriate_categories = category_mappings.get(query_category, [])
-    #     return item_category in appropriate_categories
-    
-    # def _calculate_match_confidence(self, extracted: str, known: str) -> float:
-    #     """Calculate confidence score for item name match"""
-    #     extracted_words = set(extracted.lower().split())
-    #     known_words = set(known.lower().split())
-        
-    #     if not extracted_words or not known_words:
-    #         return 0.0
-        
-    #     intersection = extracted_words.intersection(known_words)
-    #     union = extracted_words.union(known_words)
-        
-    #     return len(intersection) / len(union) if union else 0.0
-    
-    # def _enhance_with_co_occurrence_data(self, items: List[Dict[str, Any]], event_type: str) -> List[Dict[str, Any]]:
-    #     """
-    #     Enhance item suggestions with co-occurrence insights
-        
-    #     Args:
-    #         items: List of basic item suggestions
-    #         event_type: Event type for context
-        
-    #     Returns:
-    #         Enhanced items with co-occurrence insights
-    #     """
-    #     enhanced_items = []
-        
-    #     for item in items:
-    #         enhanced_item = item.copy()
-            
-    #         # Generate insight based on co-occurrence data
-    #         insight = self._generate_item_insight(item["name"], event_type)
-    #         enhanced_item["insight"] = insight
-    #         enhanced_item["co_occurrence_score"] = self._get_co_occurrence_score(item["name"], event_type)
-            
-    #         enhanced_items.append(enhanced_item)
-        
-    #     return enhanced_items
-    
-    # def _generate_item_insight(self, item_name: str, event_type: str) -> str:
-    #     """Generate condensed insight for an item"""
-    #     # This would ideally query the actual co-occurrence data
-    #     # For now, generate contextual insights based on item type and event
-        
-    #     insight_templates = {
-    #         "Traditional": {
-    #             "default": f"Classic choice for traditional events",
-    #             "biryani": f"Traditional centerpiece with proven success",
-    #             "curry": f"Authentic flavor profile for traditional settings"
-    #         },
-    #         "Party": {
-    #             "default": f"Popular party selection",
-    #             "starter": f"Engaging party appetizer",
-    #             "fusion": f"Modern party favorite"
-    #         }
-    #     }
-        
-    #     event_templates = insight_templates.get(event_type, insight_templates["Traditional"])
-        
-    #     # Simple keyword-based insight selection
-    #     item_lower = item_name.lower()
-    #     if "biryani" in item_lower:
-    #         return event_templates.get("biryani", event_templates["default"])
-    #     elif "curry" in item_lower:
-    #         return event_templates.get("curry", event_templates["default"])
-    #     elif any(word in item_lower for word in ["65", "tikka", "manchurian"]):
-    #         return event_templates.get("starter", event_templates["default"])
-    #     else:
-    #         return event_templates["default"]
-    
-    def _get_co_occurrence_score(self, item_name: str, event_type: str) -> float:
-        """Get co-occurrence score for item (placeholder implementation)"""
-        # This would query actual co-occurrence data from your graph
-        # For now, return a reasonable score based on item type
-        return random.uniform(0.6, 0.9)
-    
-    def _handle_insufficient_suggestions(self, query_spec: Dict[str, Any], current_suggestions: List[Dict[str, Any]], event_type: str) -> List[Dict[str, Any]]:
-        """
-        Handle cases where GraphRAG doesn't return enough suggestions
-        
-        Args:
-            query_spec: Original query specification
-            current_suggestions: Currently found suggestions
-            event_type: Event type context
-        
-        Returns:
-            Completed list with fallback suggestions
-        """
-        category = query_spec["category"]
-        count_needed = query_spec["count"]
-        count_current = len(current_suggestions)
-        count_missing = count_needed - count_current
-        
-        logger.info(f"Finding {count_missing} fallback suggestions for {category}")
-        
-        # Strategy 1: Use fallback categories
-        fallback_categories = query_spec.get("fallback_categories", [])
-        fallback_suggestions = []
-        
-        for fallback_category in fallback_categories:
-            if len(fallback_suggestions) >= count_missing:
-                break
-                
-            fallback_query = self._build_fallback_query(fallback_category, event_type, count_missing)
-            try:
-                fallback_items = self._query_fallback_items(fallback_query, fallback_category, count_missing)
-                fallback_suggestions.extend(fallback_items)
-            except Exception as e:
-                logger.warning(f"Fallback query failed for {fallback_category}: {e}")
-        
-        # Strategy 2: Use community defaults if still insufficient
-        if len(fallback_suggestions) < count_missing:
-            community_defaults = self._get_community_defaults(category, count_missing - len(fallback_suggestions))
-            fallback_suggestions.extend(community_defaults)
-        
-        # Mark fallback items
-        for item in fallback_suggestions:
-            item["source"] = "fallback"
-            item["insight"] = f"Community backup choice"
-        
-        # Combine and return
-        complete_suggestions = current_suggestions + fallback_suggestions[:count_missing]
-        return complete_suggestions
-    
-    def _get_community_defaults(self, category: str, count: int) -> List[Dict[str, Any]]:
-        """Get community default items for a category"""
-        # Hardcoded safe defaults for each category
-        defaults = {
-            "starter": [
-                {"name": "Veg Samosa", "category": "Snacks"},
-                {"name": "Chicken 65", "category": "Starters"},
-                {"name": "Paneer Tikka", "category": "Starters"}
-            ],
-            "main_biryani": [
-                {"name": "Veg Biryani", "category": "Main Course"},
-                {"name": "Chicken Biryani", "category": "Main Course"}
-            ],
-            "main_rice": [
-                {"name": "Jeera Rice", "category": "Main Course"},
-                {"name": "Pulihora", "category": "Main Course"}
-            ],
-            "side_bread": [
-                {"name": "Chapati", "category": "Main Course"},
-                {"name": "Butter Naan", "category": "Main Course"}
-            ],
-            "side_curry": [
-                {"name": "Dal Tadka", "category": "Main Course"},
-                {"name": "Mixed Vegetable Curry", "category": "Main Course"}
-            ],
-            "side_accompaniment": [
-                {"name": "Raita", "category": "Sides & Accompaniments"},
-                {"name": "Pickle", "category": "Sides & Accompaniments"}
-            ],
-            "dessert": [
-                {"name": "Gulab Jamun", "category": "Sweets"},
-                {"name": "Double Ka Meetha", "category": "Sweets"}
-            ]
-        }
-        
-        category_defaults = defaults.get(category, [])
-        selected_defaults = category_defaults[:count]
-        
-        # Add metadata
-        for item in selected_defaults:
-            item["source"] = "community_default"
-            item["match_confidence"] = 0.8
-        
-        return selected_defaults
-    
-    # def _fill_template_with_suggestions(self, template: Dict[str, Any], requirements: Dict[str, Any], suggestions: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
-    #     """
-    #     Fill template structure with GraphRAG suggestions
-        
-    #     Args:
-    #         template: Original template
-    #         requirements: Template requirements
-    #         suggestions: GraphRAG suggestions by category
-        
-    #     Returns:
-    #         Template with specific item names filled in
-    #     """
-    #     filled_template = template.copy()
-    #     filled_items = []
-        
-    #     # Process each category in original template order
-    #     for original_item in template["items"]:
-    #         category = original_item["category"]
-            
-    #         # Map to GraphRAG category
-    #         graphrag_category = self.template_bridge.category_mapper.map_to_graphrag_category(category, original_item)
-            
-    #         # Get suggestion for this item slot
-    #         category_suggestions = suggestions.get(graphrag_category, [])
-            
-    #         if category_suggestions:
-    #             # Take next available suggestion
-    #             suggestion = category_suggestions.pop(0)
-                
-    #             filled_item = {
-    #                 "category": original_item["category"],
-    #                 "name": suggestion["name"],
-    #                 "weight": original_item.get("weight"),
-    #                 "quantity": original_item.get("quantity"),
-    #                 "insight": suggestion.get("insight", ""),
-    #                 "graphrag_metadata": {
-    #                     "suggested_category": graphrag_category,
-    #                     "source": suggestion.get("source", "graphrag"),
-    #                     "confidence": suggestion.get("match_confidence", 0.0)
-    #                 }
-    #             }
-    #         else:
-    #             # Fallback to placeholder
-    #             filled_item = original_item.copy()
-    #             filled_item["insight"] = "Item selection pending"
-    #             filled_item["graphrag_metadata"] = {"source": "placeholder"}
-            
-    #         filled_items.append(filled_item)
-        
-    #     filled_template["items"] = filled_items
-    #     return filled_template
-    
-    # def _count_fallbacks(self, suggestions: Dict[str, List[Dict[str, Any]]]) -> int:
-    #     """Count how many fallback suggestions were used"""
-    #     fallback_count = 0
-    #     for category_suggestions in suggestions.values():
-    #         for suggestion in category_suggestions:
-    #             if suggestion.get("source") in ["fallback", "community_default"]:
-    #                 fallback_count += 1
-    #     return fallback_count
-    
-    def _handle_no_template_found(self, event_type: str, budget: int) -> Dict[str, Any]:
-        """Handle case where no template matches budget/event type"""
-        return {
-            "error": "No matching template found",
-            "event_type": event_type,
-            "budget": budget,
-            "suggestion": "Please adjust budget or try different event type",
-            "available_ranges": self._get_available_budget_ranges(event_type)
-        }
-    
-    def _handle_recommendation_error(self, event_type: str, budget: int, error_msg: str) -> Dict[str, Any]:
-        """Handle general recommendation errors"""
-        return {
-            "error": "Recommendation generation failed",
-            "event_type": event_type,
-            "budget": budget,
-            "error_details": error_msg,
-            "fallback": "Please try again or contact support"
-        }
-    
-    def _get_available_budget_ranges(self, event_type: str) -> List[str]:
-        """Get available budget ranges for an event type"""
-        ranges = []
-        for template in self.template_bridge.templates.values():
-            if self.template_bridge._is_event_compatible(template["tag"], event_type):
-                ranges.append(template["pricing"]["budget"])
-        return sorted(set(ranges))
-    # Add these methods to GraphRAGTemplateEngine class in graphrag_query_engine.py
-
-    def _build_fallback_query(self, fallback_category: str, event_type: str, count: int) -> str:
-        """Build fallback query for insufficient results"""
-        return f"Recommend {count} items from {fallback_category} category suitable for {event_type.lower()} events"
-
-    def _query_fallback_items(self, fallback_query: str, category: str, count: int) -> List[Dict[str, Any]]:
-        """Query fallback items when primary query insufficient"""
-        try:
-            # Use basic GraphRAG query
-            response = self.graphrag_query_engine.query(fallback_query)
-            return self._extract_items_from_response(response, category, count)
-        except Exception as e:
-            logger.warning(f"Fallback query failed: {e}")
-            return []
-
-    def _handle_query_failure(self, query_spec: Dict[str, Any], event_type: str) -> List[Dict[str, Any]]:
-        """Handle complete query failure with community defaults"""
-        category = query_spec["category"]
-        count = query_spec["count"]
-        
-        logger.info(f"Using community defaults for {category} due to query failure")
-        return self._get_community_defaults(category, count)
-
-    # ============================================================================
-    # SURGICAL INTERVENTION #1: Markdown-Aware Extraction Engine
-    # Target: graphrag_query_engine.py
-    # Precision: Laser-focused on Gemini's output patterns
-    # ============================================================================
-
-    def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
-        """
-        SURGICAL PRECISION: Extract items from Gemini's markdown-heavy responses
-        Engineered specifically for your log patterns
-        """
-        extracted_items = []
-        
-        # 🔍 DIAGNOSTIC MODE: Full visibility into extraction process
-        print(f"\n{'🔥'*60}")
-        print(f"🎯 EXTRACTION ENGINE: {category} → need {count} items")
-        print(f"📊 Response length: {len(response)} chars")
-        print(f"🔍 Response preview: {response[:200]}...")
-        print(f"{'🔥'*60}")
-        
-        # Load the pricing arsenal
-        try:
-            with open("items_price_uom.json", 'r', encoding='utf-8') as f:
-                pricing_data = json.load(f)
-                known_items = {item["item_name"].lower(): item for item in pricing_data}
-                print(f"📚 Loaded {len(known_items)} known items for matching")
-        except Exception as e:
-            print(f"⚠️ Pricing data unavailable: {e}")
-            known_items = {}
-        
-        found_names = set()
-        
-        # 🔪 SURGICAL PATTERNS: Engineered from your exact log analysis
-        gemini_surgical_patterns = [
-            # Pattern Alpha: **Bold Items** (90% of Gemini's style from your logs)
-            (r'\*\*([^*]+?)\*\*', "markdown_bold"),
-            
-            # Pattern Beta: "the **Item** is a strong recommendation" (exact log pattern)
-            (r'(?:the\s+)?\*\*([^*]+?)\*\*\s+is\s+a\s+(?:strong|excellent|good|solid)\s+(?:recommendation|choice)', "recommendation_statement"),
-            
-            # Pattern Gamma: List structures with bold
-            (r'[•\-*]\s*\*\*([^*]+?)\*\*', "bullet_bold"),
-            
-            # Pattern Delta: Non-markdown fallbacks for edge cases
-            (r'(?:recommend|suggest)(?:s|ing)?\s+(?:the\s+)?([A-Z][A-Za-z\s]+?(?:Biryani|Rice|Curry|Chicken|Paneer|Dal|Naan|Roti|Paan|Jamun|Cake|Tikka|Masala)[A-Za-z\s]*?)(?:\s+for|\s+as|\.|,|\s+based)', "direct_recommendation"),
-            
-            # Pattern Epsilon: Quoted items
-            (r'"([^"]+?(?:Biryani|Rice|Curry|Chicken|Paneer|Dal|Naan|Roti|Paan|Jamun|Cake|Tikka|Masala)[^"]*?)"', "quoted_items"),
-        ]
-        
-        for pattern_id, (pattern, pattern_name) in enumerate(gemini_surgical_patterns, 1):
-            matches = re.findall(pattern, response, re.IGNORECASE)
-            
-            print(f"\n🔍 Pattern {pattern_id} ({pattern_name}):")
-            print(f"   Regex: {pattern}")
-            print(f"   Matches: {len(matches)} found")
-            
-            if matches:
-                print(f"   Raw extractions: {matches}")
-                
-                for match in matches:
-                    # Surgical cleaning
-                    clean_name = self._surgical_item_cleaner(match.strip())
-                    print(f"   🧹 Cleaned: '{match}' → '{clean_name}'")
-                    
-                    # Precision matching
-                    matched_item = self._precision_item_matcher(clean_name, known_items, category)
-                    
-                    if matched_item and matched_item["item_name"].lower() not in found_names:
-                        confidence = self._calculate_match_confidence(clean_name, matched_item["item_name"])
-                        print(f"   ✅ PRECISION MATCH: '{clean_name}' → '{matched_item['item_name']}' (conf: {confidence:.2f})")
-                        
-                        extracted_items.append({
-                            "name": matched_item["item_name"],
-                            "category": matched_item["category"],
-                            "source": "surgical_extraction",
-                            "match_confidence": confidence,
-                            "extraction_method": pattern_name,
-                            "pattern_id": pattern_id,
-                            "original_text": match
-                        })
-                        found_names.add(matched_item["item_name"].lower())
-                        
-                        if len(extracted_items) >= count:
-                            print(f"🎯 EXTRACTION COMPLETE: Target achieved with pattern {pattern_id}")
-                            break
-                    else:
-                        print(f"   ❌ No viable match for: '{clean_name}'")
-            
-            if len(extracted_items) >= count:
-                break
-        
-        # 📊 SURGICAL SUMMARY
-        print(f"\n{'🎯'*40}")
-        print(f"🏆 EXTRACTION RESULTS: {len(extracted_items)}/{count} items")
-        print(f"{'🎯'*40}")
-        
-        if extracted_items:
-            for i, item in enumerate(extracted_items, 1):
-                print(f"   {i}. ✅ {item['name']}")
-                print(f"      📍 Method: {item['extraction_method']}")
-                print(f"      📊 Confidence: {item['match_confidence']:.2f}")
-        else:
-            print("   ❌ ZERO EXTRACTIONS - Falling back to community defaults")
-            print("   🔍 DEBUG: Check if response contains recognizable item patterns")
-        
-        return extracted_items[:count]
-
-    def _surgical_item_cleaner(self, raw_name: str) -> str:
-        """
-        PRECISION CLEANING: Engineered for dish name integrity
-        """
-        clean = raw_name.strip()
-        
-        # Remove markdown artifacts with surgical precision
-        clean = re.sub(r'\*+', '', clean)
-        clean = re.sub(r'_+', '', clean)
-        clean = re.sub(r'`+', '', clean)
-        
-        # Remove linguistic cruft while preserving dish essence
-        clean = re.sub(r'^(?:the|a|an|some|many|several)\s+', '', clean, flags=re.IGNORECASE)
-        clean = re.sub(r'\s+(?:is|are|would be|could be|might be).*$', '', clean, flags=re.IGNORECASE)
-        clean = re.sub(r'\s*[,.].*$', '', clean)
-        clean = re.sub(r'\s+(?:for|as|with|that|which).*$', '', clean, flags=re.IGNORECASE)
-        
-        # Normalize whitespace and formatting
-        clean = re.sub(r'\s+', ' ', clean).strip()
-        
-        # Apply intelligent title case
-        return self._intelligent_title_case(clean)
-
-    def _intelligent_title_case(self, text: str) -> str:
-        """Smart title casing that respects culinary naming conventions"""
-        words = text.split()
-        result = []
-        
-        # Words that should stay lowercase in dish names
-        lowercase_words = {'and', 'or', 'with', 'of', 'the', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'ka', 'ki', 'ke'}
-        
-        for i, word in enumerate(words):
-            if i == 0 or word.lower() not in lowercase_words:
-                result.append(word.capitalize())
-            else:
-                result.append(word.lower())
-        
-        return ' '.join(result)
-
-    def _precision_item_matcher(self, extracted_name: str, known_items: Dict[str, Any], category: str) -> Optional[Dict[str, Any]]:
-        """
-        PRECISION MATCHING: Multi-tier matching strategy
-        """
-        extracted_lower = extracted_name.lower()
-        
-        # Tier 1: Exact match
-        if extracted_lower in known_items:
-            item = known_items[extracted_lower]
-            if self._is_category_appropriate(item["category"], category):
-                return item
-        
-        # Tier 2: Normalized variations
-        variations = [
-            extracted_lower.replace(' ', ''),
-            extracted_lower.replace('-', ' '),
-            extracted_lower.replace('_', ' '),
-            re.sub(r'\s+', ' ', extracted_lower)
-        ]
-        
-        for variation in variations:
-            if variation in known_items:
-                item = known_items[variation]
-                if self._is_category_appropriate(item["category"], category):
-                    return item
-        
-        # Tier 3: Intelligent fuzzy matching
-        return self._intelligent_fuzzy_match(extracted_name, known_items, category)
 
     def _intelligent_fuzzy_match(self, extracted_name: str, known_items: Dict[str, Any], category: str) -> Optional[Dict[str, Any]]:
         """
@@ -1656,10 +1049,25 @@ def create_graphrag_template_engine(template_file: str = None, run_diagnostics: 
     return engine
 
 def reset_graphrag_cache():
-    """Reset cache for testing"""
+    """
+    Reset both in-memory and on-disk cache for a clean rebuild.
+    """
     global _GRAPHRAG_SYSTEM_CACHE
+    
+    # 1. Reset in-memory cache
     _GRAPHRAG_SYSTEM_CACHE = {'adapter': None, 'query_engine': None, 'initialized': False}
-    logger.info("🔄 GraphRAG cache reset")
+    logger.info("🔄 In-memory GraphRAG cache has been reset.")
+
+    # 2. Clear on-disk cache
+    try:
+        cache_dir = get_cache_directory()
+        if os.path.exists(cache_dir):
+            shutil.rmtree(cache_dir)
+            logger.info(f"🗑️ On-disk cache directory '{cache_dir}' has been deleted.")
+        else:
+            logger.info("ℹ️ On-disk cache directory not found, nothing to delete.")
+    except Exception as e:
+        logger.error(f"❌ Failed to delete on-disk cache: {e}")
 # ============================================================================
 # TESTING
 # ============================================================================
@@ -1836,19 +1244,16 @@ def run_full_diagnostics():
         return False
 if __name__ == "__main__":
     print("Testing GraphRAG Template Engine...")
-    # Add this option
-    run_diagnostics_flag = True  # Set to True to run diagnostics
+
+    # ==> STEP 1: Uncomment the line below to clear your cache.
+    reset_graphrag_cache()
+    # ==> STEP 2: Run the script once with the line above uncommented.
+    # ==> STEP 3: Comment the line out again for normal operation.
     
-    if run_diagnostics_flag:
-        print("\n" + "="*60)
-        print("🔍 RUNNING FULL DIAGNOSTICS")
-        print("="*60)
-        success = run_full_diagnostics()
-        if not success:
-            print("⚠️ Diagnostics revealed issues - check output above")
-        print("="*60)
+    # Set to True if you need to run diagnostics, otherwise False.
+    run_diagnostics_flag = False
+    
     try:
-        # Create engine
         # Create engine
         engine = create_graphrag_template_engine(run_diagnostics=run_diagnostics_flag)
         print("✓ GraphRAG Template Engine created successfully")

@@ -95,7 +95,7 @@ class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
     "4. Historical pairing patterns and what they reveal about successful combinations\n"
     "5. How these elements work together to create cohesive food experiences\n"
     "6. Specific recommendations for menu planners based on proven co-occurrence data\n\n"
-    
+    "7. A list of the all representative items (dishes or ingredients) from this community.\n"
     "Pay special attention to co-occurrence relationships - these represent actual "
     "historical evidence of successful dish pairings from real menu service. When you "
     "see dishes that have co-occurred multiple times, emphasize these as validated "
@@ -1321,6 +1321,137 @@ class Neo4jGraphRAGAdapter:
             similarity_top_k=similarity_top_k
         )
 
+def setup_complete_community_graphrag_system():
+    """
+    Complete setup function that brings together all the components:
+    local models, Neo4j integration, and community-based GraphRAG.
+    
+    This function orchestrates the entire system setup, from configuring
+    local models to building community summaries to creating the query engine.
+    """
+    
+    print("🔧 Setting up complete Community-based GraphRAG system...")
+    
+    # Step 1: Configure local models (as we did before)
+    print("\n1️⃣ Configuring local models...")
+    print("\n setting up embedding model...")
+    embed_model = HuggingFaceEmbedding(
+        model_name="sentence-transformers/all-MiniLM-L6-v2",
+        cache_folder="./model_cache/embeddings"
+    )
+    print("\n1️⃣ Configuring Gemini API...")
+    import os
+    # Check if API key is available
+    if not os.getenv("GOOGLE_API_KEY"):
+        print("❌ GOOGLE_API_KEY not found in environment variables")
+        print("Please get your API key from: https://aistudio.google.com/app/apikey")
+        return None, None
+    try:
+     llm = Gemini(
+             model="models/gemini-1.5-flash",  # Optimal for GraphRAG tasks
+             temperature=0.1,  # Consistent for entity extraction
+             max_tokens=2048   # Sufficient for community analysis
+         )
+         
+         # Test the connection
+     test_response = llm.complete("Test connection")
+     print(f"✓ Gemini API connected successfully")
+         
+    except Exception as e:
+        print(f"❌ Gemini API setup failed: {e}")
+        print("Check your API key and internet connection")
+        return None, None
+    
+        # try:
+        #     # Fallback to minimal configuration that should work with any API version
+        #     llm = HuggingFaceLLM(
+        #         model_name="google/flan-t5-large",
+        #         tokenizer_name="google/flan-t5-large",
+        #         max_new_tokens=512
+        #         # Using only the most essential parameters to ensure compatibility
+        #     )
+        #     print("✅ Language model configured with simplified parameters")
+            
+        # except Exception as e2:
+        #     print(f"❌ Language model configuration failed completely: {e2}")
+        #     print("This suggests a deeper compatibility issue with the HuggingFace integration")
+        #     return None, None
+    
+    # except Exception as e:
+    #     print(f"❌ Unexpected error in language model setup: {e}")
+    #     return None, None
+    Settings.llm = llm
+    Settings.embed_model = embed_model
+    
+    print(f"✓ Local models configured")
+    
+    # Step 2: Connect to Neo4j
+    print("\n2️⃣ Connecting to Neo4j...")
+    try:
+     from llama_index.graph_stores.neo4j import Neo4jPropertyGraphStore
+     
+     neo4j_store = Neo4jPropertyGraphStore(
+         url="bolt://127.0.0.1:7687",
+         username="neo4j",
+         password="Ashfaq8790",
+         encrypted=False,
+         refresh_schema=True,
+         create_indexes=False
+     )
+     
+     print("✓ Connected to Neo4j")
+    except Exception as e:
+        print(f"❌ Neo4j connection failed: {e}")
+        print("Please verify that Neo4j is running and your credentials are correct")
+        return None, None
+    
+    # Step 3: Create the adapter and build communities
+    print("\n3️⃣ Creating community analysis adapter...")
+    try:
+     adapter = Neo4jGraphRAGAdapter(
+         neo4j_store=neo4j_store,
+         llm=llm,
+         max_cluster_size=64,
+         min_cluster_size=3
+         # Adjust based on your data size
+     )
+    
+     print("✓ Adapter created")
+    except Exception as e:
+        print(f"❌ Failed to create adapter: {e}")
+        return None, None
+    
+    # Step 4: Build communities from your Neo4j data
+    print("\n4️⃣ Building communities and generating summaries...")
+    print("This process may take several minutes depending on your graph size...")
+    success = adapter.build_communities_from_neo4j()
+    
+    if not success:
+        print("❌ Failed to build communities")
+        return None, None
+    
+    # Step 5: Create the query engine
+    print("\n5️⃣ Creating community-powered query engine...")
+    
+    query_engine = adapter.create_query_engine(similarity_top_k=5)
+    
+    print("✅ Complete Community GraphRAG system ready!")
+     # Provide a summary of what was accomplished
+    summaries = adapter.graphrag_store.get_community_summaries()
+    if summaries:
+        print(f"📊 System contains {len(summaries)} community summaries")
+        print("🔍 Ready for complex food service queries")
+        
+        # Show a brief preview of the communities that were discovered
+        print("\n📋 Sample communities discovered:")
+        for i, (community_id, summary) in enumerate(list(summaries.items())[:3]):
+            preview = summary[:100] + "..." if len(summary) > 100 else summary
+            print(f"  Community {community_id}: {preview}")
+        
+        if len(summaries) > 3:
+            print(f"  ... and {len(summaries) - 3} more communities")
+    
+    return adapter, query_engine
 def setup_graphrag_core_system():
     """
     Core setup function that initializes essential components:
@@ -1406,6 +1537,7 @@ def setup_graphrag_core_system():
     print("✅ GraphRAG Core System ready!")
     return adapter
 
+
 def test_community_graphrag_system(query_engine):
     """
     Test the community-based system with sample queries to demonstrate its capabilities.
@@ -1434,4 +1566,34 @@ def test_community_graphrag_system(query_engine):
         print("-" * 50)
 
 if __name__ == "__main__":
-    print("This file contains the core GraphRAG system setup and should be imported, not run directly.")
+    # Check system capabilities
+    print(f"PyTorch CUDA available: {torch.cuda.is_available()}")
+    if torch.cuda.is_available():
+        print(f"CUDA device: {torch.cuda.get_device_name(0)}")
+    
+    # Set up the complete system
+    adapter, query_engine = setup_complete_community_graphrag_system()
+    
+    if adapter and query_engine:
+        # Test the system
+        test_community_graphrag_system(query_engine)
+        
+        # Interactive query loop
+        print("\n🎯 Ready for interactive queries!")
+        print("Ask questions about your food service data, or type 'quit' to exit.")
+        
+        while True:
+            user_query = input("\nYour question: ").strip()
+            
+            if user_query.lower() in ['quit', 'exit', 'q']:
+                print("👋 Goodbye!")
+                break
+            
+            if user_query:
+                try:
+                    response = query_engine.query(user_query)
+                    print(f"\nAnswer: {response}")
+                except Exception as e:
+                    print(f"Error processing query: {e}")
+    else:
+        print("❌ System setup failed. Please check your configuration and try again.")
