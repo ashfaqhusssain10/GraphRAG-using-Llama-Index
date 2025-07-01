@@ -19,6 +19,7 @@ import logging
 import random
 import threading 
 import shutil
+from llama_index.core.llms import ChatMessage
 # Import your existing GraphRAG components
 try:
     from ex1 import (
@@ -533,7 +534,10 @@ class GraphRAGTemplateEngine:
         
         # Execute query using existing GraphRAG system
         try:
-            raw_response = self.graphrag_query_engine.query(query_text)
+            messages = [ChatMessage(role="user", content=query_text)]
+            raw_response_obj = self.graphrag_query_engine.llm.chat(messages)
+            raw_response = str(raw_response_obj)
+
             print(f" RAW GRAPHRAG RESPONSE for {category}:\n{raw_response[:500]}...")
             # Extract specific items from GraphRAG response
             extracted_items = self._extract_items_from_response(raw_response, category, count)
