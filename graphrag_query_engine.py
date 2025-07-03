@@ -633,13 +633,13 @@ class GraphRAGTemplateEngine:
             # Check if the relationship is 'BELONGS_TO'
             if relation_obj.label == "BELONGS_TO":
                 # Check if the source of the relationship is our target category node
-                if relation_obj.source_id == target_category_node_name:
+                if relation_obj.target_id == target_category_node_name:
                     # Get the target node object from the graph store
-                    target_node = self.graphrag_adapter.graphrag_store.get(ids=[relation_obj.target_id])
+                    source_node = self.graphrag_adapter.graphrag_store.get(ids=[relation_obj.source_id])
                     
                     # Check if the target node was found and if its actual label is 'Dish'
-                    if target_node and target_node[0].label == "Dish":
-                        relevant_dish_names.add(target_node[0].name)
+                    if source_node and source_node[0].label == "Dish":
+                        relevant_dish_names.add(source_node[0].name)
 
         logger.debug(f"DEBUG_COMMUNITY_SUMMARIES: Found {len(relevant_dish_names)} relevant dishes for category '{category}'")
 
