@@ -3,6 +3,7 @@ import networkx as nx
 from graspologic.partition import hierarchical_leiden
 from collections import defaultdict
 from llama_index.core.graph_stores import SimplePropertyGraphStore
+from llama_index.core.graph_stores.types import EntityNode, Relation, LabelledNode
 from llama_index.core.llms import ChatMessage
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.llms.gemini import Gemini
@@ -17,6 +18,8 @@ import json
 import re
 from typing import Dict, List, Any, Optional, Tuple
 from collections import defaultdict, Counter
+import logging
+logger = logging.getLogger(__name__)
 
 class FoodServiceGraphRAGStore(SimplePropertyGraphStore):
     """
@@ -1111,112 +1114,126 @@ class Neo4jGraphRAGAdapter:
         
         # Track synchronization state
         self._last_sync_time = None
-    
+
     def sync_from_neo4j(self):
         """
-        Transfer data from your Neo4j store to the community analysis store.
-        
-        This method reads your existing graph structure from Neo4j and prepares
-        it for community detection analysis. We preserve all the relationship
-        information while adapting the data format for the clustering algorithms.
+        Synchronizes the graph data from Neo4j to the in-memory GraphRAG store.
+        This method is crucial for ensuring the in-memory graph used by GraphRAG
+        is up-to-date with the Neo4j database. It transfers nodes and relationships,
+        assigning appropriate labels and properties.
         """
-        
         print("🔄 Synchronizing data from Neo4j to community analysis store...")
-        
-        # Clear existing data in the analysis store
-        self.graphrag_store.graph.nodes.clear()
-        self.graphrag_store.graph.relations.clear()
-        
+
+        nodes_to_upsert: List[EntityNode] = []
+        relations_to_upsert: List[Relation] = []
+
         # Transfer nodes from Neo4j
         print("📊 Transferring nodes...")
-        node_count = 0
-        
-        # Query all nodes from Neo4j
-        cypher_query = "MATCH (n) RETURN n, labels(n) as labels"
+        cypher_query = "MATCH (n) RETURN n, labels(n) as labels, elementId(n) as element_id"
         try:
             neo4j_nodes = self.neo4j_store.structured_query(cypher_query)
-            
+
             for result in neo4j_nodes:
-                node = result['n']
-                labels = result['labels']
+                node_data = result["n"]
+                labels = result["labels"]
+                element_id = result["element_id"]
+
+                # Prioritize 'id' property from Neo4j node, then fallback to elementId
+                node_id = node_data.get("id", element_id)
                 
-                # Extract node properties and create appropriate node for analysis
-                node_id = node.get('name', str(node.get('id', f'node_{node_count}')))
-                node_properties = dict(node)
+                # Derive primary label
+                primary_label = "__Node__" # Default label
+                if "Category" in labels:
+                    primary_label = "Category"
+                elif "Dish" in labels:
+                    primary_label = "Dish"
+                elif "EventType" in labels:
+                    primary_label = "EventType"
+                elif "MealType" in labels:
+                    primary_label = "MealType"
+                elif "Ingredient" in labels:
+                    primary_label = "Ingredient"
+                elif "Person" in labels:
+                    primary_label = "Person"
+                elif "Order" in labels:
+                    primary_label = "Order"
+                elif "Customer" in labels:
+                    primary_label = "Customer"
+                elif "Venue" in labels:
+                    primary_label = "Venue"
+                elif "__Entity__" in labels:
+                    primary_label = "__Entity__"
                 
-                # Add label information to properties for better community analysis
-                if labels:
-                    node_properties['node_type'] = labels[0]  # Primary label
-                    node_properties['all_labels'] = labels
+                # Copy all properties from the Neo4j node data
+                properties = dict(node_data)
                 
-                # Create node in our analysis store
-                from llama_index.core.graph_stores.types import EntityNode
+                # Ensure 'name' is present in properties, or use node_id as fallback
+                node_name = properties.get("name", node_id)
+                properties["name"] = node_name # Ensure name property is explicitly set
+                
+                # Remove the 'id' key from properties if it's redundant with the derived node_id
+                if "id" in properties and properties["id"] == node_id:
+                    del properties["id"]
+
+                # Create EntityNode object
                 entity_node = EntityNode(
                     id=node_id,
-                    label=labels[0] if labels else "Entity",
-                    name=node_id,
-                    properties=node_properties
+                    label=primary_label,
+                    name=node_name,
+                    properties=properties
                 )
-                
-                self.graphrag_store.graph.nodes[node_id] = entity_node
-                node_count += 1
-            
-            print(f"✓ Transferred {node_count} nodes")
-            
+                nodes_to_upsert.append(entity_node)
+
+                print(f"DEBUG_SYNC: Prepared node: ID='{node_id}', Labels={labels}, Derived_Primary_Label='{primary_label}'")
+
+            # Add all collected nodes to the graph in one go
+            self.graphrag_store.upsert_nodes(nodes_to_upsert)
+            print(f"✅ Transferred {len(nodes_to_upsert)} nodes.")
+
         except Exception as e:
-            print(f"❌ Failed to transfer nodes: {e}")
-            return False
-        
+            logger.error(f"Error transferring nodes: {e}")
+            raise # Re-raise the exception to propagate it
+
         # Transfer relationships from Neo4j
         print("🔗 Transferring relationships...")
-        relation_count = 0
-        
-        # Query all relationships from Neo4j with detailed information
-        cypher_query = """
-        MATCH (source)-[r]->(target)
-        RETURN source.name as source_name, target.name as target_name, 
-               type(r) as relation_type, properties(r) as properties
-        """
-        
+        # Corrected: Use properties(r) to ensure a dictionary is returned for relationship properties
+        rel_query = "MATCH (s)-[r]->(t) RETURN s.id as source_id, type(r) as type, t.id as target_id, properties(r) as properties, elementId(r) as element_id"
         try:
-            neo4j_relations = self.neo4j_store.structured_query(cypher_query)
-            
-            for result in neo4j_relations:
-                source_name = result['source_name']
-                target_name = result['target_name']
-                relation_type = result['relation_type']
-                relation_props = result['properties'] or {}
+            neo4j_rels = self.neo4j_store.structured_query(rel_query)
+            for result in neo4j_rels:
+                source_id = result["source_id"]
+                rel_type = result["type"]
+                target_id = result["target_id"]
+                rel_properties = result["properties"]
+                # element_id = result["element_id"] # Not strictly needed for Relation object
                 
-                # Create meaningful relationship description for community analysis
-                relation_description = self._create_relation_description(
-                    source_name, target_name, relation_type, relation_props
+                # Ensure source_id and target_id are not None
+                if source_id is None or target_id is None:
+                    print(f"WARNING: Skipping relationship due to missing source or target ID: Source={source_id}, Target={target_id}, Type={rel_type}")
+                    continue
+
+                # Create Relation object
+                relation_obj = Relation(
+                    source_id=source_id,
+                    target_id=target_id,
+                    label=rel_type,
+                    properties=rel_properties # rel_properties is already a dict
                 )
-                
-                # Add relationship description to properties
-                enhanced_props = dict(relation_props)
-                enhanced_props['relationship_description'] = relation_description
-                
-                # Create relation in our analysis store
-                from llama_index.core.graph_stores.types import Relation
-                relation = Relation(
-                    source_id=source_name,
-                    target_id=target_name,
-                    label=relation_type,
-                    properties=enhanced_props
-                )
-                
-                relation_id = f"{source_name}_{relation_type}_{target_name}_{relation_count}"
-                self.graphrag_store.graph.relations[relation_id] = relation
-                relation_count += 1
-            
-            print(f"✓ Transferred {relation_count} relationships")
-            
+                relations_to_upsert.append(relation_obj)
+
+                print(f"DEBUG_SYNC: Prepared relation: Source='{source_id}', Type='{rel_type}', Target='{target_id}'")
+
+            # Add all collected relationships to the graph in one go
+            self.graphrag_store.upsert_relations(relations_to_upsert)
+            print(f"✅ Transferred {len(relations_to_upsert)} relationships.")
+
         except Exception as e:
-            print(f"❌ Failed to transfer relationships: {e}")
-            return False
-        
-        print("✅ Neo4j synchronization complete!")
-        return True
+            logger.error(f"Error transferring relationships: {e}")
+            raise # Re-raise the exception to propagate it
+
+        print("✨ Graph synchronization complete.")
+
+    # ... rest of the class ...    
     
     def _create_relation_description(self, source: str, target: str, 
                                    relation_type: str, properties: dict) -> str:
@@ -1348,7 +1365,7 @@ def setup_complete_community_graphrag_system():
         return None, None
     try:
      llm = Gemini(
-             model="models/gemini-1.5-flash",  # Optimal for GraphRAG tasks
+             model="models/gemini-2.5-flash",  # Optimal for GraphRAG tasks
              temperature=0.1,  # Consistent for entity extraction
              max_tokens=2048   # Sufficient for community analysis
          )
@@ -1479,7 +1496,7 @@ def setup_graphrag_core_system():
         return None
     try:
      llm = Gemini(
-             model="models/gemini-1.5-flash",  # Optimal for GraphRAG tasks
+             model="models/gemini-2.5-flash",  # Optimal for GraphRAG tasks
              temperature=0.1,  # Consistent for entity extraction
              max_tokens=2048   # Sufficient for community analysis
          )

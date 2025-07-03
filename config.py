@@ -13,56 +13,71 @@ from typing import Dict, List, Any, Optional
 
 # Maps JSON template categories to GraphRAG node labels and queries
 CATEGORY_MAPPING = {
-    "starter": {
-        "graphrag_labels": ["Starters"],
-        "cypher_filter": "n.node_type = 'Starters'",
-        "description": "Appetizers and starter items for events",
-        "fallback_categories": ["Snacks"]  # Backup if not enough starters
-    },
-    
-    "main_biryani": {
-        "graphrag_labels": ["Main Course"],
-        "cypher_filter": "n.node_type = 'Main Course' AND toLower(n.name) CONTAINS 'biryani'",
-        "description": "Biryani dishes as main course centerpiece",
-        "fallback_categories": ["Main Course"]  # Broader main course if needed
-    },
-    
-    "main_rice": {
-        "graphrag_labels": ["Main Course"],
-        "cypher_filter": "n.node_type = 'Main Course' AND (toLower(n.name) CONTAINS 'rice' OR toLower(n.name) CONTAINS 'pulav' OR toLower(n.name) CONTAINS 'pulao')",
-        "description": "Flavored rice dishes and pulav varieties",
-        "fallback_categories": ["Main Course"]
-    },
-    
-    "side_bread": {
-        "graphrag_labels": ["Main Course"],
-        "cypher_filter": "n.node_type = 'Main Course' AND (toLower(n.name) CONTAINS 'roti' OR toLower(n.name) CONTAINS 'naan' OR toLower(n.name) CONTAINS 'chapati' OR toLower(n.name) CONTAINS 'phulka' OR toLower(n.name) CONTAINS 'paratha')",
-        "description": "Bread items that accompany curries",
-        "fallback_categories": ["Main Course"]
-    },
-    
-    "side_curry": {
-        "graphrag_labels": ["Main Course"],
-        "cypher_filter": "n.node_type = 'Main Course' AND toLower(n.name) CONTAINS 'curry'",
-        "description": "Curry dishes that pair with bread and rice",
-        "fallback_categories": ["Main Course"]
-    },
-    
-    "side_accompaniment": {
-        "graphrag_labels": ["Sides & Accompaniments"],
-        "cypher_filter": "n.node_type = 'Sides & Accompaniments'",
-        "description": "Raita, salads, pickles, and other accompaniments",
-        "fallback_categories": ["Sides & Accompaniments"]
-    },
-    
-    "dessert": {
-        "graphrag_labels": ["Desserts", "Sweets"],
-        "cypher_filter": "(n.node_type = 'Desserts' OR n.node_type = 'Sweets')",
-        "description": "Sweet dishes and desserts for meal completion",
-        "fallback_categories": ["Desserts", "Sweets"]
+        "starter": {
+            "graphrag_labels": ["Starters", "Snacks", "Dish"], # ADD "Dish" here
+            "query_keywords": ["starter", "appetizer", "snack"],
+            "item_uom_preference": "Pcs", # Pcs (pieces)
+            "budget_flexibility": {"min": 10, "max": 110},
+            "cypher_filter_template": "n.node_type = 'Dish' AND ('Starters' IN labels(n) OR 'Snacks' IN labels(n))",
+            "luxury_emphasis": "unique, impressive presentation, premium ingredients"
+        },
+        "main_biryani": {
+            "graphrag_labels": ["Main Course", "Dish"], # ADD "Dish" here
+            "query_keywords": ["biryani", "dum biryani", "pulav"],
+            "item_uom_preference": "Kg", # Kg (kilograms)
+            "budget_flexibility": {"min": 100, "max": 200},
+            "cypher_filter_template": "n.node_type = 'Dish' AND 'Main Course' IN labels(n) AND (n.name CONTAINS 'Biryani' OR n.name CONTAINS 'Pulav')",
+            "luxury_emphasis": "richness, authentic flavor, complex preparation"
+        },
+        "main_rice": {
+            "graphrag_labels": ["Main Course", "Dish"], # ADD "Dish" here
+            "query_keywords": ["rice", "flavored rice"],
+            "item_uom_preference": "Kg",
+            "budget_flexibility": {"min": 50, "max": 100},
+            "cypher_filter_template": "n.node_type = 'Dish' AND 'Main Course' IN labels(n) AND (n.name CONTAINS 'Rice' OR n.name CONTAINS 'Flavored Rice')",
+            "luxury_emphasis": "aromatic, light, complementing flavors"
+        },
+        "side_bread": {
+            "graphrag_labels": ["Main Course", "Dish"], # ADD "Dish" here
+            "query_keywords": ["bread", "roti", "naan", "chapati"],
+            "item_uom_preference": "Pcs",
+            "budget_flexibility": {"min": 15, "max": 60},
+            "cypher_filter_template": "n.node_type = 'Dish' AND 'Main Course' IN labels(n) AND (n.name CONTAINS 'Naan' OR n.name CONTAINS 'Roti' OR n.name CONTAINS 'Chapati')",
+            "luxury_emphasis": "artisanal, fresh, unique texture"
+        },
+        "side_curry": {
+            "graphrag_labels": ["Main Course", "Dish"], # ADD "Dish" here
+            "query_keywords": ["curry", "gravy", "dal", "paneer"],
+            "item_uom_preference": "Kg",
+            "budget_flexibility": {"min": 70, "max": 150},
+            "cypher_filter_template": "n.node_type = 'Dish' AND 'Main Course' IN labels(n) AND (n.name CONTAINS 'Curry' OR n.name CONTAINS 'Dal' OR n.name CONTAINS 'Masala')",
+            "luxury_emphasis": "complex spice profile, rich, premium protein"
+        },
+        "side_accompaniment": {
+            "graphrag_labels": ["Sides & Accompaniments", "Dish"], # ADD "Dish" here
+            "query_keywords": ["raita", "salad", "pickle", "chutney"],
+            "item_uom_preference": "Kg",
+            "budget_flexibility": {"min": 20, "max": 70},
+            "cypher_filter_template": "n.node_type = 'Dish' AND ('Sides & Accompaniments' IN labels(n))",
+            "luxury_emphasis": "fresh, balancing, unique flavor"
+        },
+        "dessert": {
+            "graphrag_labels": ["Desserts", "Sweets", "Dish"], # ADD "Dish" here
+            "query_keywords": ["dessert", "sweet", "pudding", "ice cream"],
+            "item_uom_preference": "Pcs",
+            "budget_flexibility": {"min": 0, "max": 100},
+            "cypher_filter_template": "n.node_type = 'Dish' AND ('Desserts' IN labels(n) OR 'Sweets' IN labels(n))",
+            "luxury_emphasis": "memorable conclusion, presentation, exotic ingredients"
+        },
+        "drink": {
+            "graphrag_labels": ["Beverages"],
+            "query_keywords": ["drink", "beverage", "juice", "soda"],
+            "item_uom_preference": "Litre",
+            "budget_flexibility": {"min": 0, "max": 50},
+            "cypher_filter_template": "n.node_type = 'Dish' AND 'Beverages' IN labels(n)",
+            "luxury_emphasis": "refreshing, unique, curated selection"
+        }
     }
-}
-
 # Event type mapping between frontend and GraphRAG
 EVENT_TYPE_MAPPING = {
     "Traditional": {

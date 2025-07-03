@@ -52,6 +52,13 @@ _GRAPHRAG_SYSTEM_CACHE = {
 _CACHED_LOCK = threading.RLock()
 _SYSTEM_INITIALIZATION_LOCK = threading.RLock()
 _SYSTEM_INITIALIZATION_IN_PROGRESS = False 
+_GRAPHRAG_SYSTEM_CACHE = {
+    'initialized': False,
+    'query_engine': None,
+    'communities_data': None,
+    'execution_id': None
+}
+
 # Add this to graphrag_query_engine.py - REPLACE the existing get_cached_graphrag_system function
 def get_cache_directory():
     """Ensure consistent cache location"""
@@ -196,7 +203,7 @@ def load_communities_safely(cache_dir="graphrag_cache"):
         cache_time = datetime.fromisoformat(metadata['created_at'])
         cache_age_hours = (datetime.now() - cache_time).total_seconds() / 3600
         
-        if cache_age_hours > 24:
+        if cache_age_hours > 240:
             print(f"🕒 Cache expired ({cache_age_hours:.1f}h old)")
             return None
         
@@ -236,8 +243,6 @@ def load_communities_safely(cache_dir="graphrag_cache"):
         else:
             print(f"💡 Pickle deserialization error - try clearing cache")
         return None
-
-# UPDATED: get_cached_graphrag_system with better JSON cache integration
 @st.cache_resource(ttl=604800, show_spinner=False)
 def get_cached_graphrag_system():
     """
@@ -280,6 +285,11 @@ def get_cached_graphrag_system():
             #adapter = setup_complete_community_graphrag_system()
             if not adapter:
                 raise Exception("Failed to setup GraphRAG core system")
+
+            # 🔥 FIX: Ensure the graph is loaded from Neo4j BEFORE attempting to use it
+            print(f"🔄 Loading graph data from Neo4j into adapter.graphrag_store.graph - ID: {execution_id}")
+            adapter.sync_from_neo4j()
+            print(f"✅ Graph data loaded. Nodes: {len(adapter.graphrag_store.graph.nodes)}")
 
             query_engine = None # Initialize query_engine to None
             
@@ -366,6 +376,7 @@ def get_cached_graphrag_system():
         finally:
             # Always clear the initialization flag
             _SYSTEM_INITIALIZATION_IN_PROGRESS = False
+
 
 
 # Setup logging
@@ -536,7 +547,11 @@ class GraphRAGTemplateEngine:
             print(f"🎯 LLM will likely choose from these top candidates:")
             for item_name, analysis in baseline_candidates[:3]:
                 print(f"   • {item_name}: ₹{analysis['price']} (distance: ₹{analysis['budget_distance']})")    
-
+        # Retrieve relevant community summaries for the category
+        relevant_summaries_text = self._get_relevant_community_summaries_for_category(
+            category, event_type
+        )
+        
         # Build GraphRAG query string
         query_text = self._build_category_query_text(category, event_type, count, budget_allocation)
         
@@ -546,15 +561,22 @@ class GraphRAGTemplateEngine:
             raw_response_obj = self.graphrag_query_engine.llm.chat(messages)
             raw_response = str(raw_response_obj)
 
-            print(f" RAW GRAPHRAG RESPONSE for {category}:\n{raw_response[:500]}...")
+            logger.info(f"LLM Full Response for {category} (Analysis + JSON):\n\n{raw_response}\n")
             # Extract specific items from GraphRAG response
              # 🔥 ADD THIS POST-LLM VALIDATION:
             if budget_allocation:
-                selected_item = self._extract_baseline_item_from_response(raw_response)
-                if selected_item:
-                    self._validate_llm_selection(selected_item, baseline_candidates, budget_allocation)
+                # selected_item = self._extract_baseline_item_from_response(raw_response)
+                # if selected_item:
+                #     self._validate_llm_selection(selected_item, baseline_candidates, budget_allocation)
+                pass 
             extracted_items = self._extract_items_from_response(raw_response, category, count)
-            
+                        # --- GUARDRAIL: Enforce the exact count ---
+            if len(extracted_items) > count:
+                logger.warning(
+                    f"LLM provided {len(extracted_items)} items for {category}, "
+                    f"but only {count} were requested. Truncating to the required count."
+                )
+                extracted_items = extracted_items[:count]
             # Enhance with co-occurrence data
             enhanced_items = self._enhance_with_co_occurrence_data(extracted_items, event_type)
             
@@ -563,6 +585,103 @@ class GraphRAGTemplateEngine:
         except Exception as e:
             logger.error(f"GraphRAG query execution failed for {category}: {e}")
             raise
+
+
+
+
+    def _get_relevant_community_summaries_for_category(self, category: str, event_type: str) -> str:
+        """
+        Retrieves and formats relevant community summaries for a given category and event type.
+        It finds Dish entities that belong to the specified category and collects their community summaries,
+        along with their associated ingredients.
+        """
+        relevant_communities_ids = set()
+        
+        # Get the category mapping from config.py
+        category_map = get_category_mapping(category)
+        if not category_map:
+            logger.warning(f"Could not determine category mapping for category: '{category}'. Skipping community summaries.")
+            return ""
+
+        config_labels = category_map.get("graphrag_labels", [])
+        
+        target_category_node_name = None
+        # Try to find a specific Category node name from config_labels (excluding "Dish")
+        for label in config_labels:
+            if label != "Dish": # "Dish" is a label for items, not a category node name
+                # Attempt to retrieve the node by its ID. The get method returns a list of nodes.
+                # The label in config_labels *should* be the ID of the Category node (e.g., "Starters")
+                potential_category_nodes = self.graphrag_adapter.graphrag_store.get(ids=[label])
+                
+                # Check if any node was found and if its *actual* label attribute is 'Category'
+                if potential_category_nodes and potential_category_nodes[0].label == "Category":
+                    target_category_node_name = potential_category_nodes[0].id
+                    logger.debug(f"Found Category node: ID='{target_category_node_name}', Label='Category'")
+                    break
+        
+        if not target_category_node_name:
+            logger.info(f"No 'Category' node found in graph for labels: {config_labels}. Skipping category-specific community summaries.")
+            return ""
+
+        # Find Dish nodes linked to this category node
+        # We need to query for relationships where the target is a Dish and source is the category
+        # Since get_triplets doesn't support 'relation_names', we will iterate and filter manually.
+        relevant_dish_names = set()
+        
+        # Iterate through all relationships in the in-memory graph
+        for relation_id, relation_obj in self.graphrag_adapter.graphrag_store.graph.relations.items():
+            # Check if the relationship is 'BELONGS_TO'
+            if relation_obj.label == "BELONGS_TO":
+                # Check if the source of the relationship is our target category node
+                if relation_obj.source_id == target_category_node_name:
+                    # Get the target node object from the graph store
+                    target_node = self.graphrag_adapter.graphrag_store.get(ids=[relation_obj.target_id])
+                    
+                    # Check if the target node was found and if its actual label is 'Dish'
+                    if target_node and target_node[0].label == "Dish":
+                        relevant_dish_names.add(target_node[0].name)
+
+        logger.debug(f"DEBUG_COMMUNITY_SUMMARIES: Found {len(relevant_dish_names)} relevant dishes for category '{category}'")
+
+        # Now, collect community summaries for these relevant dishes
+        community_summaries_text = []
+        for dish_name in relevant_dish_names:
+            entity_communities = self.graphrag_adapter.graphrag_store.get_entity_communities(dish_name)
+            for community_id in entity_communities:
+                if community_id not in relevant_communities_ids:
+                    summary = self.graphrag_adapter.graphrag_store.get_community_summaries().get(community_id)
+                    if summary:
+                        community_summaries_text.append(f"Community Summary for '{dish_name}' (ID: {community_id}):\n{summary}")
+                        relevant_communities_ids.add(community_id)
+        
+        # Finally, gather ingredients for these dishes to enrich context
+        ingredient_details = []
+        for dish_name in relevant_dish_names:
+            # Query for ingredients linked to this dish
+            # We will iterate through all relations and filter for 'CONTAINS'
+            ingredients = []
+            for relation_id, relation_obj in self.graphrag_adapter.graphrag_store.graph.relations.items():
+                if relation_obj.label == "CONTAINS" and relation_obj.source_id == dish_name:
+                    # Get the target node object
+                    target_node = self.graphrag_adapter.graphrag_store.get(ids=[relation_obj.target_id])
+                    if target_node and target_node[0].label == "Ingredient":
+                        ingredients.append(target_node[0].name)
+            if ingredients:
+                ingredient_details.append(f"Ingredients for '{dish_name}': {', '.join(ingredients)}")
+
+        # Combine all collected insights
+        all_insights = []
+        if community_summaries_text:
+            all_insights.append("--- Community Insights ---\n" + "\n\n".join(community_summaries_text))
+        if ingredient_details:
+            all_insights.append("--- Ingredient Details ---\n" + "\n".join(ingredient_details))
+        
+        if not all_insights:
+            logger.info(f"No community summaries or ingredient details found for category: '{category}'.")
+            return ""
+
+        return "\n\n" + "\n\n".join(all_insights)
+
     def _load_pricing_inventory(self) -> Dict[str, Any]:
         """Loads and caches the pricing and inventory data from the JSON file."""
         if hasattr(self, '_pricing_inventory') and self._pricing_inventory:
@@ -598,14 +717,15 @@ class GraphRAGTemplateEngine:
     def _extract_items_from_response(self, response: str, category: str, count: int) -> List[Dict[str, Any]]:
         """
         Extracts structured item data from the LLM's JSON response.
-        This version is enhanced to clean up item names before matching.
+        This version is enhanced to handle a list of objects with name, quantity, and UOM,
+        and safely ignores any preceding analysis text.
         """
         inventory = self._load_pricing_inventory()
         found_items = []
         found_names = set()
 
         try:
-            # Clean the response to find the JSON blob
+            # Clean the response to find the JSON blob, ignoring any text before it.
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if not json_match:
                 logger.error(f"No JSON object found in LLM response for {category}.")
@@ -614,28 +734,37 @@ class GraphRAGTemplateEngine:
             json_str = json_match.group(0)
             data = json.loads(json_str)
             
-            item_names = data.get("baseline", [])
+            # Expects a list of objects with name, quantity, uom
+            item_objects = data.get("baseline", [])
             
-            for item_name_raw in item_names:
+            for item_obj in item_objects:
                 if len(found_items) >= count:
                     break
+                
+                item_name_raw = item_obj.get("name")
+                quantity = item_obj.get("quantity")
+                uom = item_obj.get("uom")
 
-                # Clean the item name to remove pricing and other text
-                # This will turn "Butter Naan (₹30)..." into "Butter Naan"
+                if not all([item_name_raw, quantity is not None, uom]):
+                    logger.warning(f"LLM returned incomplete item object, skipping: {item_obj}")
+                    continue
+
                 clean_item_name = re.sub(r'\(.*\)', '', item_name_raw).strip()
 
-                # Find the full item details from our inventory
+                # Find the full item details from our inventory for validation
                 matched_item = None
                 for inv_name, inv_data in inventory.items():
-                    # Use a more forgiving match
                     if clean_item_name.lower() in inv_name.lower():
                         matched_item = inv_data
                         break
                 
                 if matched_item and matched_item["item_name"].lower() not in found_names:
+                    # The LLM now provides the quantity, so we use it directly.
                     found_items.append({
                         "name": matched_item["item_name"],
                         "category": matched_item["category"],
+                        # This combined quantity field is used by the frontend.
+                        "quantity": f"{quantity}{uom}",
                         "source": "llm_json_extraction",
                         "match_confidence": 1.0
                     })
@@ -743,7 +872,7 @@ class GraphRAGTemplateEngine:
 # PREMIUM PROMPT ARCHITECTURE v3.0 - SURGICAL REPLACEMENT
 # REPLACE ENTIRE METHOD WITH THIS ENGINEERED VERSION:
 
-    def _build_category_query_text(self, category: str, event_type: str, count: int, budget_allocation: int = None) -> str:
+    def _build_category_query_text(self, category: str, event_type: str, count: int, budget_allocation: int = None,community_insights: str = "") -> str:
         """
         Premium-optimized GraphRAG query builder with inventory awareness
         Engineering Version: 3.1 - JSON Output Focus
@@ -762,13 +891,36 @@ class GraphRAGTemplateEngine:
         }
 
         # New JSON output instruction
+        # New JSON output instruction with reasoning prompt
+        # json_output_instruction = (
+        #     '\n\n**Output Format:**'
+        #     '\n1. **Analysis:** First, provide a brief analysis. If the inventory UOM (like "Pcs") conflicts with a general weight (like "50g"), explain how you determined the correct quantity (e.g., "The template suggested 50g, but Chicken Lollipop is sold by the piece. A standard serving is 2 Pcs, so I have chosen that quantity.").'
+        #     '\n2. **JSON Output:** After your analysis, provide a single, valid JSON object and nothing else. '
+        #     'The JSON object must have one key: "baseline". '
+        #     'The value for "baseline" must be a list of objects, each containing the item\'s "name", your calculated "quantity", and its "uom" (Unit of Measurement, e.g., "g", "kg", "Pcs", "ml").'
+        #     '\n\nExample Response:'
+        #     '\nAnalysis: The template requested a starter around 80g. I selected \'Chicken 65\'. A standard portion is 120g, which fits the budget and is a better serving size.'
+        #     '\n{"baseline": [{"name": "Chicken 65", "quantity": 120, "uom": "g"}]}'
+        # )
+        # New, more explicit JSON output instruction
         json_output_instruction = (
-            '\n\nIMPORTANT: Provide your final answer in a single, valid JSON object only. '
-            'Do not add any explanatory text before or after the JSON. '
-            'The JSON object should have one key: "baseline". '
-            'The value for "baseline" should be a list of the exact item names you recommend. '
-            'Example: {"baseline": ["Item A", "Item B"]}'
+            #f'\n\n**Analysis:** First, provide a brief analysis explaining your choices, especially how you handled any unit of measurement (UOM) conflicts and calculated quantities.'
+            f'\n\n**Analysis:** First, provide a detailed analysis explaining your decision-making process for item selection, focusing on how you used the provided inventory and `cmp_peak_price` to stay within the budget range. Describe any trade-offs or assumptions made regarding quantity and UOM to meet the budget. Clearly state the total estimated cost of your selected baseline items and compare it to the given budget range.'
+            f'\n\n**JSON Output:** After your analysis, provide a single, valid JSON object and nothing else. This object MUST adhere to these rules:'
+            f'\n1. It must contain one key: "baseline".'
+            f'\n2. The "baseline" value must be a list of item objects.'
+            f'\n\n**CRITICAL RULES:**'
+            f'\n1. **Use Peak Price:** You MUST use the `cmp_peak_price` from the inventory for all cost calculations.'
+            f'\n2. **Strict Item Count:** The "baseline" array MUST contain exactly {count} item(s).'
+            f'\n3. **JSON Schema:** Each object in the list must contain "name" (string), "quantity" (number), and "uom" (string).'
+            f'\n\n**Example for count={count}**: {{"baseline": [{{"name": "Example Item", "quantity": 100, "uom": "g"}}]}}'
         )
+         # Add community insights to the prompt if available
+        community_context = ""
+        if community_insights:
+            community_context = f"\n\n{community_insights}"
+            community_context += "\nWhen selecting items, consider the themes, representative items, and pairing wisdom identified in these community insights to make more contextually relevant and high-quality recommendations, especially for 'luxury' and 'impressive presentation' aspects."
+        
         
         premium_queries = {
             "starter": f"""
@@ -780,6 +932,7 @@ class GraphRAGTemplateEngine:
 
     AVAILABLE INVENTORY WITH EXACT PRICING:
     {json.dumps(category_inventory, indent=2)}
+    {community_context}
 
     PREMIUM OPTIMIZATION METHODOLOGY:
     1. Select baseline {count}-item combination around ₹{budget_range['baseline']}
@@ -810,6 +963,7 @@ class GraphRAGTemplateEngine:
 
     BIRYANI INVENTORY WITH PRICING:
     {json.dumps(category_inventory, indent=2)}
+    {community_context}
 
     PREMIUM SELECTION CRITERIA:
     1. Identify baseline biryani around ₹{budget_range['baseline']}
@@ -839,7 +993,7 @@ class GraphRAGTemplateEngine:
 
     RICE INVENTORY:
     {json.dumps(category_inventory, indent=2)}
-
+    {community_context}
     OPTIMIZATION APPROACH:
     1. Select baseline rice dish around ₹{budget_range['baseline']}
     2. Identify premium alternative (+₹20-40 upgrade)
@@ -863,7 +1017,7 @@ class GraphRAGTemplateEngine:
 
     BREAD INVENTORY:
     {json.dumps(category_inventory, indent=2)}
-
+    {community_context}
     SELECTION METHODOLOGY:
     1. Select baseline bread around ₹{budget_range['baseline']}
     2. Premium upgrade option (+₹15-30)
@@ -882,7 +1036,7 @@ class GraphRAGTemplateEngine:
 
     CURRY INVENTORY:
     {json.dumps(category_inventory, indent=2)}
-
+    {community_context}
     METHODOLOGY:
     1. Select baseline curry ₹{budget_range['baseline']}
     2. Show premium upgrade (+₹25-45)
@@ -901,7 +1055,7 @@ class GraphRAGTemplateEngine:
 
     INVENTORY:
     {json.dumps(category_inventory, indent=2)}
-
+    {community_context}
     Select accompaniments that elevate the dining experience with premium positioning.
     {json_output_instruction}
     """,
@@ -915,7 +1069,7 @@ class GraphRAGTemplateEngine:
 
     LUXURY DESSERT INVENTORY:
     {json.dumps(category_inventory, indent=2)}
-
+    {community_context}
     PREMIUM CURATION METHODOLOGY:
     1. Select baseline {count}-dessert combination around ₹{budget_range['baseline']}
     2. Engineer ONE strategic 2-item luxury upgrade (target ₹{budget_range['max']-20}-{budget_range['max']})
@@ -1133,7 +1287,9 @@ class GraphRAGTemplateEngine:
                     "category": original_item["category"],
                     "name": suggestion["name"],
                     "weight": original_item.get("weight"),
-                    "quantity": original_item.get("quantity"),
+                    #"quantity": original_item.get("quantity"),
+                    # Use the quantity from the LLM's suggestion, not the template
+                    "quantity": suggestion.get("quantity", original_item.get("quantity")),
                     "insight": suggestion.get("insight", ""),
                     "graphrag_metadata": {
                         "suggested_category": graphrag_category,
