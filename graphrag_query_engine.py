@@ -551,15 +551,31 @@ class GraphRAGTemplateEngine:
         relevant_summaries_text = self._get_relevant_community_summaries_for_category(
             category, event_type
         )
-        
+        # 🔥 ADD DEBUG LOG #1 HERE - Right after retrieving community summaries
+        print(f"\n📊 COMMUNITY SUMMARIES RETRIEVAL DEBUG:")
+        print(f"   Category: {category}")
+        print(f"   Event Type: {event_type}")
+        print(f"   Community summaries length: {len(relevant_summaries_text)} characters")
+        if relevant_summaries_text:
+            print(f"   Community summaries preview: {relevant_summaries_text[:300]}...")
+            print(f"   Contains 'Community': {'Community' in relevant_summaries_text}")
+        else:
+            print("   ❌ WARNING: No community summaries found!")
         # Build GraphRAG query string
-        query_text = self._build_category_query_text(category, event_type, count, budget_allocation)
-        
+        query_text = self._build_category_query_text(category, event_type, count, budget_allocation,relevant_summaries_text)
+        # 🔥 ADD DEBUG LOG #2 HERE - Right after building query text
+        print(f"\n📝 QUERY CONSTRUCTION DEBUG:")
+        print(f"   Final query length: {len(query_text)} characters")
+        print(f"   Query contains community data: {'Community' in query_text or 'community' in query_text}")
+        print(f"   Query preview (first 500 chars): {query_text[:500]}...")
         # Execute query using existing GraphRAG system
         try:
             messages = [ChatMessage(role="user", content=query_text)]
             raw_response_obj = self.graphrag_query_engine.llm.chat(messages)
             raw_response = str(raw_response_obj)
+            print(f"\n🤖 LLM RESPONSE DEBUG:")
+            print(f"   Response length: {len(raw_response)} characters")
+            print(f"   Response contains community insights: {'community' in raw_response.lower()}")
 
             logger.info(f"LLM Full Response for {category} (Analysis + JSON):\n\n{raw_response}\n")
             # Extract specific items from GraphRAG response
@@ -679,8 +695,21 @@ class GraphRAGTemplateEngine:
         if not all_insights:
             logger.info(f"No community summaries or ingredient details found for category: '{category}'.")
             return ""
-
-        return "\n\n" + "\n\n".join(all_insights)
+            # 🔥 ADD DEBUG LOG #4 HERE - Just before returning
+        print(f"\n🏗️ COMMUNITY SUMMARIES CONSTRUCTION DEBUG:")
+        print(f"   Method called for: {category} / {event_type}")
+        print(f"   Found {len(relevant_communities_ids)} relevant community IDs")
+        print(f"   Generated {len(community_summaries_text)} community summary blocks")
+        print(f"   Generated {len(ingredient_details)} ingredient detail blocks")
+        
+        final_result = "\n\n" + "\n\n".join(all_insights) if all_insights else ""
+        print(f"   Final result length: {len(final_result)} characters")
+        
+        if not all_insights:
+            print("   ❌ WARNING: No community insights generated!")
+        else:
+            print(f"   ✅ Community insights successfully generated")
+        return final_result
 
     def _load_pricing_inventory(self) -> Dict[str, Any]:
         """Loads and caches the pricing and inventory data from the JSON file."""
@@ -877,7 +906,19 @@ class GraphRAGTemplateEngine:
         Premium-optimized GraphRAG query builder with inventory awareness
         Engineering Version: 3.1 - JSON Output Focus
         """
-        
+        # 🔥 ADD DEBUG LOG #5 HERE - Right at the start
+        print(f"\n🔧 QUERY TEXT CONSTRUCTION DEBUG:")
+        print(f"   Category: {category}")
+        print(f"   Event Type: {event_type}")
+        print(f"   Count: {count}")
+        print(f"   Budget Allocation: {budget_allocation}")
+        print(f"   Community insights received: {len(community_insights)} characters")
+    
+        if community_insights:
+            print(f"   ✅ Community insights will be included in prompt")
+            print(f"   Community insights preview: {community_insights[:200]}...")
+        else:
+            print(f"   ❌ WARNING: No community insights provided!")
         # Load pricing inventory for prompt integration
         inventory_data = self._load_pricing_inventory()
         category_inventory = self._filter_inventory_by_category(inventory_data, category)
@@ -890,18 +931,7 @@ class GraphRAGTemplateEngine:
             'max': base_budget + 50
         }
 
-        # New JSON output instruction
-        # New JSON output instruction with reasoning prompt
-        # json_output_instruction = (
-        #     '\n\n**Output Format:**'
-        #     '\n1. **Analysis:** First, provide a brief analysis. If the inventory UOM (like "Pcs") conflicts with a general weight (like "50g"), explain how you determined the correct quantity (e.g., "The template suggested 50g, but Chicken Lollipop is sold by the piece. A standard serving is 2 Pcs, so I have chosen that quantity.").'
-        #     '\n2. **JSON Output:** After your analysis, provide a single, valid JSON object and nothing else. '
-        #     'The JSON object must have one key: "baseline". '
-        #     'The value for "baseline" must be a list of objects, each containing the item\'s "name", your calculated "quantity", and its "uom" (Unit of Measurement, e.g., "g", "kg", "Pcs", "ml").'
-        #     '\n\nExample Response:'
-        #     '\nAnalysis: The template requested a starter around 80g. I selected \'Chicken 65\'. A standard portion is 120g, which fits the budget and is a better serving size.'
-        #     '\n{"baseline": [{"name": "Chicken 65", "quantity": 120, "uom": "g"}]}'
-        # )
+        
         # New, more explicit JSON output instruction
         json_output_instruction = (
             #f'\n\n**Analysis:** First, provide a brief analysis explaining your choices, especially how you handled any unit of measurement (UOM) conflicts and calculated quantities.'
