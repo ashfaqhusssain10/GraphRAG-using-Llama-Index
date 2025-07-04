@@ -922,11 +922,13 @@ class GraphRAGTemplateEngine:
         # Load pricing inventory for prompt integration
         inventory_data = self._load_pricing_inventory()
         category_inventory = self._filter_inventory_by_category(inventory_data, category)
-        
-        # Calculate budget flexibility range
-        base_budget = budget_allocation or self._estimate_category_budget(category)
+        if budget_allocation:
+            base_budget = budget_allocation
+        else:
+            budget_per_item = self._estimate_category_budget(category)
+            base_budget = budget_per_item * count 
         budget_range = {
-            'min': base_budget - 50,
+            'min': base_budget - 30,
             'baseline': base_budget, 
             'max': base_budget + 50
         }
