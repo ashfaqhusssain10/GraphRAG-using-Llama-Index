@@ -365,21 +365,36 @@ def recommend_template(event_type, budget_per_head):
 
 
 def parse_quantity(qty):
-    # Extract numeric value and unit
-    match = re.match(r"([\d.]+)\s*([a-zA-Z]*)", qty.strip())
-    if not match:
-        return None, None
-    value, unit = match.groups()
-    return float(value), unit.lower()
+     # Extract numeric value and unit
+    numeric_part = re.search(r"[\d\.]+", str(qty))
+    unit_part = re.search(r"[a-zA-Z]+", str(qty))
+    
+    if not numeric_part: return 0, "unknown"
+    
+    value = float(numeric_part.group(0))
+    unit = unit_part.group(0).lower() if unit_part else "g" # Assume grams if no unit
+    
+    # Conversion to a standard unit (e.g., kg)
+    if unit in ["g", "grams", "gm"]:
+        return value / 1000, "kg"
+    elif unit in ["kg", "kgs"]:
+        return value, "kg"
+    elif unit in ["pcs", "pc", "piece"]:
+        return value, "pcs" # Special handling for pieces
+    elif unit in ["ml", "milliliter"]:
+        return value / 1000, "l"
+    else:
+        return value, unit # Return as is if unit is unknown
 
-def calculate_template_price(template, price_file="NEW/items_price_uom.json", use_peak=False):
+def calculate_template_price(template, price_file="items_price_uom.json", use_peak=False):
     # Try both relative and absolute paths
     if not os.path.exists(price_file):
-        abs_path = os.path.join(os.path.dirname(__file__), "items_price_uom.json")
+        abs_path = os.path.join(os.path.dirname(__file__), price_file)
         if os.path.exists(abs_path):
             price_file = abs_path
         else:
-            raise FileNotFoundError(f"Could not find {price_file} or {abs_path}")
+            return 0, {} # File not found
+
     with open(price_file, "r", encoding="utf-8") as f:
         price_data = json.load(f)
 
@@ -390,123 +405,105 @@ def calculate_template_price(template, price_file="NEW/items_price_uom.json", us
         return None
 
     total_price = 0
+    item_prices = {}
+    
+    price_key = "cmp_peak_price" if use_peak else "cmp_base_price"
+
     for item in template["items"]:
-        name = item["name"]
-        qty = item["quantity"]
-        price_info = get_price_info(name)
-        if not price_info or not qty:
-            continue
-
-        qty_num, qty_unit = parse_quantity(qty)
-        if qty_num is None:
-            continue
-
-        uom = price_info["uom"].lower()
-        price_per_unit = price_info["cmp_peak_price"] if use_peak else price_info["cmp_base_price"]
-
-        if uom == "kg":
-            if qty_unit == "g":
-                qty_num = qty_num / 1000
-            elif qty_unit == "kg":
-                pass  # already in kg
+        item_name = item["name"]
+        price_info = get_price_info(item_name)
+        
+        if price_info:
+            qty_str = item.get("quantity", "0")
+            
+            # --- START: Simplified Quantity Logic ---
+            # Directly use the numeric part of the quantity string from the backend
+            numeric_part_match = re.search(r"[\d\.]+", str(qty_str))
+            if numeric_part_match:
+                quantity_val = float(numeric_part_match.group(0))
             else:
-                continue  # skip if not parsable
-        elif uom == "pcs":
-            pass  # already in pieces
-        elif uom == "ml":
-            if qty_unit == "ml":
-                qty_num = qty_num / 1000
-            elif qty_unit == "l":
-                pass  # already in litres
-            else:
-                continue
-        else:
-            continue  # skip unknown units
+                quantity_val = 0
+            # --- END: Simplified Quantity Logic ---
 
-        total_price += qty_num * price_per_unit
+            item_price = price_info[price_key]
+            
+            # Adjust price based on UOM
+            uom = price_info["uom"].lower()
+            if uom == 'kg':
+                total_price += item_price * quantity_val
+            elif uom == 'pcs':
+                total_price += item_price * quantity_val
+            else: # Default for g, ml, etc.
+                total_price += (item_price / 1000) * quantity_val # Assuming price is per 1000 units (kg/l)
+            
+            item_prices[item_name] = total_price - sum(item_prices.values())
+
+    return total_price, item_prices
 
     return round(total_price, 2)
 _CACHED_GRAPHRAG_ENGINE = None
 def get_recommendation_with_insights(event_type, budget_per_head, use_peak=True):
     """
-    Enhanced recommendation engine using GraphRAG intelligence
-    Falls back to traditional templates if GraphRAG unavailable
+    Main function to get recommendation from either GraphRAG or fallback system
+    and include performance insights.
     """
-    print(f"🎯 FRONTEND CALL: get_recommendation_with_insights called")
+    print("🎯 FRONTEND CALL: get_recommendation_with_insights called")
+    
     if GRAPHRAG_AVAILABLE:
         try:
             print(f"🤖 Generating GraphRAG recommendation for {event_type} event with ₹{budget_per_head} budget")
-            
-            global _CACHED_GRAPHRAG_ENGINE 
-            
-            if _CACHED_GRAPHRAG_ENGINE is None:
+            # Lazy load engine on first use
+            if 'graphrag_engine' not in st.session_state:
                 print("🔧 Creating GraphRAG engine (first time only)")
-                _CACHED_GRAPHRAG_ENGINE = create_graphrag_template_engine()
-            else:
-                print("⚡ Using cached GraphRAG engine")
-            # Get GraphRAG recommendation
-            graphrag_result = _CACHED_GRAPHRAG_ENGINE.recommend_with_graphrag(event_type, budget_per_head)
+                st.session_state.graphrag_engine = create_graphrag_template_engine(run_diagnostics=False)
+
+            # Call the GraphRAG engine
+            recommendation = st.session_state.graphrag_engine.recommend_with_graphrag(
+                event_type=event_type,
+                budget_per_head=budget_per_head
+            )
             
-            if "error" not in graphrag_result:
-                # Convert GraphRAG result to frontend format
-                template_name = graphrag_result.get("template_name", "GraphRAG Recommendation")
-                items = graphrag_result.get("items", [])
-                insights = graphrag_result.get("insights", {})
-                
-                # Convert items to frontend format
-                frontend_items = []
-                for item in items:
-                    frontend_item = {
-                        "name": item["name"],
-                        "quantity": item.get("weight") or item.get("quantity", "1 serving")
-                    }
-                    frontend_items.append(frontend_item)
-                
-                # Calculate price using existing function
-                price_template = {"items": frontend_items}
-                try:
-                    estimated_price = calculate_template_price(price_template, use_peak=use_peak)
-                except Exception as e:
-                    print(f"⚠️ Price calculation failed: {e}")
-                    estimated_price = 0.0
-                
-                # Build inclusions description
-                inclusions = f"{len(frontend_items)} GraphRAG Optimized Items"
-                
-                # Return enhanced result
-                result = {
-                    "template_name": f"{template_name} (GraphRAG Enhanced)",
-                    "budget_range": graphrag_result.get("budget_range", "Custom Range"),
-                    "event_type": graphrag_result.get("event_type", event_type),
-                    "inclusions": inclusions,
-                    "items": frontend_items,
-                    "estimated_price": estimated_price,
-                    "graphrag_enhanced": True,
-                    "graphrag_insights": insights,
-                    "recommendation_source": "GraphRAG"
-                }
-                
-                print(f"✅ GraphRAG recommendation successful: {template_name}")
-                return result
+            # Check for errors from GraphRAG
+            if "error" in recommendation:
+                st.error(f"**{recommendation['error']}**")
+                st.warning(recommendation.get("message", "No specific details provided."))
+                return None, None # Return None to signal error
+            
+            # Decorate with GraphRAG flag
+            recommendation["source"] = "GraphRAG"
+            recommendation["template_name"] += " (GraphRAG Enhanced)"
             
         except Exception as e:
-            print(f"❌ GraphRAG recommendation failed: {e}")
-    
-    # Fall back to traditional templates
-    print("🔄 Using traditional template recommendation")
-    recommendation = recommend_template(event_type, budget_per_head)
-    recommendation["recommendation_source"] = "Traditional Templates"
-    recommendation["graphrag_enhanced"] = False
-    
-    # Add pricing if not present
-    if "estimated_price" not in recommendation:
-        try:
-            recommendation["estimated_price"] = calculate_template_price(recommendation, use_peak=use_peak)
-        except Exception as e:
-            print(f"⚠️ Price calculation failed: {e}")
-            recommendation["estimated_price"] = 0.0
-    
-    return recommendation
+            st.error(f"An unexpected error occurred with the GraphRAG engine: {e}")
+            import traceback
+            traceback.print_exc()
+            # Fallback to hardcoded templates on GraphRAG error
+            recommendation = recommend_template(event_type, budget_per_head)
+            if "error" in recommendation:
+                st.error(f"**{recommendation['error']}**")
+                st.warning(recommendation.get("suggestion", ""))
+                return None, None
+            recommendation["source"] = "Fallback"
+            recommendation["template_name"] += " (Fallback)"
+
+    else:
+        # Fallback if GraphRAG is not available
+        recommendation = recommend_template(event_type, budget_per_head)
+        if "error" in recommendation:
+            st.error(f"**{recommendation['error']}**")
+            st.warning(recommendation.get("suggestion", ""))
+            return None, None
+        recommendation["source"] = "Fallback"
+
+    # --- PRICE CALCULATION ---
+    # This must happen *after* getting the recommendation, regardless of source
+    estimated_price, item_prices = calculate_template_price(recommendation, use_peak=use_peak)
+
+    # Return both recommendation and pricing info
+    return recommendation, {
+        "total_price": estimated_price,
+        "item_prices": item_prices
+    }
 def display_graphrag_insights(recommendation):
     """Format GraphRAG insights for display in Streamlit UI"""
     

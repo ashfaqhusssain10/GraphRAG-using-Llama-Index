@@ -451,6 +451,16 @@ class GraphRAGTemplateEngine:
             
             # Step 3: Build GraphRAG queries
             query_specs = self.template_bridge.build_graphrag_queries(requirements, event_type)
+            total_estimated_cost = 0
+            for spec in query_specs:
+                estimated_cost = self._estimate_category_budget(spec['category']) * spec['count']
+                spec['estimated_cost'] = estimated_cost
+                total_estimated_cost += estimated_cost
+            
+            if total_estimated_cost > 0:
+                for spec in query_specs:
+                    proportional_budget = (spec['estimated_cost'] / total_estimated_cost) * budget_per_head
+                    spec['budget_allocation'] = int(proportional_budget)
             
             # Step 4: Execute GraphRAG queries
             graphrag_suggestions = self._execute_graphrag_queries(query_specs, event_type)
@@ -632,7 +642,7 @@ class GraphRAGTemplateEngine:
                 # Check if any node was found and if its *actual* label attribute is 'Category'
                 if potential_category_nodes and potential_category_nodes[0].label == "Category":
                     target_category_node_name = potential_category_nodes[0].id
-                    logger.debug(f"Found Category node: ID='{target_category_node_name}', Label='Category'")
+                    #logger.debug(f"Found Category node: ID='{target_category_node_name}', Label='Category'")
                     break
         
         if not target_category_node_name:
@@ -657,7 +667,7 @@ class GraphRAGTemplateEngine:
                     if source_node and source_node[0].label == "Dish":
                         relevant_dish_names.add(source_node[0].name)
 
-        logger.debug(f"DEBUG_COMMUNITY_SUMMARIES: Found {len(relevant_dish_names)} relevant dishes for category '{category}'")
+        #logger.debug(f"DEBUG_COMMUNITY_SUMMARIES: Found {len(relevant_dish_names)} relevant dishes for category '{category}'")
 
         # Now, collect community summaries for these relevant dishes
         community_summaries_text = []
@@ -736,7 +746,7 @@ class GraphRAGTemplateEngine:
     def _estimate_category_budget(self, category: str) -> int:
         """Estimates a budget for a category if not provided."""
         if 'starter' in category:
-            return 60
+            return 80
         if 'biryani' in category:
             return 150
         if 'dessert' in category:
@@ -922,13 +932,15 @@ class GraphRAGTemplateEngine:
         # Load pricing inventory for prompt integration
         inventory_data = self._load_pricing_inventory()
         category_inventory = self._filter_inventory_by_category(inventory_data, category)
-        if budget_allocation:
-            base_budget = budget_allocation
+        if not isinstance(budget_allocation, (int, float)) or budget_allocation <= 0:
+            # Fallback: estimate budget based on item count if no allocation is provided
+            estimated_per_item_cost = self._estimate_category_budget(category)
+            base_budget = estimated_per_item_cost * count
         else:
-            budget_per_item = self._estimate_category_budget(category)
-            base_budget = budget_per_item * count 
+            # The primary logic: use the provided budget allocation
+            base_budget = budget_allocation
         budget_range = {
-            'min': base_budget - 30,
+            'min': base_budget - 10,
             'baseline': base_budget, 
             'max': base_budget + 50
         }

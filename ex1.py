@@ -1184,7 +1184,7 @@ class Neo4jGraphRAGAdapter:
                 )
                 nodes_to_upsert.append(entity_node)
 
-                print(f"DEBUG_SYNC: Prepared node: ID='{node_id}', Labels={labels}, Derived_Primary_Label='{primary_label}'")
+                #print(f"DEBUG_SYNC: Prepared node: ID='{node_id}', Labels={labels}, Derived_Primary_Label='{primary_label}'")
 
             # Add all collected nodes to the graph in one go
             self.graphrag_store.upsert_nodes(nodes_to_upsert)
@@ -1221,7 +1221,7 @@ class Neo4jGraphRAGAdapter:
                 )
                 relations_to_upsert.append(relation_obj)
 
-                print(f"DEBUG_SYNC: Prepared relation: Source='{source_id}', Type='{rel_type}', Target='{target_id}'")
+                #print(f"DEBUG_SYNC: Prepared relation: Source='{source_id}', Type='{rel_type}', Target='{target_id}'")
 
             # Add all collected relationships to the graph in one go
             self.graphrag_store.upsert_relations(relations_to_upsert)
