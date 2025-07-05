@@ -508,7 +508,11 @@ class GraphRAGTemplateEngine:
         """
         suggestions = {}
         
-        for query_spec in query_specs:
+        for i, query_spec in enumerate(query_specs):
+            
+            if i>0:
+                print(f"🕒 Pausing for 60 seconds to respect API rate limits...")
+                time.sleep(60)
             category = query_spec["category"]
             count_needed = query_spec["count"]
             budget_allocation = query_spec.get("budget_allocation")
@@ -611,15 +615,10 @@ class GraphRAGTemplateEngine:
         except Exception as e:
             logger.error(f"GraphRAG query execution failed for {category}: {e}")
             raise
-
-
-
-
     def _get_relevant_community_summaries_for_category(self, category: str, event_type: str) -> str:
         """
-        Retrieves and formats relevant community summaries for a given category and event type.
-        It finds Dish entities that belong to the specified category and collects their community summaries,
-        along with their associated ingredients.
+        Retrieves and formats TOP 15 most relevant community summaries for a given category and event type.
+        SURGICAL ENHANCEMENT: Added relevance scoring and top 15 filtering
         """
         relevant_communities_ids = set()
         
@@ -642,7 +641,6 @@ class GraphRAGTemplateEngine:
                 # Check if any node was found and if its *actual* label attribute is 'Category'
                 if potential_category_nodes and potential_category_nodes[0].label == "Category":
                     target_category_node_name = potential_category_nodes[0].id
-                    #logger.debug(f"Found Category node: ID='{target_category_node_name}', Label='Category'")
                     break
         
         if not target_category_node_name:
@@ -650,8 +648,6 @@ class GraphRAGTemplateEngine:
             return ""
 
         # Find Dish nodes linked to this category node
-        # We need to query for relationships where the target is a Dish and source is the category
-        # Since get_triplets doesn't support 'relation_names', we will iterate and filter manually.
         relevant_dish_names = set()
         
         # Iterate through all relationships in the in-memory graph
@@ -667,24 +663,41 @@ class GraphRAGTemplateEngine:
                     if source_node and source_node[0].label == "Dish":
                         relevant_dish_names.add(source_node[0].name)
 
-        #logger.debug(f"DEBUG_COMMUNITY_SUMMARIES: Found {len(relevant_dish_names)} relevant dishes for category '{category}'")
-
+        # SURGICAL CHANGE 1: Collect communities with scoring data
+        community_candidates = []  # List of (community_id, summary, relevance_score)
+        
         # Now, collect community summaries for these relevant dishes
-        community_summaries_text = []
         for dish_name in relevant_dish_names:
             entity_communities = self.graphrag_adapter.graphrag_store.get_entity_communities(dish_name)
             for community_id in entity_communities:
                 if community_id not in relevant_communities_ids:
                     summary = self.graphrag_adapter.graphrag_store.get_community_summaries().get(community_id)
                     if summary:
-                        community_summaries_text.append(f"Community Summary for '{dish_name}' (ID: {community_id}):\n{summary}")
+                        # SURGICAL CHANGE 2: Calculate relevance score
+                        relevance_score = self._calculate_community_relevance_score(
+                            summary, dish_name, category, event_type
+                        )
+                        
+                        community_candidates.append((community_id, dish_name, summary, relevance_score))
                         relevant_communities_ids.add(community_id)
         
-        # Finally, gather ingredients for these dishes to enrich context
+        # SURGICAL CHANGE 3: Sort by relevance and take top 15
+        community_candidates.sort(key=lambda x: x[3], reverse=True)  # Sort by score (index 3)
+        top_15_communities = community_candidates[:15]
+        
+        # Build community summaries from top 15
+        community_summaries_text = []
+        for community_id, dish_name, summary, score in top_15_communities:
+            community_summaries_text.append(
+                f"Community Summary for '{dish_name}' (ID: {community_id}, Score: {score:.2f}):\n{summary}"
+            )
+        
+        # Finally, gather ingredients for these TOP 15 dishes to enrich context  
         ingredient_details = []
-        for dish_name in relevant_dish_names:
+        top_dish_names = {dish_name for _, dish_name, _, _ in top_15_communities}
+        
+        for dish_name in top_dish_names:
             # Query for ingredients linked to this dish
-            # We will iterate through all relations and filter for 'CONTAINS'
             ingredients = []
             for relation_id, relation_obj in self.graphrag_adapter.graphrag_store.graph.relations.items():
                 if relation_obj.label == "CONTAINS" and relation_obj.source_id == dish_name:
@@ -702,15 +715,18 @@ class GraphRAGTemplateEngine:
         if ingredient_details:
             all_insights.append("--- Ingredient Details ---\n" + "\n".join(ingredient_details))
         
-        if not all_insights:
-            logger.info(f"No community summaries or ingredient details found for category: '{category}'.")
-            return ""
-            # 🔥 ADD DEBUG LOG #4 HERE - Just before returning
+        # SURGICAL CHANGE 4: Enhanced debug logging
         print(f"\n🏗️ COMMUNITY SUMMARIES CONSTRUCTION DEBUG:")
         print(f"   Method called for: {category} / {event_type}")
-        print(f"   Found {len(relevant_communities_ids)} relevant community IDs")
+        print(f"   Found {len(community_candidates)} total relevant community IDs")
+        print(f"   🎯 FILTERED TO TOP 15 communities (was {len(community_candidates)})")
         print(f"   Generated {len(community_summaries_text)} community summary blocks")
         print(f"   Generated {len(ingredient_details)} ingredient detail blocks")
+        
+        # Show top 5 communities for debugging
+        print(f"   🏆 TOP 5 COMMUNITIES BY RELEVANCE:")
+        for i, (cid, dish, _, score) in enumerate(top_15_communities[:5], 1):
+            print(f"      {i}. Community {cid} ({dish}): Score {score:.2f}")
         
         final_result = "\n\n" + "\n\n".join(all_insights) if all_insights else ""
         print(f"   Final result length: {len(final_result)} characters")
@@ -718,9 +734,69 @@ class GraphRAGTemplateEngine:
         if not all_insights:
             print("   ❌ WARNING: No community insights generated!")
         else:
-            print(f"   ✅ Community insights successfully generated")
+            print(f"   ✅ Community insights successfully generated (TOP 15)")
+        
         return final_result
 
+    def _calculate_community_relevance_score(self, community_summary: str, dish_name: str, 
+                                           category: str, event_type: str) -> float:
+        """
+        Calculate relevance score for community selection with surgical precision
+        """
+        score = 0.0
+        summary_lower = community_summary.lower()
+        
+        # Category keyword matching (high weight)
+        category_keywords = {
+            'starter': ['kebab', 'tikka', 'fry', 'pakoda', 'appetizer', 'snack', 'roll', 'bite', 'manchurian', '65'],
+            'main_biryani': ['biryani', 'pulao', 'rice', 'main course', 'curry', 'dum', 'zafrani'],
+            'main_rice': ['rice', 'pulao', 'jeera', 'fried rice', 'coconut rice', 'flavored', 'bagara'],
+            'dessert': ['sweet', 'dessert', 'gulab jamun', 'kulfi', 'halwa', 'pastry', 'delight', 'meetha']
+        }
+        
+        # Direct category keyword scoring
+        if category in category_keywords:
+            for keyword in category_keywords[category]:
+                if keyword in summary_lower:
+                    score += 8.0
+        
+        # Event type matching (medium weight)  
+        if event_type.lower() == 'traditional':
+            traditional_keywords = ['traditional', 'indian', 'south indian', 'north indian', 'mughlai', 'family', 'authentic', 'classic']
+            for keyword in traditional_keywords:
+                if keyword in summary_lower:
+                    score += 5.0
+        elif event_type.lower() == 'party':
+            party_keywords = ['party', 'modern', 'indo-chinese', 'fusion', 'contemporary', 'finger food', 'engagement', 'popular']
+            for keyword in party_keywords:
+                if keyword in summary_lower:
+                    score += 5.0
+        
+        # Dish name relevance (medium weight)
+        dish_words = dish_name.lower().split()
+        for word in dish_words:
+            if len(word) > 2 and word in summary_lower:  # Skip short words
+                score += 4.0
+        
+        # Culinary complexity indicators (low weight)
+        complexity_keywords = ['spice', 'flavor', 'preparation', 'technique', 'ingredient', 'pairing', 'combination']
+        for keyword in complexity_keywords:
+            if keyword in summary_lower:
+                score += 2.0
+        
+        # Popularity indicators (low weight)
+        popular_items = ['chicken', 'paneer', 'biryani', 'kebab', 'tikka', 'curry', 'masala']
+        for item in popular_items:
+            if item in summary_lower:
+                score += 1.0
+        
+        # Bonus for comprehensive summaries (length indicator)
+        if len(community_summary) > 500:
+            score += 3.0
+        elif len(community_summary) > 200:
+            score += 1.0
+        
+        return score
     def _load_pricing_inventory(self) -> Dict[str, Any]:
         """Loads and caches the pricing and inventory data from the JSON file."""
         if hasattr(self, '_pricing_inventory') and self._pricing_inventory:

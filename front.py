@@ -583,12 +583,24 @@ try:
         submit = st.button("Get Recommendation")
     if submit:
         result = get_recommendation_with_insights(event_type, budget_per_head, use_peak)
-        st.session_state['last_recommendation'] = {
-            'result': result,
-            'event_type': event_type,
-            'budget_per_head': budget_per_head,
-            'use_peak': use_peak
-        }
+            # Properly handle the tuple return
+        if result and len(result) == 2:
+            recommendation, pricing_info = result
+            if recommendation and "error" not in recommendation:
+                st.session_state['last_recommendation'] = {
+                    'result': recommendation,
+                    'pricing_info':pricing_info,
+                    'event_type': event_type,
+                    'budget_per_head': budget_per_head,
+                    'use_peak': use_peak
+                }
+            else:
+            # Handle error case
+                if recommendation:
+                    st.error(f"**{recommendation.get('error', 'Unknown error')}**")
+                    st.warning(recommendation.get('suggestion', ''))
+        else:
+            st.error("Failed to get recommendation - invalid response format")
 
     # Layout: Recommendation card (left), Add-on calculator (right)
     col_left, col_right = st.columns([2.2, 1.3], gap="medium")
@@ -598,12 +610,18 @@ try:
         if show_recommendation:
             rec = st.session_state['last_recommendation']
             result = rec['result']
+            pricing_info = rec.get('pricing_info',{})
             use_peak = rec['use_peak']
             st.markdown("<div style='display: flex; justify-content: flex-start;'>", unsafe_allow_html=True)
-            if 'error' in result:
+            if result and 'error' in result:
                 st.error(result['error'])
-                st.info(result['suggestion'])
+                st.info(result['suggestion'],'')
             else:
+                if pricing_info and pricing_info.get('total_price'):
+                    total_price = pricing_info['total_price']
+                else:
+                    # Fallback calculation
+                    total_price, item_prices = calculate_template_price(result, use_peak=use_peak)
                 # Create items list HTML (avoiding f-string backslash issue)
                 items_html = ''.join([
                     f"<li style='margin-bottom: 0.5em;'>{item['name']} <span style='color: #888;'>({item['quantity']})</span></li>" 
@@ -615,21 +633,21 @@ try:
                         <h2 style='color: #FF6F61;'>{result['template_name']}</h2>
                         <p><b>Budget Range:</b> {result['budget_range']}<br>
                         <b>Event Type:</b> {result['event_type']}<br>
-                        <b>Inclusions:</b> {result['inclusions']}</p>
+                        <b>Inclusions:</b> {result.get('inclusions', 'Custom GraphRAG selection')}</p>
                         <hr>
                         <h4>Menu Items</h4>
                         <ul style='padding-left: 1.2em;'>
                             {items_html}
                         </ul>
                         <hr>
-                        <h3 style='color: #388e3c;'>Estimated Total Price: ₹{calculate_template_price(result, use_peak=use_peak)}</h3>
+                        <h3 style='color: #388e3c;'>Estimated Total Price: ₹{total_price:.2f}</h3>
                     </div>
                     """
                     ,unsafe_allow_html=True
                 )
             st.markdown("</div>", unsafe_allow_html=True)
             # GraphRAG Insights and Analysis
-            if result.get("graphrag_enhanced", False):
+            if result and result.get("graphrag_enhanced", False):
                 st.markdown("### 🤖 GraphRAG Insights")
                 insights_text = display_graphrag_insights(result)
                 st.markdown(insights_text)

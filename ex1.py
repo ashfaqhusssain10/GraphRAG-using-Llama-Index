@@ -7,6 +7,7 @@ from llama_index.core.graph_stores.types import EntityNode, Relation, LabelledNo
 from llama_index.core.llms import ChatMessage
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.llms.gemini import Gemini
+from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import Settings
 import google.generativeai as genai
@@ -1359,23 +1360,23 @@ def setup_complete_community_graphrag_system():
     print("\n1️⃣ Configuring Gemini API...")
     import os
     # Check if API key is available
-    if not os.getenv("GOOGLE_API_KEY"):
-        print("❌ GOOGLE_API_KEY not found in environment variables")
+    if not os.getenv("OPENAI_API_KEY"):
+        print("❌ OPENAI_API_KEY not found in environment variables")
         print("Please get your API key from: https://aistudio.google.com/app/apikey")
         return None, None
     try:
-     llm = Gemini(
-             model="models/gemini-2.5-flash",  # Optimal for GraphRAG tasks
+     llm = OpenAI(
+             model="gpt-4o",  # Optimal for GraphRAG tasks
              temperature=0.1,  # Consistent for entity extraction
              max_tokens=2048   # Sufficient for community analysis
          )
          
          # Test the connection
      test_response = llm.complete("Test connection")
-     print(f"✓ Gemini API connected successfully")
+     print(f"✓ API connected successfully")
          
     except Exception as e:
-        print(f"❌ Gemini API setup failed: {e}")
+        print(f"❌ API setup failed: {e}")
         print("Check your API key and internet connection")
         return None, None
     
