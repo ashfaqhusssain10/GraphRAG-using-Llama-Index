@@ -683,18 +683,18 @@ class GraphRAGTemplateEngine:
         
         # SURGICAL CHANGE 3: Sort by relevance and take top 15
         community_candidates.sort(key=lambda x: x[3], reverse=True)  # Sort by score (index 3)
-        top_15_communities = community_candidates[:15]
+        top_3_communities = community_candidates[:3]
         
         # Build community summaries from top 15
         community_summaries_text = []
-        for community_id, dish_name, summary, score in top_15_communities:
+        for community_id, dish_name, summary, score in top_3_communities:
             community_summaries_text.append(
                 f"Community Summary for '{dish_name}' (ID: {community_id}, Score: {score:.2f}):\n{summary}"
             )
         
         # Finally, gather ingredients for these TOP 15 dishes to enrich context  
         ingredient_details = []
-        top_dish_names = {dish_name for _, dish_name, _, _ in top_15_communities}
+        top_dish_names = {dish_name for _, dish_name, _, _ in top_3_communities}
         
         for dish_name in top_dish_names:
             # Query for ingredients linked to this dish
@@ -719,13 +719,13 @@ class GraphRAGTemplateEngine:
         print(f"\n🏗️ COMMUNITY SUMMARIES CONSTRUCTION DEBUG:")
         print(f"   Method called for: {category} / {event_type}")
         print(f"   Found {len(community_candidates)} total relevant community IDs")
-        print(f"   🎯 FILTERED TO TOP 15 communities (was {len(community_candidates)})")
+        print(f"   🎯 FILTERED TO TOP 3 communities (was {len(community_candidates)})")
         print(f"   Generated {len(community_summaries_text)} community summary blocks")
         print(f"   Generated {len(ingredient_details)} ingredient detail blocks")
         
         # Show top 5 communities for debugging
-        print(f"   🏆 TOP 5 COMMUNITIES BY RELEVANCE:")
-        for i, (cid, dish, _, score) in enumerate(top_15_communities[:5], 1):
+        print(f"   🏆 TOP 3 COMMUNITIES BY RELEVANCE:")
+        for i, (cid, dish, _, score) in enumerate(top_3_communities[:3], 1):
             print(f"      {i}. Community {cid} ({dish}): Score {score:.2f}")
         
         final_result = "\n\n" + "\n\n".join(all_insights) if all_insights else ""
@@ -734,7 +734,7 @@ class GraphRAGTemplateEngine:
         if not all_insights:
             print("   ❌ WARNING: No community insights generated!")
         else:
-            print(f"   ✅ Community insights successfully generated (TOP 15)")
+            print(f"   ✅ Community insights successfully generated (TOP 3)")
         
         return final_result
 

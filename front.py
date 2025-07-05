@@ -385,8 +385,10 @@ def parse_quantity(qty):
         return value / 1000, "l"
     else:
         return value, unit # Return as is if unit is unknown
-
 def calculate_template_price(template, price_file="items_price_uom.json", use_peak=False):
+    """
+    FIXED: Properly handles unit conversions from GraphRAG quantities
+    """
     # Try both relative and absolute paths
     if not os.path.exists(price_file):
         abs_path = os.path.join(os.path.dirname(__file__), price_file)
@@ -416,31 +418,99 @@ def calculate_template_price(template, price_file="items_price_uom.json", use_pe
         if price_info:
             qty_str = item.get("quantity", "0")
             
-            # --- START: Simplified Quantity Logic ---
-            # Directly use the numeric part of the quantity string from the backend
-            numeric_part_match = re.search(r"[\d\.]+", str(qty_str))
-            if numeric_part_match:
-                quantity_val = float(numeric_part_match.group(0))
-            else:
-                quantity_val = 0
-            # --- END: Simplified Quantity Logic ---
-
+            # ===== FIXED QUANTITY PARSING =====
+            # Parse both number and unit properly
+            quantity_val, actual_unit = parse_quantity_with_unit(qty_str)
+            
+            if quantity_val == 0:
+                continue
+                
             item_price = price_info[price_key]
+            json_uom = price_info["uom"].lower()
             
-            # Adjust price based on UOM
-            uom = price_info["uom"].lower()
-            if uom == 'kg':
-                total_price += item_price * quantity_val
-            elif uom == 'pcs':
-                total_price += item_price * quantity_val
-            else: # Default for g, ml, etc.
-                total_price += (item_price / 1000) * quantity_val # Assuming price is per 1000 units (kg/l)
+            # Calculate the actual cost based on proper unit conversion
+            calculated_cost = calculate_cost_with_proper_units(
+                item_price, quantity_val, actual_unit, json_uom
+            )
             
-            item_prices[item_name] = total_price - sum(item_prices.values())
+            total_price += calculated_cost
+            item_prices[item_name] = calculated_cost
+            
+            # Debug output
+            print(f"🔍 {item_name}: {quantity_val}{actual_unit} @ ₹{item_price}/{json_uom} = ₹{calculated_cost:.2f}")
 
-    return total_price, item_prices
+    return round(total_price, 2), item_prices
 
-    return round(total_price, 2)
+def parse_quantity_with_unit(qty_str):
+    """
+    FIXED: Parse quantity string to extract both number and unit
+    Examples: "55g" -> (55, "g"), "0.274Kg" -> (0.274, "kg"), "1Pcs" -> (1, "pcs")
+    """
+    import re
+    
+    # Match number followed by optional unit
+    match = re.match(r"([\d\.]+)\s*([a-zA-Z]*)", str(qty_str).strip())
+    
+    if not match:
+        return 0, "unknown"
+    
+    quantity = float(match.group(1))
+    unit = match.group(2).lower() if match.group(2) else "unknown"
+    
+    # Normalize common unit variations
+    unit_mapping = {
+        "g": "g", "gm": "g", "grams": "g",
+        "kg": "kg", "kgs": "kg", "kilogram": "kg",
+        "pcs": "pcs", "pc": "pcs", "piece": "pcs", "pieces": "pcs",
+        "ml": "ml", "milliliter": "ml", "millilitre": "ml",
+        "l": "l", "liter": "l", "litre": "l"
+    }
+    
+    normalized_unit = unit_mapping.get(unit, unit)
+    return quantity, normalized_unit
+
+def calculate_cost_with_proper_units(item_price, quantity, quantity_unit, price_unit):
+    """
+    FIXED: Calculate cost with proper unit conversion
+    
+    Args:
+        item_price: Price from JSON (e.g., ₹799)
+        quantity: Quantity value (e.g., 55)
+        quantity_unit: Unit from GraphRAG (e.g., "g")
+        price_unit: Unit from JSON (e.g., "kg")
+    """
+    
+    # If units match, simple multiplication
+    if quantity_unit == price_unit:
+        return item_price * quantity
+    
+    # Handle weight conversions
+    if quantity_unit == "g" and price_unit == "kg":
+        # Convert grams to kg: 55g = 0.055kg
+        return item_price * (quantity / 1000)
+    
+    elif quantity_unit == "kg" and price_unit == "g":
+        # Convert kg to grams: 0.274kg = 274g  
+        return (item_price / 1000) * (quantity * 1000)
+    
+    # Handle volume conversions
+    elif quantity_unit == "ml" and price_unit == "l":
+        # Convert ml to liters: 250ml = 0.25l
+        return item_price * (quantity / 1000)
+    
+    elif quantity_unit == "l" and price_unit == "ml":
+        # Convert liters to ml: 0.5l = 500ml
+        return (item_price / 1000) * (quantity * 1000)
+    
+    # Handle pieces - no conversion needed
+    elif quantity_unit == "pcs" and price_unit == "pcs":
+        return item_price * quantity
+    
+    # Fallback: assume same scale if we can't convert
+    else:
+        print(f"⚠️ Unit conversion warning: {quantity_unit} vs {price_unit} - using direct multiplication")
+        return item_price * quantity
+
 _CACHED_GRAPHRAG_ENGINE = None
 def get_recommendation_with_insights(event_type, budget_per_head, use_peak=True):
     """
@@ -728,7 +798,7 @@ try:
                 # Calculate total add-on price
                 try:
                     addon_template = {"items": st.session_state['addon_items']}
-                    addon_price = calculate_template_price(addon_template, use_peak=True)
+                    addon_price,_ = calculate_template_price(addon_template, use_peak=True)
                     st.success(f"Total Add-on Price: ₹{addon_price}")
                 except Exception as e:
                     st.error(f"Could not calculate price: {e}")
